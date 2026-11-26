@@ -372,6 +372,77 @@ footer strong{color:var(--text)}
 .cs-p{display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text-2)}
 .cs-p .flag{width:18px;height:12px}
 .cs-grid .ce{justify-content:flex-start}
+/* calendario v16: resumen por fases y vista por país con pasos desplegables */
+.calTabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--border);margin:0 0 12px}
+.calTabs button,.calTabs button:hover:not(:disabled){display:inline-flex;align-items:center;gap:8px;background:transparent;border:0;
+  border-bottom:2px solid transparent;border-radius:0;color:var(--text-2);padding:8px 12px;font-weight:500}
+.calTabs button:hover:not(:disabled){color:var(--text)}
+.calTabs button[aria-selected="true"],.calTabs button[aria-selected="true"]:hover:not(:disabled){color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.c2r-wrap{border:1px solid var(--border);border-radius:var(--r-c);overflow-x:auto}
+.c2r-wrap table{min-width:760px;table-layout:fixed}
+.c2r-wrap th,.c2r-wrap td{text-align:left;vertical-align:top;white-space:normal;padding:12px 16px;border-left:1px solid var(--border-2)}
+.c2r-wrap thead th{position:static;font-size:.875rem;padding:8px 16px}
+.c2r-wrap th:first-child,.c2r-wrap td:first-child{border-left:0;width:24%}
+.c2r-wrap tbody tr:last-child td{border-bottom:0}
+.fzb,.fzb:hover:not(:disabled){display:block;width:100%;text-align:left;background:transparent;border:0;padding:0;color:var(--text);font-weight:400}
+.fzb:hover:not(:disabled) .fz-r{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.fz-r{display:block;font-size:1rem;font-weight:600}
+.fz-n{display:block;font-size:.75rem;color:var(--text-2);margin:2px 0 4px}
+.c2r-m{display:none}
+.c2rm,.c2rm:hover:not(:disabled){display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-c);padding:12px;color:var(--text);font-weight:400}
+.c2rm:hover:not(:disabled){border-color:var(--accent)}
+.c2rm .cs-p{font-size:.875rem;font-weight:600;color:var(--text);margin-bottom:4px}
+.c2rm-l{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:.8125rem;padding:6px 0;border-top:1px solid var(--border-2)}
+.c2rm-l>span:first-child{color:var(--text-2)}
+.c2-bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:0 0 4px}
+.c2-bar #c2Abrir{margin-left:auto}
+.c2-fase{font-size:.8125rem;font-weight:600;color:var(--text-2);margin:20px 0 8px;scroll-margin-top:72px}
+.c2-pasos{border:1px solid var(--border);border-radius:var(--r-b);overflow:hidden;background:var(--surface)}
+details.c2p{border-top:1px solid var(--border-2)}
+details.c2p:first-child{border-top:0}
+details.c2p>summary{list-style:none;display:grid;grid-template-columns:76px minmax(0,1fr) minmax(120px,auto) 16px;gap:12px;
+  align-items:start;padding:12px 16px;cursor:pointer;transition:background-color .15s}
+details.c2p>summary::-webkit-details-marker{display:none}
+details.c2p>summary:hover,details.c2p[open]>summary{background:var(--bg)}
+.c2-f small{display:block;font-size:.75rem;color:var(--text-2)}
+.c2-f b{font-size:1rem;font-weight:600}
+.c2-f b.sinf{font-size:.8125rem;font-weight:500;color:var(--text-2)}
+.c2-n{display:block;font-size:.875rem;font-weight:600}
+.c2-q{display:block;font-size:.8125rem;color:var(--text-2);margin-top:2px}
+.c2-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.tag{font-size:.75rem;padding:0 6px;border-radius:var(--r-c);background:var(--surface-2);color:var(--text-2)}
+.c2-st{text-align:right;font-size:.8125rem}
+.c2-st small{display:block;font-size:.75rem;color:var(--text-2);margin-top:2px}
+.c2-chev{width:8px;height:8px;border-right:2px solid var(--text-2);border-bottom:2px solid var(--text-2);transform:rotate(45deg);
+  margin-top:6px;transition:transform .15s}
+details.c2p[open] .c2-chev{transform:rotate(-135deg);margin-top:10px}
+.c2-det{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:24px;padding:4px 16px 16px 104px;font-size:.8125rem;line-height:1.5}
+.c2-det h4{font-size:.75rem;font-weight:600;color:var(--text-2);margin:12px 0 4px}
+.c2-det p{margin:0}
+.c2-det ol{margin:0;padding-left:18px}
+.c2-det li{margin:0 0 6px}
+.c2-det li b{font-weight:600}
+.c2-kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:4px 12px;margin:12px 0 0}
+.c2-kv dt{color:var(--text-2)}
+.c2-kv dd{margin:0}
+.c2-ins{margin:0;padding-left:18px}
+.c2-ins span{color:var(--text-2)}
+.c2-aj{margin-top:12px;padding:8px 12px 12px;border:1px solid var(--border);border-radius:var(--r-c);background:var(--bg)}
+.c2-aj h4{margin-top:4px}
+.c2-aj .c2-kv{margin-top:4px}
+details.c2-areas{margin-top:20px;border:1px solid var(--border);border-radius:var(--r-b);background:var(--surface)}
+details.c2-areas>summary{cursor:pointer;padding:12px 16px;font-size:.8125rem;font-weight:600}
+.c2-ar{margin:0;padding:0 16px 12px;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px 24px;font-size:.8125rem}
+.c2-ar b{display:block;font-weight:600}
+.c2-ar span{color:var(--text-2)}
+@media (max-width:760px){
+  details.c2p>summary{grid-template-columns:60px minmax(0,1fr) 16px}
+  .c2-st{grid-column:2;text-align:left}
+  .c2-det{grid-template-columns:1fr;gap:0;padding:4px 16px 16px}
+  .c2-kv{grid-template-columns:100px minmax(0,1fr)} }
+@media (max-width:640px){ .c2r-wrap{display:none} .c2r-m{display:grid;gap:8px} .c2-bar #c2Abrir{margin-left:0}
+  .calTabs{flex-wrap:nowrap;overflow-x:auto} .calTabs button{flex:none} }
 </style>
 </head>
 <body>
@@ -399,7 +470,9 @@ footer strong{color:var(--text)}
         <button class="ghost small" id="calImg">Descargar imagen</button>
         <button class="ghost small" id="calCopiar">Copiar tabla para correo</button></span></div>
     <div class="bd">
+      <div class="calTabs hidden" role="tablist" aria-label="Vista del calendario" id="calTabs"></div>
       <p class="cal-res" id="calRes"></p>
+      <div id="cal2" class="hidden"><div id="cal2Body"></div></div>
       <div class="cal-scroll hidden" id="calMatW"><div id="calMat"></div></div>
       <div id="calLista"></div>
       <p class="note" id="calPie"></p>
@@ -603,11 +676,18 @@ footer strong{color:var(--text)}
     </div>
    </div>
    <div id="cfgGeneral">
+    <h3 id="cfgProc">Proceso de cuotas</h3>
+    <p class="note">Sube el archivo <strong>calendario_proceso.json</strong> que genera Claude Code. Define los pasos de cada país, quién
+      participa y cómo se construye la cuota. Queda guardado en Firebase y solo lo ven quienes inician sesión. Vuelve a subirlo cuando el
+      proceso cambie.</p>
+    <div class="fila"><input type="file" id="procFile" accept=".json,application/json" style="max-width:260px"><button id="procPub">Publicar proceso</button></div>
+    <p class="note" id="procInfo" style="margin-top:8px"></p>
+    <p class="msg" id="procMsg"></p>
+    <hr>
     <h3 id="cfgCal">Calendario de cuotas</h3>
-    <p class="note">Pega la tabla desde Excel con estos encabezados: <strong>PAIS, PASO, ENTREGABLE, RESPONSABLE, PERSONA, ENTREGA A,
-      FECHA LIMITE, FECHA REAL</strong>. Una fila por país y paso; los pasos salen en el orden en que aparecen. RESPONSABLE es el rol
-      (por ejemplo Gerente comercial) y PERSONA, el nombre en ese país. Deja FECHA REAL vacía mientras el paso no se cumpla; no se aceptan
-      fechas reales posteriores a hoy. Reemplaza el calendario publicado.</p>
+    <p class="note">Fechas del mes. Descarga la plantilla: ya trae los pasos de cada país del proceso publicado. Llena
+      <strong>PERSONA, FECHA LIMITE y FECHA REAL</strong> y pega la tabla aquí. Deja FECHA REAL vacía mientras el paso no se cumpla; no se
+      aceptan fechas reales posteriores a hoy. Reemplaza las fechas publicadas.</p>
     <div class="fila">
       <div><label for="calPerIn">Periodo</label><input type="text" id="calPerIn" placeholder="Cuota de diciembre 2026"></div>
       <div><label for="calDias">Desfase en</label>
@@ -1779,7 +1859,7 @@ function verPortal(){
   ["gate","app","foot"].forEach(x=>$(x).classList.add("hidden"));
   $("portal").classList.remove("hidden");
   pintaPortal();
-  if(isAdmin){ cfgEnPortal(); if(CAL){ $("calPerIn").value=CAL.periodo||""; $("calDias").value=CAL.dias||"habiles"; } }
+  if(isAdmin){ cfgEnPortal(); pintaProcInfo(); if(CAL){ $("calPerIn").value=CAL.periodo||""; $("calDias").value=CAL.dias||"habiles"; } }
 }
 function irA(pc,mod){
   pais=PAISES.find(p=>p.cod===pc); destino=mod;
@@ -1817,7 +1897,7 @@ function showApp(){
   $("whoAmI").textContent = me + (isAdmin ? ", administrador" : soloLectura ? ", solo lectura" : "");
   if(isAdmin){
     $("toggleAdmin").classList.remove("hidden");
-    cfgEnModulo();
+    cfgEnModulo(); pintaProcInfo();
     $("dOpen").value=M("openAt")||""; $("dClose").value=M("closeAt")||"";
     pintaEmg();
     if(CAL){ $("calPerIn").value=CAL.periodo||""; $("calDias").value=CAL.dias||"habiles"; }
@@ -1902,7 +1982,7 @@ function calExtras(M,f){
   if(!M.ent[f.hi] && f.entregable) o.push("Entregable: "+f.entregable);
   return o;
 }
-function pintaCalendario(){
+function pintaCalendarioSimple(){
   const M=calModelo(), hay=M.filas.some(f=>f.plan);
   $("calPer").textContent=(CAL&&CAL.periodo)||"";
   $("calEj").classList.toggle("hidden",!(CAL&&CAL.ejemplo));
@@ -1965,7 +2045,7 @@ $("calVSeg").onclick=()=>{ calVista="seg"; try{ localStorage.setItem("calVista",
 /* ----- imagen PNG para adjuntar al correo (usa la vista elegida) ----- */
 const CALC={t:"#1D232B",t2:"#5B6470",b:"#D0D5DB",b2:"#E6E9ED",s2:"#ECEEF1",ac:"#4F2170",
   ok:["#2F7A47","#E4F3E7"], late:["#B3392B","#F9E7E3"], risk:["#7A5A10","#FBF0D0"], pend:["#5B6470","#ECEEF1"]};
-async function calImagen(){
+async function calImagenSimple(){
   const M=calModelo(); if(!M.pasos.length) return;
   try{ await document.fonts.ready; }catch(e){}
   const F="'IBM Plex Sans','Segoe UI',Arial,sans-serif", S=2, P=32, c0=290, cR=M.colResp?175:0, cE=M.colRec?165:0, cw=200;
@@ -2042,7 +2122,7 @@ async function calImagen(){
     a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); },"image/png");
 }
 /* ----- tabla con estilos propios para pegar en el cuerpo del correo (usa la vista elegida) ----- */
-function calHtmlCorreo(){
+function calHtmlCorreoSimple(){
   const M=calModelo(), ff="font-family:'Segoe UI',Arial,sans-serif;", td="padding:8px 12px;border:1px solid "+CALC.b+";vertical-align:top;"+ff;
   const th=td+"background:"+CALC.s2+";text-align:left", gris=s=>'<span style="color:'+CALC.t2+';font-size:12px">'+s+'</span>';
   let t='<p style="'+ff+'font-size:16px;font-weight:600;color:'+CALC.t+';margin:0 0 4px">Calendario de cuotas'+
@@ -2113,6 +2193,8 @@ function leerCalendario(text){
     if(!plan){ err.push("fila "+(i+1)+": fecha límite \""+(v[iA]||"")+"\" no válida"); continue; }
     if(real===null){ err.push("fila "+(i+1)+": fecha real \""+(v[iB]||"")+"\" no válida"); continue; }
     if(real && real>hoy){ err.push("fila "+(i+1)+": la fecha real "+fCorta(real)+" es posterior a hoy; déjala vacía si el paso no se ha cumplido"); continue; }
+    if(PROC && PROC.paises){ const pp=procPais(p.cod);
+      if(pp && !pp.pasos.some(s=>nrm(s.nombre)===nrm(paso))){ err.push("fila "+(i+1)+": el paso \""+paso+"\" no está en el proceso de "+p.nombre+" (usa la plantilla)"); continue; } }
     out.push({pais:p.cod, paso, entregable:v_(v,iE), resp:v_(v,iR), persona:v_(v,iN), recibe:v_(v,iC), plan, real});
   }
   if(err.length) throw new Error("No se publicó. Corrige: "+err.slice(0,6).join("; ")+(err.length>6?"; y "+(err.length-6)+" más":"")+
@@ -2135,10 +2217,290 @@ $("calPub").onclick=async()=>{
   }catch(e){ m.className="msg err"; m.textContent=(e&&e.message)||String(e); }
 };
 $("calPlant").onclick=()=>{
+  if(PROC && PROC.paises && PROC.paises.length){
+    const mes={}; ((CAL&&CAL.filas)||[]).forEach(x=>mes[x.pais+"|"+nrm(x.paso)]=x);
+    const f=PAISES.filter(p=>procPais(p.cod)).flatMap(p=>[...procPais(p.cod).pasos].sort((a,b)=>a.orden-b.orden).map(s=>{
+      const x=mes[p.cod+"|"+nrm(s.nombre)]||{}; return [p.cod,s.nombre,x.persona||"",x.plan||"",x.real||""]; }));
+    csvDump("plantilla_calendario.csv",["PAIS","PASO","PERSONA","FECHA LIMITE","FECHA REAL"],f); return;
+  }
   const f=(CAL&&CAL.filas&&CAL.filas.length)
     ? CAL.filas.map(x=>[x.pais,x.paso,x.entregable||"",x.resp||"",x.persona||"",x.recibe||"",x.plan||"",x.real||""])
     : PAISES.flatMap(p=>PASOS_BASE.map(ps=>[p.cod,ps,"","","","","",""]));
   csvDump("plantilla_calendario.csv",["PAIS","PASO","ENTREGABLE","RESPONSABLE","PERSONA","ENTREGA A","FECHA LIMITE","FECHA REAL"],f);
+};
+
+/* ---------- proceso de cuotas (JSON de Claude Code) y calendario dinámico ---------- */
+let PROC=null, calTab="res", calFP="todos", calFC="todos";
+const FASES=[["prop","Propuesta"],["aj","Ajustes de los equipos"],["car","Cargas a sistemas"],["com","Comunicación"]];
+const nrm=s=>String(s??"").trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+const hayProc=()=>!!(PROC && Array.isArray(PROC.paises) && PROC.paises.length);
+/* fase de cada paso: la del JSON si la trae; si no, por su nombre */
+function faseDe(p){
+  if(p.fase){ const f=FASES.find(x=>x[0]===p.fase||nrm(x[1])===nrm(p.fase)); if(f) return f[0]; }
+  const n=nrm(p.nombre);
+  if(/comunicac/.test(n)) return "com";
+  if(/carga/.test(n)) return "car";
+  if(/propuesta|insumo|appa/.test(n)) return "prop";
+  return "aj";
+}
+function procPais(cod){ return hayProc() ? PROC.paises.find(p=>p.pais===cod) : null; }
+/* pasos de un país, con sus fechas del mes (CAL) */
+function pasosDe(cod){
+  const pp=procPais(cod); if(!pp) return [];
+  const mes={}; calFilas().filter(f=>f.cod===cod).forEach(f=>mes[nrm(f.hito)]=f);
+  return [...pp.pasos].sort((a,b)=>a.orden-b.orden).map(p=>({...p, fase:faseDe(p), m:mes[nrm(p.nombre)]||null}));
+}
+const pasaFiltro=p=>(calFP==="todos"||(p.aplica_a||[]).includes(calFP)) && (calFC==="todos"||(p.canal||[]).includes(calFC));
+function faseResumen(cod,f){
+  const ps=pasosDe(cod).filter(p=>p.fase===f); if(!ps.length) return null;
+  const fs=ps.map(p=>p.m&&p.m.plan).filter(Boolean).sort();
+  return {n:ps.length, ini:fs[0]||"", fin:fs[fs.length-1]||"",
+    tarde:ps.filter(p=>p.m&&(p.m.estado==="retrasado"||p.m.estado==="abierto")).length, hechos:ps.filter(p=>p.m&&p.m.real).length};
+}
+const rango=r=>!r.ini ? "Sin fecha" : r.ini===r.fin ? fDia(r.ini)+" "+fCorta(r.ini) : fCorta(r.ini)+" al "+fCorta(r.fin);
+const estadoFase=r=>r.tarde ? ["late", r.tarde===1?"1 con retraso":r.tarde+" con retraso"]
+  : r.hechos===r.n ? ["ok","Cumplido"] : r.hechos ? ["pend",r.hechos+" de "+r.n+" cumplidos"] : ["pend","Pendiente"];
+/* frase de arriba: plan o seguimiento, del resumen o del país elegido */
+function c2Sub(){
+  const seg=calVista==="seg", hoy=isoDe(new Date());
+  const ps = calTab==="res" ? PAISES.flatMap(p=>pasosDe(p.cod).map(s=>({...s,cod:p.cod}))) : pasosDe(calTab).filter(pasaFiltro).map(s=>({...s,cod:calTab}));
+  const fs=ps.map(p=>p.m&&p.m.plan).filter(Boolean).sort();
+  if(!fs.length) return {pre:"Todavía no hay fechas publicadas para este mes.", b:"", post:"", vacio:true};
+  if(seg){
+    const t=ps.filter(p=>p.m&&(p.m.estado==="retrasado"||p.m.estado==="abierto"));
+    if(!t.length) return {pre:"Al "+fCorta(hoy)+": ", b:"ningún paso con retraso", post:".", ok:true};
+    return {pre:"Al "+fCorta(hoy)+": ", b:t.length+(t.length===1?" paso con retraso":" pasos con retraso"),
+      post:": "+t.map(p=>(calTab==="res"?p.cod+" ":"")+p.nombre.toLowerCase()+" ("+(p.m.estado==="abierto"?"+"+p.m.dif+" d, abierto":"+"+p.m.dif+" d")+")").join(", ")+"."};
+  }
+  return {pre: calTab==="res"
+    ? "Del "+fCorta(fs[0])+" al "+fCorta(fs[fs.length-1])+". Elige un país para ver cada paso, quién lo hace y cómo se construye la cuota."
+    : ps.length+(ps.length===1?" paso":" pasos")+", del "+fCorta(fs[0])+" al "+fCorta(fs[fs.length-1])+". Abre cada paso para ver su detalle.", b:"", post:""};
+}
+const subTexto=s=>s.pre+s.b+s.post;
+function c2Pie(){
+  const seg=calVista==="seg";
+  return (seg ? "Desfase en "+((CAL&&CAL.dias)==="calendario"?"días calendario":"días hábiles, de lunes a viernes, sin feriados")+". " : "")+
+    (CAL&&CAL.at ? "Fechas actualizadas el "+fCorta(String(CAL.at).slice(0,10))+". " : "")+
+    (PROC&&PROC.generado ? "Proceso documentado el "+fCorta(String(PROC.generado).slice(0,10))+"." : "");
+}
+function resumenHTML(paises,seg){
+  let t='<div class="c2r-wrap"><table><thead><tr><th>Fase</th>'+paises.map(p=>'<th><span class="thf">'+bandera(p.cod)+esc(p.nombre)+'</span></th>').join("")+
+    '</tr></thead><tbody>';
+  FASES.forEach(([f,nom],i)=>{
+    t+='<tr><td><div class="cp"><i class="cp-n">'+(i+1)+'</i><div><b>'+nom+'</b></div></div></td>';
+    paises.forEach(p=>{ const r=faseResumen(p.cod,f);
+      if(!r){ t+='<td class="vac">–</td>'; return; }
+      const e=estadoFase(r);
+      t+='<td><button class="fzb" data-ir="'+p.cod+'" data-f="'+f+'" title="Ver los pasos de '+esc(p.nombre)+'"><span class="fz-r">'+rango(r)+'</span>'+
+        '<span class="fz-n">'+r.n+(r.n===1?" paso":" pasos")+'</span>'+(seg?'<span class="est '+e[0]+'">'+e[1]+'</span>':'')+'</button></td>'; });
+    t+='</tr>';
+  });
+  t+='</tbody></table></div><div class="c2r-m">';
+  paises.forEach(p=>{
+    t+='<button class="c2rm" data-ir="'+p.cod+'"><span class="cs-p">'+bandera(p.cod)+esc(p.nombre)+'</span>'+
+      FASES.map(([f,nom])=>{ const r=faseResumen(p.cod,f); if(!r) return ""; const e=estadoFase(r);
+        return '<span class="c2rm-l"><span>'+nom+'</span><span><b>'+rango(r)+'</b>'+(seg?' <span class="est '+e[0]+'">'+e[1]+'</span>':'')+'</span></span>'; }).join("")+'</button>';
+  });
+  return t+'</div>';
+}
+function pasoHTML(p,seg){
+  const m=p.m, plan=m&&m.plan;
+  const fecha=plan ? '<small>'+fDia(plan)+'</small><b>'+fCorta(plan)+'</b>' : '<small>&nbsp;</small><b class="sinf">Sin fecha</b>';
+  let der="";
+  if(seg && plan){ const e=estadoInfo(m); der='<span class="est '+e[0]+'">'+e[1]+'</span>'+(e[2]?'<small>'+e[2]+'</small>':''); }
+  else if(m && m.persona) der=esc(m.persona);
+  const tags=[...(p.aplica_a||[]).map(x=>x==="SI"?"Sell in":x==="SO"?"Sell out":x),...(p.canal||[])].map(t=>'<span class="tag">'+esc(t)+'</span>').join("");
+  let s='<details class="c2p"><summary><span class="c2-f">'+fecha+'</span><span><span class="c2-n">'+esc(p.orden)+'. '+esc(p.nombre)+'</span>'+
+    '<span class="c2-q">'+esc(p.responsable||"")+(p.entrega_a?', entrega a '+esc(p.entrega_a):'')+'</span><span class="c2-tags">'+tags+'</span></span>'+
+    '<span class="c2-st">'+der+'</span><span class="c2-chev" aria-hidden="true"></span></summary><div class="c2-det"><div>';
+  if(p.resumen) s+='<h4>Qué pasa</h4><p>'+esc(p.resumen)+'</p>';
+  if(p.detalle && p.detalle.length) s+='<h4>Cómo se construye</h4><ol>'+p.detalle.map(d=>'<li><b>'+esc(d.nombre)+'.</b> '+esc(d.explicacion)+'</li>').join("")+'</ol>';
+  s+='</div><div>';
+  const kv=[["Responsable",p.responsable],["Persona este mes",m&&m.persona],["Participan",(p.participan||[]).join(", ")],["Entregable",p.entregable],
+    ["Entrega a",p.entrega_a],["Sistema",p.sistema&&nrm(p.sistema)!=="sin dato"?p.sistema:""],
+    ["Plazo de referencia",p.plazo_referencial&&nrm(p.plazo_referencial)!=="sin dato"?p.plazo_referencial:""]].filter(x=>x[1]);
+  s+='<dl class="c2-kv">'+kv.map(([k,v])=>'<dt>'+k+'</dt><dd>'+esc(v)+'</dd>').join("")+'</dl>';
+  if(p.insumos && p.insumos.length) s+='<h4>Insumos</h4><ul class="c2-ins">'+p.insumos.map(i=>'<li>'+esc(i.que)+(i.de?' <span>('+esc(i.de)+')</span>':'')+'</li>').join("")+'</ul>';
+  if(p.ajuste) s+='<div class="c2-aj"><h4>Ajuste</h4><dl class="c2-kv">'+[["Quién",p.ajuste.quien],["Nivel",p.ajuste.nivel],["Qué mueve",p.ajuste.que_mueve],["Reglas",p.ajuste.reglas]]
+    .filter(x=>x[1]).map(([k,v])=>'<dt>'+k+'</dt><dd>'+esc(v)+'</dd>').join("")+'</dl></div>';
+  return s+'</div></div></details>';
+}
+function areasHTML(cod){
+  const ps=pasosDe(cod), campos=ps.flatMap(p=>[p.responsable,p.entrega_a,...(p.participan||[]),...(p.insumos||[]).map(i=>i.de)]).filter(Boolean).map(nrm);
+  const txt=campos.join(" | ");
+  const as=(PROC.areas||[]).filter(a=>{ const base=nrm(String(a.nombre||"").split(" (")[0]);
+    return base && (txt.includes(base) || campos.some(c=>c.length>2 && base.includes(c))); });
+  if(!as.length) return "";
+  const pais=PAISES.find(x=>x.cod===cod);
+  return '<details class="c2-areas"><summary>Quién participa en '+esc(pais?pais.nombre:cod)+' ('+as.length+')</summary><ul class="c2-ar">'+
+    as.map(a=>'<li><b>'+esc(a.nombre)+'</b><span>'+esc(a.rol||"")+'</span></li>').join("")+'</ul></details>';
+}
+function paisHTML(cod,seg){
+  const pp=procPais(cod), todos=pasosDe(cod), ps=todos.filter(pasaFiltro), canales=(pp.canales||[]).filter(c=>todos.some(p=>(p.canal||[]).includes(c)));
+  const procs=["SI","SO"].filter(x=>todos.some(p=>(p.aplica_a||[]).includes(x)));
+  const grupo=(id,val,ops,lbl)=>'<span class="calVista" role="group" aria-label="'+lbl+'">'+ops.map(([v,t])=>'<button data-'+id+'="'+v+'" aria-pressed="'+(val===v)+'">'+t+'</button>').join("")+'</span>';
+  let s='<div class="c2-bar">'+(procs.length>1?grupo("fp",calFP,[["todos","Sell in y sell out"],...procs.map(x=>[x,x==="SI"?"Sell in":"Sell out"])],"Proceso"):"")+
+    (canales.length>1?grupo("fc",calFC,[["todos","Todos los canales"],...canales.map(c=>[c,c])],"Canal"):"")+
+    (ps.length?'<button class="ghost small" id="c2Abrir">Abrir todos</button>':'')+'</div>';
+  if(!ps.length) return s+'<p class="note" style="margin-top:12px">Ningún paso de '+esc(PAISES.find(x=>x.cod===cod).nombre)+' cumple el filtro.</p>';
+  FASES.forEach(([f,nom])=>{ const fs=ps.filter(p=>p.fase===f); if(!fs.length) return;
+    s+='<h3 class="c2-fase" id="c2f-'+f+'">'+nom+'</h3><div class="c2-pasos">'+fs.map(p=>pasoHTML(p,seg)).join("")+'</div>'; });
+  return s+areasHTML(cod);
+}
+function pintaCal2(){
+  const seg=calVista==="seg", paises=PAISES.filter(p=>procPais(p.cod));
+  if(calTab!=="res" && !procPais(calTab)) calTab="res";
+  $("calPer").textContent=(CAL&&CAL.periodo)||"";
+  $("calEj").classList.toggle("hidden",!(CAL&&CAL.ejemplo));
+  $("calBtns").classList.remove("hidden");
+  $("calVPlan").setAttribute("aria-pressed",String(!seg)); $("calVSeg").setAttribute("aria-pressed",String(seg));
+  $("calMatW").classList.add("hidden"); $("calMat").innerHTML=""; $("calLista").innerHTML="";
+  $("calTabs").classList.remove("hidden"); $("cal2").classList.remove("hidden");
+  $("calTabs").innerHTML='<button role="tab" data-t="res" aria-selected="'+(calTab==="res")+'">Resumen Pacífico</button>'+
+    paises.map(p=>'<button role="tab" data-t="'+p.cod+'" aria-selected="'+(calTab===p.cod)+'">'+bandera(p.cod)+esc(p.nombre)+'</button>').join("");
+  $("calTabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{ calTab=b.dataset.t; calFP="todos"; calFC="todos"; pintaCal2(); });
+  const S=c2Sub();
+  $("calRes").className="cal-res"+(seg&&!S.vacio?(S.ok?" sin":""):" plan");
+  $("calRes").innerHTML=esc(S.pre)+(S.b?"<b>"+esc(S.b)+"</b>":"")+esc(S.post)+
+    (S.vacio&&isAdmin?' <button class="small" data-cfg="cfgCal">Publicar fechas</button>':'');
+  const B=$("cal2Body");
+  B.innerHTML = calTab==="res" ? resumenHTML(paises,seg) : paisHTML(calTab,seg);
+  $("calPie").textContent=c2Pie();
+  B.querySelectorAll("[data-ir]").forEach(b=>b.onclick=()=>{
+    calTab=b.dataset.ir; calFP="todos"; calFC="todos"; const f=b.dataset.f; pintaCal2();
+    const el=f&&$("c2f-"+f); $("calTabs").scrollIntoView({behavior:"smooth",block:"start"});
+    if(el) setTimeout(()=>el.scrollIntoView({behavior:"smooth",block:"start"}),250);
+  });
+  B.querySelectorAll("[data-fp]").forEach(b=>b.onclick=()=>{ calFP=b.dataset.fp; pintaCal2(); });
+  B.querySelectorAll("[data-fc]").forEach(b=>b.onclick=()=>{ calFC=b.dataset.fc; pintaCal2(); });
+  const ab=$("c2Abrir");
+  if(ab){ const ds=[...B.querySelectorAll("details.c2p")], upd=()=>{ ab.textContent=ds.every(d=>d.open)?"Cerrar todos":"Abrir todos"; };
+    upd(); ab.onclick=()=>{ const abrir=!ds.every(d=>d.open); ds.forEach(d=>d.open=abrir); upd(); };
+    ds.forEach(d=>d.addEventListener("toggle",upd)); }
+}
+function pintaCalendario(){
+  if(hayProc()) return pintaCal2();
+  $("calTabs").classList.add("hidden"); $("cal2").classList.add("hidden");
+  return pintaCalendarioSimple();
+}
+
+/* ----- imagen y tabla para correo de la vista que se está mirando ----- */
+function c2Tabla(){
+  const seg=calVista==="seg", S=c2Sub();
+  if(calTab==="res"){
+    const paises=PAISES.filter(p=>procPais(p.cod));
+    return {titulo:"Calendario de cuotas"+(seg?", seguimiento":""), sub:subTexto(S), archivo:"calendario_cuotas_resumen"+(seg?"_seguimiento":""),
+      cols:[{t:"Fase",w:230},...paises.map(p=>({t:p.nombre,w:210,flag:p.cod}))],
+      filas:FASES.map(([f,nom],i)=>[[{t:(i+1)+". "+nom,w:600,s:15}],...paises.map(p=>{ const r=faseResumen(p.cod,f);
+        if(!r) return [{t:"–",c:"t2"}]; const e=estadoFase(r);
+        return [{t:rango(r),w:600,s:16},{t:r.n+(r.n===1?" paso":" pasos"),c:"t2",s:12},...(seg?[{chip:e[0],t:e[1]}]:[])]; })])};
+  }
+  const pais=PAISES.find(p=>p.cod===calTab), ps=pasosDe(calTab).filter(pasaFiltro);
+  const cols=[{t:"Fecha límite",w:120},{t:"Paso",w:290},{t:"Responsable",w:200},{t:"Entrega a",w:200},{t:"Entregable",w:300},{t:"Persona",w:170}];
+  if(seg) cols.push({t:"Estado",w:180});
+  return {titulo:"Calendario de cuotas, "+pais.nombre+(seg?", seguimiento":""), flag:pais.cod, sub:subTexto(S),
+    archivo:"calendario_cuotas_"+nrm(pais.nombre)+(seg?"_seguimiento":""), cols,
+    filas:ps.map(p=>{ const m=p.m, row=[
+      m&&m.plan ? [{t:fDia(m.plan),c:"t2",s:12},{t:fCorta(m.plan),w:600,s:16}] : [{t:"Sin fecha",c:"t2",s:13}],
+      [{t:p.orden+". "+p.nombre,w:600,s:14},{t:(FASES.find(x=>x[0]===p.fase)||["",""])[1],c:"t2",s:12}],
+      [{t:p.responsable||"–"}],[{t:p.entrega_a||"–"}],[{t:p.entregable||"–",c:"t2",s:13}],[{t:(m&&m.persona)||"–"}]];
+      if(seg) row.push(m&&m.plan ? (e=>[{chip:e[0],t:e[1]},...(e[2]?[{t:e[2],c:"t2",s:12}]:[])])(estadoInfo(m)) : [{t:"–",c:"t2"}]);
+      return row; })};
+}
+async function tablaPNG(T){
+  try{ await document.fonts.ready; }catch(e){}
+  const F="'IBM Plex Sans','Segoe UI',Arial,sans-serif", S=2, P=32;
+  const W0=T.cols.reduce((a,c)=>a+c.w,0), W=Math.max(1000,2*P+W0), cw=T.cols.map(c=>c.w*(W-2*P)/W0);
+  const cv=document.createElement("canvas"), x=cv.getContext("2d");
+  const fnt=(w,s)=>{ x.font=(w||400)+" "+(s||14)+"px "+F; }, lh=s=>Math.round((s||14)*1.45);
+  const wrap=(txt,maxW,maxL)=>{ const ws=String(txt).split(/\s+/), ls=[]; let c="";
+    for(const w of ws){ const p=c?c+" "+w:w; if(x.measureText(p).width<=maxW||!c) c=p; else { ls.push(c); c=w; } }
+    if(c) ls.push(c);
+    if(ls.length>maxL){ ls.length=maxL; let u=ls[maxL-1]; while(u.length>1 && x.measureText(u+"…").width>maxW) u=u.slice(0,-1); ls[maxL-1]=u+"…"; }
+    return ls; };
+  const med=T.filas.map(r=>r.map((cell,j)=>cell.map(pt=>{ if(pt.chip) return {pt,h:26}; fnt(pt.w,pt.s); const ls=wrap(pt.t,cw[j]-28,pt.l||4); return {pt,ls,h:ls.length*lh(pt.s)}; })));
+  const alto=med.map(r=>Math.max(...r.map(c=>c.reduce((a,b)=>a+b.h,0)))+28);
+  fnt(400,14); const sub=wrap(T.sub||"",W-2*P,3);
+  const yT=P+52+20+sub.length*20+16, altoT=40+alto.reduce((a,b)=>a+b,0), H=yT+altoT+20+36+P;
+  cv.width=W*S; cv.height=H*S; x.scale(S,S); x.textBaseline="top";
+  x.fillStyle="#fff"; x.fillRect(0,0,W,H);
+  const lg=$("pLogo"); let lx=P;
+  try{ const lw=40*lg.naturalWidth/lg.naturalHeight; x.drawImage(lg,P,P,lw,40); lx=P+lw+20; }catch(e){}
+  x.fillStyle=CALC.b; x.fillRect(lx-10,P,1,40);
+  let tx=lx+4; if(T.flag){ banderaCanvas(x,T.flag,tx,P+3,27,18); tx+=36; }
+  x.fillStyle=CALC.t; fnt(600,20); x.fillText(T.titulo,tx,P);
+  x.fillStyle=CALC.t2; fnt(400,14); x.fillText(((CAL&&CAL.periodo)?CAL.periodo+". ":"")+"Sales Operations Pacífico",lx+4,P+25);
+  x.fillStyle=CALC.t; fnt(400,14); sub.forEach((l,i)=>x.fillText(l,P,P+52+20+i*20));
+  x.fillStyle=CALC.s2; x.fillRect(P,yT,W-2*P,40);
+  let cx=P; T.cols.forEach((c,j)=>{ let hx=cx+14; if(c.flag){ banderaCanvas(x,c.flag,hx,yT+12,24,16); hx+=32; }
+    x.fillStyle=CALC.t; fnt(600,14); x.fillText(c.t,hx,yT+12); cx+=cw[j]; });
+  let y=yT+40;
+  med.forEach((r,i)=>{ let cx=P;
+    r.forEach((cell,j)=>{ if(j){ x.fillStyle=CALC.b2; x.fillRect(cx,y,1,alto[i]); } let yy=y+14;
+      cell.forEach(({pt,ls,h})=>{
+        if(pt.chip){ fnt(500,12); const w=x.measureText(pt.t).width+16, c=CALC[pt.chip]||CALC.pend;
+          x.fillStyle=c[1]; if(x.roundRect){ x.beginPath(); x.roundRect(cx+14,yy+2,w,20,4); x.fill(); } else x.fillRect(cx+14,yy+2,w,20);
+          x.fillStyle=c[0]; x.fillText(pt.t,cx+22,yy+6); }
+        else { x.fillStyle=pt.c==="t2"?CALC.t2:CALC.t; fnt(pt.w,pt.s); ls.forEach((l,k)=>x.fillText(l,cx+14,yy+k*lh(pt.s))); }
+        yy+=h; });
+      cx+=cw[j]; });
+    y+=alto[i]; x.fillStyle=CALC.b2; x.fillRect(P,y,W-2*P,1); });
+  x.strokeStyle=CALC.b; x.lineWidth=1; x.strokeRect(P+.5,yT+.5,W-2*P-1,altoT-1);
+  x.fillStyle=CALC.t2; fnt(400,12);
+  x.fillText(c2Pie()+((CAL&&CAL.ejemplo)?" Datos de ejemplo.":""),P,y+20);
+  x.fillText("Información confidencial de uso interno.",P,y+38);
+  cv.toBlob(b=>{ const a=document.createElement("a"); a.href=URL.createObjectURL(b);
+    a.download=T.archivo+((CAL&&CAL.periodo)?"_"+nrm(CAL.periodo).replace(/[^a-z0-9]+/g,"_"):"")+".png";
+    a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); },"image/png");
+}
+function tablaHTML(T){
+  const ff="font-family:'Segoe UI',Arial,sans-serif;", td="padding:8px 12px;border:1px solid "+CALC.b+";vertical-align:top;"+ff;
+  const th=td+"background:"+CALC.s2+";text-align:left";
+  const parte=pt=>pt.chip ? '<span style="color:'+(CALC[pt.chip]||CALC.pend)[0]+';font-size:12px;font-weight:600">'+esc(pt.t)+'</span>'
+    : '<span style="'+(pt.c==="t2"?'color:'+CALC.t2+';':'')+'font-size:'+(pt.s||13)+'px;'+(pt.w>=600?'font-weight:600;':'')+'">'+esc(pt.t)+'</span>';
+  return '<p style="'+ff+'font-size:16px;font-weight:600;color:'+CALC.t+';margin:0 0 4px">'+esc(T.titulo)+((CAL&&CAL.periodo)?': '+esc(CAL.periodo):'')+'</p>'+
+    '<p style="'+ff+'font-size:13px;color:'+CALC.t+';margin:0 0 12px">'+esc(T.sub||"")+'</p>'+
+    '<table style="border-collapse:collapse;'+ff+'font-size:13px;color:'+CALC.t+'"><tr>'+T.cols.map(c=>'<th style="'+th+'">'+esc(c.t)+'</th>').join("")+'</tr>'+
+    T.filas.map(r=>'<tr>'+r.map(cell=>'<td style="'+td+'">'+cell.map(parte).join("<br>")+'</td>').join("")+'</tr>').join("")+
+    '</table><p style="'+ff+'font-size:11px;color:'+CALC.t2+';margin:8px 0 0">'+esc(c2Pie())+((CAL&&CAL.ejemplo)?' Datos de ejemplo.':'')+'</p>';
+}
+async function calImagen(){ return hayProc() ? tablaPNG(c2Tabla()) : calImagenSimple(); }
+function calHtmlCorreo(){ return hayProc() ? tablaHTML(c2Tabla()) : calHtmlCorreoSimple(); }
+
+/* ----- publicar el proceso (solo administrador) ----- */
+function pintaProcInfo(){
+  const el=$("procInfo"); if(!el) return;
+  el.textContent = hayProc()
+    ? "Publicado: "+PROC.paises.length+" países, "+PROC.paises.reduce((a,p)=>a+(p.pasos||[]).length,0)+" pasos"+
+      (PROC.referencia?", referencia "+PROC.referencia:"")+(PROC.generado?", documentado el "+fCorta(String(PROC.generado).slice(0,10)):"")+"."
+    : "Todavía no hay un proceso publicado.";
+}
+function validarProceso(d){
+  if(!d || !Array.isArray(d.paises) || !d.paises.length) throw new Error("El archivo no trae la lista de países (paises). Revisa que sea calendario_proceso.json.");
+  const err=[];
+  d.paises.forEach(p=>{
+    if(!PAISES.some(q=>q.cod===p.pais)) err.push('país "'+p.pais+'" no reconocido');
+    if(!Array.isArray(p.pasos) || !p.pasos.length) err.push((p.pais||"?")+": no trae pasos");
+    else p.pasos.forEach((s,i)=>{ if(!s || !s.nombre) err.push((p.pais||"?")+": el paso "+(i+1)+" no tiene nombre"); });
+  });
+  if(err.length) throw new Error("No se publicó: "+err.slice(0,6).join("; ")+".");
+  /* se guardan solo los datos que muestra la web: quedan fuera las dudas y las notas internas */
+  const limpio={generado:d.generado||"", referencia:d.referencia||"", areas:Array.isArray(d.areas)?d.areas:[],
+    paises:d.paises.map(p=>({pais:p.pais, canales:p.canales||[], pasos:p.pasos.map((s,i)=>{ const {fuente_plazo,...r}=s; return {...r, orden:Number(s.orden)||i+1}; })})),
+    at:new Date().toISOString(), by:me};
+  return JSON.parse(JSON.stringify(limpio));
+}
+$("procPub").onclick=async()=>{
+  const m=$("procMsg"), f=$("procFile").files[0]; m.className="msg"; m.textContent="";
+  if(!f){ m.className="msg err"; m.textContent="Elige el archivo calendario_proceso.json."; return; }
+  try{
+    const txt=await f.text(); let d;
+    try{ d=JSON.parse(txt.replace(/^﻿/,"")); }catch(e){ throw new Error("El archivo no es un JSON válido. Revisa que sea el que generó Claude Code."); }
+    const limpio=validarProceso(d);
+    await setDoc(doc(dbF,"cfg","proceso"),limpio);
+    PROC=limpio; $("procFile").value=""; pintaProcInfo(); pintaCalendario();
+    m.className="msg ok"; m.textContent="Proceso publicado. Míralo en el calendario del inicio.";
+  }catch(e){ m.className="msg err"; m.textContent=(e&&e.message)||String(e); }
 };
 
 /* ---------- arranque ---------- */
@@ -2253,6 +2615,7 @@ async function alEntrar(user){
   base=await loadBase();
   try{ siBase=await loadSI(); }catch(e){ siBase=null; }
   try{ const d=await getDoc(doc(dbF,"cfg","calendario")); CAL=d.exists()?d.data():null; }catch(e){ CAL=null; }
+  try{ const d=await getDoc(doc(dbF,"cfg","proceso")); PROC=d.exists()?d.data():null; }catch(e){ PROC=null; }
   suscribir(); gMsg("");
   if(!destino){ verPortal(); return; }
   if(!base && destino==="si"){
