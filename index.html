@@ -346,6 +346,32 @@ footer strong{color:var(--text)}
 .vacio-cta p{margin:0 0 12px;font-size:.875rem}
 .admin .sh .cerrar{margin-left:auto}
 .cal-res.vacio button{margin-left:12px}
+#cfgModulo:not(.hidden)+#cfgGeneral{border-top:1px solid var(--border);margin-top:24px;padding-top:16px}
+.pmain #adminBox{margin-top:16px}
+/* calendario v15: vista plan y seguimiento; responsable y entregable visibles */
+.calVista{display:inline-flex;border:1px solid var(--border);border-radius:var(--r-c);overflow:hidden}
+.calVista button,.calVista button:hover:not(:disabled){border:0;border-radius:0;background:transparent;color:var(--text-2);padding:4px 12px;font-size:.8125rem}
+.calVista button:hover:not(:disabled){background:var(--surface-2);color:var(--text)}
+.calVista button[aria-pressed="true"],.calVista button[aria-pressed="true"]:hover:not(:disabled){background:var(--accent-bg);color:var(--accent);font-weight:600}
+.cal-res.plan{font-size:.875rem;font-weight:400;color:var(--text-2)}
+#calMat table{min-width:1000px}
+#calMat th:first-child,#calMat td:first-child{width:24%}
+#calMat th.cr,#calMat td.cr{width:13%}
+#calMat td.cr{font-size:.875rem}
+#calMat td.cr .var{color:var(--text-2);font-size:.75rem}
+.cp .ent{display:block;font-size:.75rem;color:var(--text-2);margin-top:2px}
+.cper{display:block;font-size:.8125rem;color:var(--text);margin-top:2px}
+.cs{border-top:1px solid var(--border-2);padding:12px 0}
+.cs:first-child{border-top:0;padding-top:0}
+.cs-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+.cs-meta div{background:var(--surface-2);border-radius:var(--r-c);padding:8px;font-size:.8125rem}
+.cs-meta span{display:block;font-size:.75rem;color:var(--text-2)}
+.cs-lbl{margin:12px 0 4px;font-size:.75rem;color:var(--text-2)}
+.cs-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.cs-grid>div{border:1px solid var(--border-2);border-radius:var(--r-c);padding:8px;min-width:0}
+.cs-p{display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text-2)}
+.cs-p .flag{width:18px;height:12px}
+.cs-grid .ce{justify-content:flex-start}
 </style>
 </head>
 <body>
@@ -368,7 +394,9 @@ footer strong{color:var(--text)}
   <section id="calSec">
     <div class="sh"><h2>Calendario de cuotas</h2><span class="note" id="calPer"></span>
       <span class="pill ej hidden" id="calEj">Datos de ejemplo</span>
-      <span class="calBtns hidden" id="calBtns"><button class="ghost small" id="calImg">Descargar imagen</button>
+      <span class="calBtns hidden" id="calBtns">
+        <span class="calVista" role="group" aria-label="Vista del calendario"><button id="calVPlan" aria-pressed="true">Plan</button><button id="calVSeg" aria-pressed="false">Seguimiento</button></span>
+        <button class="ghost small" id="calImg">Descargar imagen</button>
         <button class="ghost small" id="calCopiar">Copiar tabla para correo</button></span></div>
     <div class="bd">
       <p class="cal-res" id="calRes"></p>
@@ -507,8 +535,33 @@ footer strong{color:var(--text)}
 
 
 <section class="admin hidden" id="adminBox">
-  <div class="sh"><h2>Configuración, solo administrador</h2><button class="ghost small cerrar" id="cfgCerrar">Cerrar configuración</button></div>
+  <div class="sh"><h2 id="cfgTit">Configuración, solo administrador</h2></div>
   <div class="bd">
+   <div id="cfgModulo">
+    <div id="admSO">
+    <h3>Base del mes</h3>
+    <p class="note">Abre un CSV o pega <strong>Tbl_Live_SO</strong> con encabezados. Se resume por celda y Format Flavor antes de guardarse.</p>
+    <textarea id="raw" placeholder="Pega aquí la tabla desde Excel"></textarea>
+    <div class="fila">
+      <input type="file" id="csv" accept=".csv,.txt,.tsv" style="max-width:240px">
+      <button id="pub">Publicar base</button>
+    </div>
+    <p class="prog hidden" id="prog"></p>
+    <p class="msg" id="adminMsg"></p>
+    </div>
+
+    <div id="admSI">
+    <h3>Propuesta de sell in del mes</h3>
+    <p class="note">Abre el CSV <strong>Propuesta_SI_para_web</strong> que deja el proceso de Perú en
+      <strong>salidas\PE</strong>. Reemplaza la propuesta anterior; los ajustes guardados no se borran.</p>
+    <div class="fila">
+      <input type="file" id="csvSI" accept=".csv,.txt,.tsv" style="max-width:240px">
+      <button id="pubSI">Publicar propuesta de sell in</button>
+    </div>
+    <p class="msg" id="siMsg"></p>
+    </div>
+
+    <hr>
     <h3 id="vTitAdm">Ventana de registro</h3>
     <p class="note">Fuera de estas fechas, los editores solo pueden consultar este módulo. El bloqueo es automático.
       Sell in y sell out tienen ventanas separadas.</p>
@@ -534,59 +587,6 @@ footer strong{color:var(--text)}
     </div>
 
     <hr>
-    <h3 id="cfgClaves">Contraseñas de acceso</h3>
-    <p class="note">Hay una contraseña para ver y otra para editar; todo el equipo comparte la de su nivel.
-      Cámbialas cuando alguien deje el equipo y avisa: la anterior deja de funcionar. Las dos deben ser distintas.</p>
-    <div class="fila">
-      <div><label for="edNivel">Nivel</label>
-        <select id="edNivel"><option value="editor">Editores (ver y editar)</option><option value="lector">Lectores (solo ver)</option></select></div>
-      <div><label for="edAct">Contraseña actual de ese nivel</label><input type="password" id="edAct" autocomplete="off"></div>
-      <div><label for="edNue">Nueva contraseña (mínimo 8 caracteres)</label><input type="text" id="edNue" autocomplete="off"></div>
-      <button id="saveClaveEd">Cambiar contraseña</button>
-    </div>
-    <p class="msg" id="edMsg"></p>
-
-    <hr>
-    <h3 id="cfgCal">Calendario de cuotas</h3>
-    <p class="note">Pega la tabla desde Excel con estos encabezados: <strong>PAIS, PASO, RESPONSABLE, FECHA PLAN, FECHA REAL</strong>.
-      Una fila por país y paso; los pasos salen en el orden en que aparecen. Deja FECHA REAL vacía si el paso aún no se cumple.
-      Reemplaza el calendario publicado.</p>
-    <div class="fila">
-      <div><label for="calPerIn">Periodo</label><input type="text" id="calPerIn" placeholder="Cuota de diciembre 2026"></div>
-      <div><label for="calDias">Desfase en</label>
-        <select id="calDias"><option value="habiles">Días hábiles</option><option value="calendario">Días calendario</option></select></div>
-      <button class="ghost" id="calPlant">Descargar plantilla</button>
-    </div>
-    <textarea id="calRaw" placeholder="Pega aquí la tabla del calendario desde Excel"></textarea>
-    <div class="fila"><button id="calPub">Publicar calendario</button></div>
-    <p class="msg" id="calMsg"></p>
-
-    <div id="admSO">
-    <hr>
-    <h3>Base del mes</h3>
-    <p class="note">Abre un CSV o pega <strong>Tbl_Live_SO</strong> con encabezados. Se resume por celda y Format Flavor antes de guardarse.</p>
-    <textarea id="raw" placeholder="Pega aquí la tabla desde Excel"></textarea>
-    <div class="fila">
-      <input type="file" id="csv" accept=".csv,.txt,.tsv" style="max-width:240px">
-      <button id="pub">Publicar base</button>
-    </div>
-    <p class="prog hidden" id="prog"></p>
-    <p class="msg" id="adminMsg"></p>
-    </div>
-
-    <div id="admSI">
-    <hr>
-    <h3>Propuesta de sell in del mes</h3>
-    <p class="note">Abre el CSV <strong>Propuesta_SI_para_web</strong> que deja el proceso de Perú en
-      <strong>salidas\PE</strong>. Reemplaza la propuesta anterior; los ajustes guardados no se borran.</p>
-    <div class="fila">
-      <input type="file" id="csvSI" accept=".csv,.txt,.tsv" style="max-width:240px">
-      <button id="pubSI">Publicar propuesta de sell in</button>
-    </div>
-    <p class="msg" id="siMsg"></p>
-    </div>
-
-    <hr>
     <h3>Ajustes</h3>
     <p class="note">Un archivo por tipo de ajuste, para el proceso de Python: el de sell in va en
       <strong>ajustes\PE\sell_in</strong> y el de sell out en <strong>ajustes\PE\sell_out</strong>.
@@ -601,6 +601,37 @@ footer strong{color:var(--text)}
     <div class="fila">
       <button class="ghost small" id="exp">Exportar ambos (formato anterior)</button>
     </div>
+   </div>
+   <div id="cfgGeneral">
+    <h3 id="cfgCal">Calendario de cuotas</h3>
+    <p class="note">Pega la tabla desde Excel con estos encabezados: <strong>PAIS, PASO, ENTREGABLE, RESPONSABLE, PERSONA, ENTREGA A,
+      FECHA LIMITE, FECHA REAL</strong>. Una fila por país y paso; los pasos salen en el orden en que aparecen. RESPONSABLE es el rol
+      (por ejemplo Gerente comercial) y PERSONA, el nombre en ese país. Deja FECHA REAL vacía mientras el paso no se cumpla; no se aceptan
+      fechas reales posteriores a hoy. Reemplaza el calendario publicado.</p>
+    <div class="fila">
+      <div><label for="calPerIn">Periodo</label><input type="text" id="calPerIn" placeholder="Cuota de diciembre 2026"></div>
+      <div><label for="calDias">Desfase en</label>
+        <select id="calDias"><option value="habiles">Días hábiles</option><option value="calendario">Días calendario</option></select></div>
+      <button class="ghost" id="calPlant">Descargar plantilla</button>
+    </div>
+    <textarea id="calRaw" placeholder="Pega aquí la tabla del calendario desde Excel"></textarea>
+    <div class="fila"><button id="calPub">Publicar calendario</button></div>
+    <p class="msg" id="calMsg"></p>
+
+    <hr>
+    <h3 id="cfgClaves">Contraseñas de acceso</h3>
+    <p class="note">Hay una contraseña para ver y otra para editar; todo el equipo comparte la de su nivel.
+      Cámbialas cuando alguien deje el equipo y avisa: la anterior deja de funcionar. Las dos deben ser distintas.</p>
+    <div class="fila">
+      <div><label for="edNivel">Nivel</label>
+        <select id="edNivel"><option value="editor">Editores (ver y editar)</option><option value="lector">Lectores (solo ver)</option></select></div>
+      <div><label for="edAct">Contraseña actual de ese nivel</label><input type="password" id="edAct" autocomplete="off"></div>
+      <div><label for="edNue">Nueva contraseña (mínimo 8 caracteres)</label><input type="text" id="edNue" autocomplete="off"></div>
+      <button id="saveClaveEd">Cambiar contraseña</button>
+    </div>
+    <p class="msg" id="edMsg"></p>
+
+   </div>
   </div>
 </section>
 </div>
@@ -1432,13 +1463,28 @@ function irConfig(sec){
   setTimeout(()=>el.scrollIntoView({behavior:"smooth",block:"start"}),0);
 }
 $("toggleAdmin").onclick=()=>irConfig();
-$("cfgCerrar").onclick=()=>{ $("adminBox").classList.add("hidden"); window.scrollTo({top:0,behavior:"smooth"}); };
-$("pConfig").onclick=()=>{ irA("PE","so"); irConfig(); };
+$("pConfig").onclick=()=>irConfig();
+/* el panel se mueve: en el inicio muestra lo general (calendario y contraseñas); dentro de un módulo, todo */
+function cfgEnPortal(){
+  const caja=$("adminBox"), pm=document.querySelector(".pmain");
+  pm.insertBefore(caja, pm.lastElementChild);
+  $("cfgModulo").classList.add("hidden");
+  $("cfgTit").textContent="Configuración general, solo administrador";
+  caja.classList.remove("hidden");
+}
+function cfgEnModulo(){
+  const caja=$("adminBox");
+  $("app").appendChild(caja);
+  $("cfgModulo").classList.remove("hidden");
+  $("cfgTit").textContent="Configuración, solo administrador";
+  caja.classList.remove("hidden");
+}
 /* botones de los estados vacíos: data-cfg = sección de Configuración */
 document.addEventListener("click",e=>{
   const b=e.target.closest("[data-cfg]"); if(!b||!isAdmin) return;
-  if($("app").classList.contains("hidden") || (b.dataset.cfg==="admSO" && modulo!=="so") || (b.dataset.cfg==="admSI" && modulo!=="si"))
-    irA("PE", b.dataset.cfg==="admSI" ? "si" : "so");
+  const s=b.dataset.cfg, enApp=!$("app").classList.contains("hidden");
+  if((s==="admSO" && !(enApp && modulo==="so")) || (s==="admSI" && !(enApp && modulo==="si")))
+    irA("PE", s==="admSI" ? "si" : "so");
   irConfig(b.dataset.cfg);
 });
 $("override").addEventListener("change",e=>{ override=e.target.checked; draw(); });
@@ -1733,6 +1779,7 @@ function verPortal(){
   ["gate","app","foot"].forEach(x=>$(x).classList.add("hidden"));
   $("portal").classList.remove("hidden");
   pintaPortal();
+  if(isAdmin){ cfgEnPortal(); if(CAL){ $("calPerIn").value=CAL.periodo||""; $("calDias").value=CAL.dias||"habiles"; } }
 }
 function irA(pc,mod){
   pais=PAISES.find(p=>p.cod===pc); destino=mod;
@@ -1770,6 +1817,7 @@ function showApp(){
   $("whoAmI").textContent = me + (isAdmin ? ", administrador" : soloLectura ? ", solo lectura" : "");
   if(isAdmin){
     $("toggleAdmin").classList.remove("hidden");
+    cfgEnModulo();
     $("dOpen").value=M("openAt")||""; $("dClose").value=M("closeAt")||"";
     pintaEmg();
     if(CAL){ $("calPerIn").value=CAL.periodo||""; $("calDias").value=CAL.dias||"habiles"; }
@@ -1802,12 +1850,12 @@ function calFilas(){
   const hoy=isoDe(new Date()), pasos=calPasos(), out=[];
   for(const x of CAL.filas){
     const pi=PAISES.findIndex(p=>p.cod===x.pais); if(pi<0) continue;
-    const plan=x.plan||"", real=x.real||"";
+    const plan=x.plan||"", real=(x.real && x.real<=hoy) ? x.real : "";   // una fecha real futura no cuenta como cumplido
     let estado="pendiente", dif=null;
     if(!plan) estado="sin dato";
     else if(real){ dif=desfase(plan,real); estado = dif>0 ? "retrasado" : "a tiempo"; }
     else if(hoy>plan){ const n=desfase(plan,hoy); if(n>0){ dif=n; estado="abierto"; } }
-    out.push({pi,hi:pasos.indexOf(x.paso),cod:x.pais,pais:PAISES[pi].nombre,hito:x.paso,resp:x.resp||"",plan,real,estado,dif});
+    out.push({pi,hi:pasos.indexOf(x.paso),cod:x.pais,pais:PAISES[pi].nombre,hito:x.paso,resp:x.resp||"",persona:x.persona||"",entregable:x.entregable||"",recibe:x.recibe||"",plan,real,estado,dif});
   }
   return out.sort((a,b)=>a.pi-b.pi||a.hi-b.hi);
 }
@@ -1823,20 +1871,36 @@ function estadoInfo(f){
     : f.plan===hoy ? ["risk","Vence hoy",""] : ["pend","Pendiente",""];
 }
 /* estructura común a la pantalla, la imagen y la tabla para correo */
+let calVista="plan";
+try{ calVista=localStorage.getItem("calVista")==="seg" ? "seg" : "plan"; }catch(e){}
+/* estructura común a la pantalla, la imagen y la tabla para correo */
 function calModelo(){
   const filas=calFilas(), pasos=calPasos(), paises=PAISES.filter(p=>filas.some(f=>f.cod===p.cod)), celda={};
   filas.forEach(f=>celda[f.cod+"|"+f.hi]=f);
-  /* si el responsable es el mismo en todos los países, se muestra una vez junto al paso */
-  const comun=pasos.map((_,hi)=>{ const r=paises.map(p=>(celda[p.cod+"|"+hi]||{}).resp||"");
-    return r.length && r[0] && r.every(x=>x===r[0]) ? r[0] : ""; });
+  /* dato del paso: si todos los países dicen lo mismo se muestra una vez; si no, en cada país */
+  const comun=c=>pasos.map((_,hi)=>{ const v=paises.map(p=>String((celda[p.cod+"|"+hi]||{})[c]||"").trim()).filter(Boolean);
+    return v.length && v.every(x=>x===v[0]) ? v[0] : ""; });
+  const hay=c=>filas.some(f=>String(f[c]||"").trim());
   const tarde=filas.filter(f=>f.estado==="retrasado"||f.estado==="abierto"), hoy=isoDe(new Date());
   const resumen = "Al "+fCorta(hoy)+": "+(tarde.length
     ? tarde.length+(tarde.length===1?" paso con retraso":" pasos con retraso")+": "+
       tarde.map(f=>f.cod+" "+f.hito.toLowerCase()+" ("+(f.estado==="abierto"?"+"+f.dif+" d, abierto":"+"+f.dif+" d")+")").join(", ")+"."
     : "ningún paso con retraso.");
-  const pie="Desfase en "+((CAL&&CAL.dias)==="calendario"?"días calendario":"días hábiles, de lunes a viernes, sin feriados")+"."+
-    (CAL&&CAL.at?" Actualizado el "+fCorta(String(CAL.at).slice(0,10))+".":"");
-  return {filas,pasos,paises,celda,comun,tarde,resumen,pie};
+  const fs=filas.map(f=>f.plan).filter(Boolean).sort();
+  const plan="Fechas límite por país"+(fs.length?", del "+fCorta(fs[0])+" al "+fCorta(fs[fs.length-1]):"")+
+    ". Cada paso indica qué se entrega, quién lo hace y a quién lo entrega.";
+  const pie=(calVista==="seg" ? "Desfase en "+((CAL&&CAL.dias)==="calendario"?"días calendario":"días hábiles, de lunes a viernes, sin feriados")+". " : "")+
+    (CAL&&CAL.at?"Actualizado el "+fCorta(String(CAL.at).slice(0,10))+".":"");
+  return {filas,pasos,paises,celda,ent:comun("entregable"),resp:comun("resp"),rec:comun("recibe"),
+    colResp:hay("resp"),colRec:hay("recibe"),tarde,resumen,plan,pie,seg:calVista==="seg"};
+}
+/* líneas extra de una celda de país: lo que varía por país */
+function calExtras(M,f){
+  const o=[];
+  if(!M.resp[f.hi] && f.resp) o.push("Responsable: "+f.resp);
+  if(!M.rec[f.hi] && f.recibe) o.push("Entrega a: "+f.recibe);
+  if(!M.ent[f.hi] && f.entregable) o.push("Entregable: "+f.entregable);
+  return o;
 }
 function pintaCalendario(){
   const M=calModelo(), hay=M.filas.some(f=>f.plan);
@@ -1844,6 +1908,8 @@ function pintaCalendario(){
   $("calEj").classList.toggle("hidden",!(CAL&&CAL.ejemplo));
   $("calBtns").classList.toggle("hidden",!hay);
   $("calMatW").classList.toggle("hidden",!hay);
+  $("calVPlan").setAttribute("aria-pressed",String(!M.seg));
+  $("calVSeg").setAttribute("aria-pressed",String(M.seg));
   if(!hay){
     $("calRes").className="cal-res vacio";
     $("calRes").innerHTML = !me ? "Inicia sesión para ver el calendario de cuotas."
@@ -1851,43 +1917,59 @@ function pintaCalendario(){
       : "Aún no hay un calendario publicado. Avisa a Sales Operations.";
     ["calMat","calLista","calPie"].forEach(x=>$(x).innerHTML=""); return;
   }
-  $("calRes").className="cal-res"+(M.tarde.length?"":" sin");
-  const i=M.resumen.indexOf(": ")+2, j=M.tarde.length ? M.resumen.indexOf(": ",i) : M.resumen.length-1;
-  $("calRes").innerHTML=esc(M.resumen.slice(0,i))+"<b>"+esc(M.resumen.slice(i,j))+"</b>"+esc(M.resumen.slice(j));
-  const cel=f=>{ const e=estadoInfo(f);
-    return '<span class="cf"><small>'+fDia(f.plan)+'</small>'+fCorta(f.plan)+'</span>'+
-      '<div class="ce"><span class="est '+e[0]+'">'+e[1]+'</span>'+(e[2]?'<span>'+e[2]+'</span>':'')+'</div>'; };
-  /* escritorio: pasos en filas, países en columnas */
-  let t='<table><thead><tr><th>Paso</th>'+M.paises.map(p=>'<th><span class="thf">'+bandera(p.cod)+esc(p.nombre)+'</span></th>').join("")+'</tr></thead><tbody>';
+  if(M.seg){
+    $("calRes").className="cal-res"+(M.tarde.length?"":" sin");
+    const i=M.resumen.indexOf(": ")+2, j=M.tarde.length ? M.resumen.indexOf(": ",i) : M.resumen.length-1;
+    $("calRes").innerHTML=esc(M.resumen.slice(0,i))+"<b>"+esc(M.resumen.slice(i,j))+"</b>"+esc(M.resumen.slice(j));
+  } else { $("calRes").className="cal-res plan"; $("calRes").textContent=M.plan; }
+  const cel=f=>{
+    let s='<span class="cf"><small>'+fDia(f.plan)+'</small>'+fCorta(f.plan)+'</span>'+
+      (f.persona?'<span class="cper">'+esc(f.persona)+'</span>':'')+
+      calExtras(M,f).map(x=>'<span class="cf-r">'+esc(x)+'</span>').join("");
+    if(M.seg){ const e=estadoInfo(f);
+      s+='<div class="ce"><span class="est '+e[0]+'">'+e[1]+'</span>'+(e[2]?'<span>'+e[2]+'</span>':'')+'</div>'; }
+    return s; };
+  const varia='<span class="var">Varía por país</span>';
+  /* escritorio: una fila por paso */
+  let t='<table><thead><tr><th>Paso</th>'+(M.colResp?'<th class="cr">Responsable</th>':'')+(M.colRec?'<th class="cr">Entrega a</th>':'')+
+    M.paises.map(p=>'<th><span class="thf">'+bandera(p.cod)+esc(p.nombre)+'</span></th>').join("")+'</tr></thead><tbody>';
   M.pasos.forEach((ps,hi)=>{
     t+='<tr><td><div class="cp"><i class="cp-n">'+(hi+1)+'</i><div><b>'+esc(ps)+'</b>'+
-       (M.comun[hi]?'<span>Responsable: '+esc(M.comun[hi])+'</span>':'')+'</div></div></td>';
+       (M.ent[hi]?'<span class="ent">Entregable: '+esc(M.ent[hi])+'</span>':'')+'</div></div></td>'+
+       (M.colResp?'<td class="cr">'+(M.resp[hi]?esc(M.resp[hi]):varia)+'</td>':'')+
+       (M.colRec?'<td class="cr">'+(M.rec[hi]?esc(M.rec[hi]):varia)+'</td>':'');
     M.paises.forEach(p=>{ const f=M.celda[p.cod+"|"+hi];
-      t+= !f||!f.plan ? '<td class="vac">–</td>'
-        : '<td>'+cel(f)+(!M.comun[hi]&&f.resp?'<span class="cf-r">Responsable: '+esc(f.resp)+'</span>':'')+'</td>'; });
+      t+= !f||!f.plan ? '<td class="vac">–</td>' : '<td>'+cel(f)+'</td>'; });
     t+='</tr>';
   });
   $("calMat").innerHTML=t+'</tbody></table>';
-  /* celular: un bloque por país */
+  /* celular: un bloque por paso */
   let q="";
-  for(const p of M.paises){
-    q+='<h3>'+bandera(p.cod)+esc(p.nombre)+'</h3>';
-    M.pasos.forEach((ps,hi)=>{ const f=M.celda[p.cod+"|"+hi]; if(!f||!f.plan) return;
-      q+='<div class="cl"><div class="cp"><i class="cp-n">'+(hi+1)+'</i><div><b>'+esc(ps)+'</b>'+
-         (f.resp?'<span>Responsable: '+esc(f.resp)+'</span>':'')+'</div></div><div>'+cel(f)+'</div></div>'; });
-  }
+  M.pasos.forEach((ps,hi)=>{
+    q+='<div class="cs"><div class="cp"><i class="cp-n">'+(hi+1)+'</i><div><b>'+esc(ps)+'</b>'+
+       (M.ent[hi]?'<span class="ent">Entregable: '+esc(M.ent[hi])+'</span>':'')+'</div></div>';
+    if(M.colResp||M.colRec) q+='<div class="cs-meta">'+
+      (M.colResp?'<div><span>Responsable</span>'+(M.resp[hi]?esc(M.resp[hi]):'Varía por país')+'</div>':'')+
+      (M.colRec?'<div><span>Entrega a</span>'+(M.rec[hi]?esc(M.rec[hi]):'Varía por país')+'</div>':'')+'</div>';
+    q+='<p class="cs-lbl">Fecha límite por país</p><div class="cs-grid">';
+    M.paises.forEach(p=>{ const f=M.celda[p.cod+"|"+hi];
+      q+='<div><span class="cs-p">'+bandera(p.cod)+esc(p.nombre)+'</span>'+(!f||!f.plan?'–':cel(f))+'</div>'; });
+    q+='</div></div>';
+  });
   $("calLista").innerHTML=q;
   $("calPie").textContent=M.pie;
 }
+$("calVPlan").onclick=()=>{ calVista="plan"; try{ localStorage.setItem("calVista","plan"); }catch(e){} pintaCalendario(); };
+$("calVSeg").onclick=()=>{ calVista="seg"; try{ localStorage.setItem("calVista","seg"); }catch(e){} pintaCalendario(); };
 
-/* ----- imagen PNG para adjuntar al correo ----- */
+/* ----- imagen PNG para adjuntar al correo (usa la vista elegida) ----- */
 const CALC={t:"#1D232B",t2:"#5B6470",b:"#D0D5DB",b2:"#E6E9ED",s2:"#ECEEF1",ac:"#4F2170",
   ok:["#2F7A47","#E4F3E7"], late:["#B3392B","#F9E7E3"], risk:["#7A5A10","#FBF0D0"], pend:["#5B6470","#ECEEF1"]};
 async function calImagen(){
   const M=calModelo(); if(!M.pasos.length) return;
   try{ await document.fonts.ready; }catch(e){}
-  const F="'IBM Plex Sans','Segoe UI',Arial,sans-serif", S=2, P=32, c0=310;
-  const W=Math.max(980, 2*P+c0+M.paises.length*240), cw=(W-2*P-c0)/M.paises.length;
+  const F="'IBM Plex Sans','Segoe UI',Arial,sans-serif", S=2, P=32, c0=290, cR=M.colResp?175:0, cE=M.colRec?165:0, cw=200;
+  const W=Math.max(1100, 2*P+c0+cR+cE+M.paises.length*cw), cwr=(W-2*P-c0-cR-cE)/M.paises.length;
   const cv=document.createElement("canvas"), x=cv.getContext("2d");
   const fnt=(w,s)=>{ x.font=w+" "+s+"px "+F; };
   const wrap=(txt,maxW,maxL)=>{ const ws=String(txt).split(/\s+/), ls=[]; let c="";
@@ -1895,32 +1977,37 @@ async function calImagen(){
     if(c) ls.push(c);
     if(ls.length>maxL){ ls.length=maxL; let u=ls[maxL-1]; while(u.length>1 && x.measureText(u+"…").width>maxW) u=u.slice(0,-1); ls[maxL-1]=u+"…"; }
     return ls; };
-  /* medir filas */
+  /* medir cada fila */
   const filas=M.pasos.map((ps,hi)=>{
     fnt(600,16); const nom=wrap(ps,c0-60,2);
-    fnt(400,13); const rc=M.comun[hi]?wrap("Responsable: "+M.comun[hi],c0-60,2):[];
-    let alto=nom.length*22+rc.length*18;
+    fnt(400,13); const ent=M.ent[hi]?wrap("Entregable: "+M.ent[hi],c0-60,3):[];
+    fnt(400,14); const rs=M.colResp?wrap(M.resp[hi]||"Varía por país",cR-28,3):[], re=M.colRec?wrap(M.rec[hi]||"Varía por país",cE-28,3):[];
+    let alto=Math.max(nom.length*22+ent.length*18, rs.length*20, re.length*20);
     const cs=M.paises.map(p=>{ const f=M.celda[p.cod+"|"+hi]; if(!f||!f.plan) return null;
-      fnt(400,13); const r=!M.comun[hi]&&f.resp?wrap("Responsable: "+f.resp,cw-28,2):[];
-      const det=estadoInfo(f)[2]?1:0;
-      alto=Math.max(alto,26+26+det*18+r.length*18+(r.length?4:0)); return {f,r,det}; });
-    return {nom,rc,cs,alto:alto+28};
+      fnt(400,13); const per=f.persona?wrap(f.persona,cwr-28,2):[];
+      const ex=calExtras(M,f).flatMap(t=>wrap(t,cwr-28,2));
+      const e=M.seg?estadoInfo(f):null, det=e&&e[2]?1:0;
+      alto=Math.max(alto, 26+per.length*18+ex.length*18+(M.seg?26+det*18:0)); return {f,per,ex,e,det}; });
+    return {nom,ent,rs,re,cs,alto:alto+28};
   });
-  fnt(400,14); const res=wrap(M.resumen,W-2*P,3);
-  const yT=P+52+20+res.length*20+16, altoT=40+filas.reduce((a,f)=>a+f.alto,0), H=yT+altoT+20+18*2+P;
+  fnt(400,14); const sub=wrap(M.seg?M.resumen:M.plan,W-2*P,3);
+  const yT=P+52+20+sub.length*20+16, altoT=40+filas.reduce((a,f)=>a+f.alto,0), H=yT+altoT+20+18*2+P;
   cv.width=W*S; cv.height=H*S; x.scale(S,S); x.textBaseline="top";
   x.fillStyle="#fff"; x.fillRect(0,0,W,H);
   /* encabezado */
   const lg=$("pLogo"); let lx=P;
   try{ const lw=40*lg.naturalWidth/lg.naturalHeight; x.drawImage(lg,P,P,lw,40); lx=P+lw+20; }catch(e){}
   x.fillStyle=CALC.b; x.fillRect(lx-10,P,1,40);
-  x.fillStyle=CALC.t; fnt(600,20); x.fillText("Calendario de cuotas",lx+4,P);
+  x.fillStyle=CALC.t; fnt(600,20); x.fillText("Calendario de cuotas"+(M.seg?", seguimiento":""),lx+4,P);
   x.fillStyle=CALC.t2; fnt(400,14); x.fillText(((CAL&&CAL.periodo)?CAL.periodo+". ":"")+"Sales Operations Pacífico",lx+4,P+25);
-  x.fillStyle=CALC.t; fnt(400,14); res.forEach((l,i)=>x.fillText(l,P,P+52+20+i*20));
-  /* tabla */
+  x.fillStyle=CALC.t; fnt(400,14); sub.forEach((l,i)=>x.fillText(l,P,P+52+20+i*20));
+  /* encabezado de tabla */
+  const xR=P+c0, xE=xR+cR, xC=xE+cE;
   x.fillStyle=CALC.s2; x.fillRect(P,yT,W-2*P,40);
   x.fillStyle=CALC.t; fnt(600,14); x.fillText("Paso",P+16,yT+12);
-  M.paises.forEach((p,i)=>{ const fx=P+c0+i*cw+14; banderaCanvas(x,p.cod,fx,yT+12,24,16); x.fillStyle=CALC.t; fnt(600,14); x.fillText(p.nombre,fx+32,yT+12); });
+  if(cR) x.fillText("Responsable",xR+14,yT+12);
+  if(cE) x.fillText("Entrega a",xE+14,yT+12);
+  M.paises.forEach((p,i)=>{ const fx=xC+i*cwr+14; banderaCanvas(x,p.cod,fx,yT+12,24,16); x.fillStyle=CALC.t; fnt(600,14); x.fillText(p.nombre,fx+32,yT+12); });
   let y=yT+40;
   const pastilla=(e,px,py)=>{ fnt(500,12); const w=x.measureText(e[1]).width+16, c=CALC[e[0]];
     x.fillStyle=c[1]; if(x.roundRect){ x.beginPath(); x.roundRect(px,py,w,20,4); x.fill(); } else x.fillRect(px,py,w,20);
@@ -1930,14 +2017,19 @@ async function calImagen(){
     x.fillStyle=CALC.s2; x.beginPath(); x.arc(P+28,y+26,13,0,Math.PI*2); x.fill();
     x.fillStyle=CALC.t; fnt(600,13); x.textAlign="center"; x.fillText(String(hi+1),P+28,y+19); x.textAlign="left";
     fnt(600,16); r.nom.forEach((l,i)=>x.fillText(l,P+52,y+14+i*22));
-    x.fillStyle=CALC.t2; fnt(400,13); r.rc.forEach((l,i)=>x.fillText(l,P+52,y+14+r.nom.length*22+2+i*18));
-    r.cs.forEach((c,i)=>{ const cx=P+c0+i*cw+14;
-      x.fillStyle=CALC.b2; x.fillRect(P+c0+i*cw,y,1,r.alto);
+    x.fillStyle=CALC.t2; fnt(400,13); r.ent.forEach((l,i)=>x.fillText(l,P+52,y+14+r.nom.length*22+2+i*18));
+    const col=(cx,ls,muted)=>{ x.fillStyle=CALC.b2; x.fillRect(cx,y,1,r.alto); x.fillStyle=muted?CALC.t2:CALC.t; fnt(400,14); ls.forEach((l,i)=>x.fillText(l,cx+14,y+15+i*20)); };
+    if(cR) col(xR,r.rs,!M.resp[hi]);
+    if(cE) col(xE,r.re,!M.rec[hi]);
+    r.cs.forEach((c,i)=>{ const cx=xC+i*cwr+14;
+      x.fillStyle=CALC.b2; x.fillRect(xC+i*cwr,y,1,r.alto);
       if(!c){ x.fillStyle=CALC.t2; fnt(400,14); x.fillText("–",cx,y+14); return; }
       x.fillStyle=CALC.t2; fnt(400,13); const d=fDia(c.f.plan)+" "; x.fillText(d,cx,y+17); const dw=x.measureText(d).width;
       x.fillStyle=CALC.t; fnt(600,18); x.fillText(fCorta(c.f.plan),cx+dw,y+13);
-      pastilla(estadoInfo(c.f),cx,y+42);
-      x.fillStyle=CALC.t2; fnt(400,13); c.r.forEach((l,k)=>x.fillText(l,cx,y+70+c.det*18+k*18));
+      let yy=y+40;
+      x.fillStyle=CALC.t; fnt(400,13); c.per.forEach(l=>{ x.fillText(l,cx,yy); yy+=18; });
+      x.fillStyle=CALC.t2; c.ex.forEach(l=>{ x.fillText(l,cx,yy); yy+=18; });
+      if(c.e) pastilla(c.e,cx,yy+4);
     });
     y+=r.alto; x.fillStyle=CALC.b2; x.fillRect(P,y,W-2*P,1);
   });
@@ -1946,25 +2038,29 @@ async function calImagen(){
   x.fillText(M.pie+((CAL&&CAL.ejemplo)?" Datos de ejemplo.":""),P,y+20);
   x.fillText("Información confidencial de uso interno.",P,y+38);
   cv.toBlob(b=>{ const a=document.createElement("a"); a.href=URL.createObjectURL(b);
-    a.download="calendario_cuotas"+((CAL&&CAL.periodo)?"_"+CAL.periodo.toLowerCase().replace(/[^a-z0-9áéíóúñ]+/g,"_"):"")+".png";
+    a.download="calendario_cuotas"+(M.seg?"_seguimiento":"")+((CAL&&CAL.periodo)?"_"+CAL.periodo.toLowerCase().replace(/[^a-z0-9áéíóúñ]+/g,"_"):"")+".png";
     a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); },"image/png");
 }
-/* ----- tabla con estilos propios para pegar en el cuerpo del correo ----- */
+/* ----- tabla con estilos propios para pegar en el cuerpo del correo (usa la vista elegida) ----- */
 function calHtmlCorreo(){
   const M=calModelo(), ff="font-family:'Segoe UI',Arial,sans-serif;", td="padding:8px 12px;border:1px solid "+CALC.b+";vertical-align:top;"+ff;
+  const th=td+"background:"+CALC.s2+";text-align:left", gris=s=>'<span style="color:'+CALC.t2+';font-size:12px">'+s+'</span>';
   let t='<p style="'+ff+'font-size:16px;font-weight:600;color:'+CALC.t+';margin:0 0 4px">Calendario de cuotas'+
-    ((CAL&&CAL.periodo)?': '+esc(CAL.periodo):'')+'</p><p style="'+ff+'font-size:13px;color:'+CALC.t+';margin:0 0 12px">'+esc(M.resumen)+'</p>'+
-    '<table style="border-collapse:collapse;'+ff+'font-size:13px;color:'+CALC.t+'"><tr><th style="'+td+'background:'+CALC.s2+';text-align:left">Paso</th>'+
-    M.paises.map(p=>'<th style="'+td+'background:'+CALC.s2+';text-align:left">'+esc(p.nombre)+'</th>').join("")+'</tr>';
+    ((CAL&&CAL.periodo)?': '+esc(CAL.periodo):'')+'</p><p style="'+ff+'font-size:13px;color:'+CALC.t+';margin:0 0 12px">'+esc(M.seg?M.resumen:M.plan)+'</p>'+
+    '<table style="border-collapse:collapse;'+ff+'font-size:13px;color:'+CALC.t+'"><tr><th style="'+th+'">Paso</th>'+
+    (M.colResp?'<th style="'+th+'">Responsable</th>':'')+(M.colRec?'<th style="'+th+'">Entrega a</th>':'')+
+    M.paises.map(p=>'<th style="'+th+'">'+esc(p.nombre)+'</th>').join("")+'</tr>';
   M.pasos.forEach((ps,hi)=>{
-    t+='<tr><td style="'+td+'"><b>'+(hi+1)+'. '+esc(ps)+'</b>'+(M.comun[hi]?'<br><span style="color:'+CALC.t2+';font-size:12px">Responsable: '+esc(M.comun[hi])+'</span>':'')+'</td>';
+    t+='<tr><td style="'+td+'"><b>'+(hi+1)+'. '+esc(ps)+'</b>'+(M.ent[hi]?'<br>'+gris('Entregable: '+esc(M.ent[hi])):'')+'</td>'+
+      (M.colResp?'<td style="'+td+'">'+(M.resp[hi]?esc(M.resp[hi]):gris('Varía por país'))+'</td>':'')+
+      (M.colRec?'<td style="'+td+'">'+(M.rec[hi]?esc(M.rec[hi]):gris('Varía por país'))+'</td>':'');
     M.paises.forEach(p=>{ const f=M.celda[p.cod+"|"+hi];
       if(!f||!f.plan){ t+='<td style="'+td+'">–</td>'; return; }
-      const e=estadoInfo(f);
-      t+='<td style="'+td+'"><b style="font-size:14px">'+fDia(f.plan)+' '+fCorta(f.plan)+'</b>'+
-        (!M.comun[hi]&&f.resp?'<br><span style="color:'+CALC.t2+';font-size:12px">Responsable: '+esc(f.resp)+'</span>':'')+
-        '<br><span style="color:'+CALC[e[0]][0]+';font-size:12px;font-weight:600">'+e[1]+'</span>'+
-        (e[2]?' <span style="color:'+CALC.t2+';font-size:12px">'+e[2]+'</span>':'')+'</td>'; });
+      let c='<b style="font-size:14px">'+fDia(f.plan)+' '+fCorta(f.plan)+'</b>'+(f.persona?'<br>'+esc(f.persona):'')+
+        calExtras(M,f).map(x=>'<br>'+gris(esc(x))).join("");
+      if(M.seg){ const e=estadoInfo(f);
+        c+='<br><span style="color:'+CALC[e[0]][0]+';font-size:12px;font-weight:600">'+e[1]+'</span>'+(e[2]?' '+gris(e[2]):''); }
+      t+='<td style="'+td+'">'+c+'</td>'; });
     t+='</tr>';
   });
   return t+'</table><p style="'+ff+'font-size:11px;color:'+CALC.t2+';margin:8px 0 0">'+esc(M.pie)+((CAL&&CAL.ejemplo)?' Datos de ejemplo.':'')+'</p>';
@@ -2003,9 +2099,10 @@ function leerCalendario(text){
   const h0=lines[0], sep=h0.includes("\t")?"\t":(h0.split(";").length>h0.split(",").length?";":",");
   const norm=s=>String(s??"").trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/^﻿/,"");
   const cols=partir(h0,sep).map(norm), col=(...ks)=>cols.findIndex(c=>ks.some(k=>c.includes(k)));
-  const iP=col("pais"), iH=col("paso","hito"), iR=col("respons","involucr"), iA=col("plan"), iB=col("real");
-  if(iP<0||iH<0||iA<0) throw new Error("Faltan encabezados. Se necesitan PAIS, PASO y FECHA PLAN; RESPONSABLE y FECHA REAL son opcionales.");
-  const out=[], err=[];
+  const iP=col("pais"), iH=col("paso","hito"), iE=col("entregable","que se entrega","descrip"), iR=col("respons"),
+        iN=col("persona","nombre"), iC=col("entrega a","recibe","valida"), iA=col("limite","plan"), iB=col("real");
+  if(iP<0||iH<0||iA<0) throw new Error("Faltan encabezados. Se necesitan PAIS, PASO y FECHA LIMITE; los demás son opcionales.");
+  const hoy=isoDe(new Date()), out=[], err=[], v_=(v,i)=>i<0?"":(v[i]||"");
   for(let i=1;i<lines.length;i++){
     const v=partir(lines[i],sep).map(x=>x.trim()), pn=norm(v[iP]), paso=v[iH]||"";
     if(!pn&&!paso) continue;
@@ -2013,31 +2110,35 @@ function leerCalendario(text){
     if(!p){ err.push("fila "+(i+1)+": país \""+(v[iP]||"")+"\" no reconocido"); continue; }
     if(!paso){ err.push("fila "+(i+1)+": falta el paso"); continue; }
     const plan=parseFecha(v[iA]), real=iB<0?"":parseFecha(v[iB]);
-    if(!plan){ err.push("fila "+(i+1)+": fecha plan \""+(v[iA]||"")+"\" no válida"); continue; }
+    if(!plan){ err.push("fila "+(i+1)+": fecha límite \""+(v[iA]||"")+"\" no válida"); continue; }
     if(real===null){ err.push("fila "+(i+1)+": fecha real \""+(v[iB]||"")+"\" no válida"); continue; }
-    out.push({pais:p.cod, paso, resp:iR<0?"":(v[iR]||""), plan, real});
+    if(real && real>hoy){ err.push("fila "+(i+1)+": la fecha real "+fCorta(real)+" es posterior a hoy; déjala vacía si el paso no se ha cumplido"); continue; }
+    out.push({pais:p.cod, paso, entregable:v_(v,iE), resp:v_(v,iR), persona:v_(v,iN), recibe:v_(v,iC), plan, real});
   }
   if(err.length) throw new Error("No se publicó. Corrige: "+err.slice(0,6).join("; ")+(err.length>6?"; y "+(err.length-6)+" más":"")+
     ". Países válidos: "+PAISES.map(p=>p.cod).join(", ")+" o su nombre. Fechas como 9/11/2026 o 2026-11-09.");
   if(!out.length) throw new Error("La tabla no tiene filas con país y paso.");
-  return out;
+  const aviso = out.every(f=>f.real && f.real===f.plan)
+    ? " Atención: todas las fechas reales son iguales a las fechas límite, así que todo figura como cumplido. Si aún no se cumplen, déjalas vacías y vuelve a publicar." : "";
+  return {filas:out, aviso};
 }
 $("calPub").onclick=async()=>{
   const m=$("calMsg"); m.className="msg"; m.textContent="";
   try{
-    const filas=leerCalendario($("calRaw").value);
+    const {filas,aviso}=leerCalendario($("calRaw").value);
     const nuevo={periodo:$("calPerIn").value.trim(), dias:$("calDias").value, filas, at:new Date().toISOString(), by:me};
     await setDoc(doc(dbF,"cfg","calendario"),nuevo);
-    CAL=nuevo; $("calRaw").value="";
+    CAL=nuevo; $("calRaw").value=""; pintaCalendario();
     const np=new Set(filas.map(f=>f.pais)).size, ns=calPasos().length;
-    m.className="msg ok";
-    m.textContent="Calendario publicado: "+ns+(ns===1?" paso":" pasos")+" en "+np+(np===1?" país":" países")+". Míralo en Inicio.";
+    m.className=aviso?"msg err":"msg ok";
+    m.textContent="Calendario publicado: "+ns+(ns===1?" paso":" pasos")+" en "+np+(np===1?" país":" países")+"."+aviso;
   }catch(e){ m.className="msg err"; m.textContent=(e&&e.message)||String(e); }
 };
 $("calPlant").onclick=()=>{
-  const f=(CAL&&CAL.filas&&CAL.filas.length) ? CAL.filas.map(x=>[x.pais,x.paso,x.resp||"",x.plan||"",x.real||""])
-    : PAISES.flatMap(p=>PASOS_BASE.map(ps=>[p.cod,ps,"","",""]));
-  csvDump("plantilla_calendario.csv",["PAIS","PASO","RESPONSABLE","FECHA PLAN","FECHA REAL"],f);
+  const f=(CAL&&CAL.filas&&CAL.filas.length)
+    ? CAL.filas.map(x=>[x.pais,x.paso,x.entregable||"",x.resp||"",x.persona||"",x.recibe||"",x.plan||"",x.real||""])
+    : PAISES.flatMap(p=>PASOS_BASE.map(ps=>[p.cod,ps,"","","","","",""]));
+  csvDump("plantilla_calendario.csv",["PAIS","PASO","ENTREGABLE","RESPONSABLE","PERSONA","ENTREGA A","FECHA LIMITE","FECHA REAL"],f);
 };
 
 /* ---------- arranque ---------- */
@@ -2121,6 +2222,17 @@ async function alEntrar(user){
     ["portal","app","foot"].forEach(x=>$(x).classList.add("hidden"));
     $("gate").classList.remove("hidden");
     gMsg("Esta cuenta no tiene acceso. Escribe a Sales Operations.","err");
+    return;
+  }
+  /* el rol tiene que ser exacto: es lo mismo que exigen las reglas de Firestore */
+  if(!["admin","editor","lector"].includes(u.rol)){
+    try{ await signOut(auth); }catch(e){}
+    ["portal","app","foot"].forEach(x=>$(x).classList.add("hidden"));
+    $("gate").classList.remove("hidden");
+    const campos=Object.keys(u).join(", ")||"ninguno";
+    gMsg(u.rol===undefined
+      ? 'La cuenta entró, pero su documento en Firestore (usuarios) no tiene el campo "rol". Campos que tiene: '+campos+'. Agrega un campo llamado rol, en minúsculas.'
+      : 'La cuenta entró, pero en Firestore su campo "rol" dice '+JSON.stringify(u.rol)+'. Debe decir exactamente admin, editor o lector: en minúsculas, sin comillas y sin espacios.',"err");
     return;
   }
   isAdmin = u.rol==="admin"; soloLectura = u.rol==="lector";
