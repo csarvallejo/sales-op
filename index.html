@@ -1,0 +1,2112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sales Operations Pacífico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  /* DESIGN.md: neutros fríos + un acento (morado Mondelēz). Verde, ámbar y rojo solo para estados. */
+  --bg:oklch(0.965 0.004 250); --surface:oklch(1 0 0); --surface-2:oklch(0.94 0.006 250);
+  --border:oklch(0.87 0.008 250); --border-2:oklch(0.925 0.006 250);
+  --text:oklch(0.22 0.015 250); --text-2:oklch(0.46 0.015 250);
+  --accent:#4F2170; --accent-bg:oklch(0.955 0.025 305);
+  --let-bg:oklch(0.96 0.015 240); --let-hd:oklch(0.925 0.022 240);
+  --may-bg:oklch(0.96 0.012 80);  --may-hd:oklch(0.925 0.02 80);
+  --ok:oklch(0.50 0.11 150);   --ok-bg:oklch(0.955 0.03 150);
+  --risk:oklch(0.45 0.10 75);  --risk-bg:oklch(0.96 0.045 85);
+  --late:oklch(0.50 0.16 28);  --late-bg:oklch(0.955 0.025 28);
+  --pending:oklch(0.60 0.01 250); --closed:var(--text);
+  --r-c:4px; --r-b:6px; --page:1440px; --hd:32px;
+}
+*{box-sizing:border-box}
+html{font-size:100%;scrollbar-color:var(--border) transparent}
+body{margin:0;font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--text);font-size:.875rem;line-height:1.45;font-variant-numeric:tabular-nums}
+::selection{background:var(--accent-bg);color:var(--text)}
+.wrap{max-width:var(--page);margin:0 auto;padding:16px 16px 24px}
+header{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+h1{font-size:1.125rem;font-weight:600;margin:0}
+header .sub,.ptop .sub{font-size:.8125rem;color:var(--text-2)}
+.who{margin-left:auto;font-size:.8125rem;color:var(--text-2)}
+
+.gate{max-width:400px;margin:48px auto;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-b);padding:24px}
+.gate h2{margin:12px 0 4px;font-size:1.125rem;font-weight:600}
+.gate .tag{font-size:.8125rem;color:var(--text-2);margin:0 0 16px}
+.gate label{display:block;font-size:.8125rem;margin:12px 0 4px}
+.gate input{width:100%;font:inherit;padding:8px 12px;border:1px solid var(--border);border-radius:var(--r-c);
+  background:var(--surface);color:var(--text)}
+.gate button:not(.volver){width:100%;margin-top:16px}
+.gate .conf{margin-top:24px;padding:12px;background:var(--surface-2);border-radius:var(--r-c);
+  color:var(--text-2);font-size:.75rem;line-height:1.5}
+.gate .conf strong{color:var(--text)}
+
+/* estado de la ventana de registro: borde fino completo + fondo tenue + texto del estado */
+.ventana{display:flex;align-items:center;gap:16px;padding:12px 16px;margin-bottom:12px;
+  border:1px solid var(--border);border-radius:var(--r-b);background:var(--surface)}
+.ventana.abierta{border-color:var(--ok);background:var(--ok-bg)}
+.ventana.pronto,.ventana.forzada{border-color:var(--risk);background:var(--risk-bg)}
+.ventana.cerrada{border-color:var(--late);background:var(--late-bg)}
+.v-estado{font-size:1rem;font-weight:600;white-space:nowrap}
+.ventana.abierta .v-estado{color:var(--ok)}
+.ventana.pronto .v-estado,.ventana.forzada .v-estado{color:var(--risk)}
+.ventana.cerrada .v-estado{color:var(--late)}
+.v-detalle{font-size:.875rem;color:var(--text)}
+.v-dias{margin-left:auto;text-align:right;white-space:nowrap}
+.v-dias b{display:block;font-size:1.375rem;font-weight:600;line-height:1.1}
+.v-dias span{font-size:.75rem;color:var(--text)}
+
+.conf-strip{color:var(--text-2);font-size:.75rem;margin:0 0 12px;padding:0 4px}
+.conf-strip strong{color:var(--text);font-weight:600}
+.bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-b);display:flex;flex-wrap:wrap;
+  align-items:center;margin-bottom:12px;position:sticky;top:0;z-index:30}
+.cell{padding:8px 16px;border-right:1px solid var(--border-2);flex:1;min-width:128px}
+.cell:last-child{border-right:0}
+.n{font-size:1.125rem;font-weight:600;display:block}
+.l{font-size:.75rem;color:var(--text-2)}
+.cell.off .n{color:var(--late)} .cell.good .n{color:var(--ok)}
+.acts{padding:8px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+button{font:inherit;font-weight:500;padding:8px 12px;border:1px solid var(--accent);border-radius:var(--r-c);
+  background:var(--accent);color:#fff;cursor:pointer;transition:background-color .15s,border-color .15s,color .15s}
+button:hover:not(:disabled){background:oklch(0.27 0.12 305);border-color:oklch(0.27 0.12 305)}
+button.ghost{background:transparent;color:var(--text);border-color:var(--border)}
+button.ghost:hover:not(:disabled){background:var(--surface-2);border-color:var(--text-2)}
+button.small{padding:4px 12px;font-size:.8125rem}
+button:disabled{background:var(--surface-2);border-color:var(--border);color:var(--text-2);cursor:default}
+button.ghost:disabled{background:transparent}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-b);margin-bottom:16px}
+.sh{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.sh h2{font-size:.875rem;font-weight:600;margin:0}
+.bd{padding:12px 16px}
+.note{font-size:.8125rem;color:var(--text-2);margin:0}
+.tabs{display:flex;border-bottom:1px solid var(--border);overflow-x:auto;white-space:nowrap}
+.tab,.tab:hover:not(:disabled){padding:8px 16px;border:0;border-radius:0;background:transparent;color:var(--text-2);
+  font-weight:500;border-bottom:2px solid transparent;cursor:pointer}
+.tab:hover:not(:disabled){color:var(--text)}
+.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.pill{font-size:.75rem;font-weight:500;padding:0 8px;border-radius:var(--r-c);margin-left:8px;
+  background:var(--surface-2);color:var(--text-2)}
+.tab[aria-selected="true"] .pill{background:var(--accent-bg);color:var(--accent)}
+
+.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:8px 16px;
+  border-bottom:1px solid var(--border-2)}
+.toolbar select{font:inherit;padding:4px 8px;border:1px solid var(--border);border-radius:var(--r-c);min-width:210px;
+  background:var(--surface);color:var(--text)}
+
+.scroll{overflow:auto;max-height:70vh}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:.8125rem}
+th,td{padding:4px 8px;border-bottom:1px solid var(--border-2);text-align:right;white-space:nowrap}
+th.k,td.k{text-align:left}
+thead th{position:sticky;background:var(--surface-2);z-index:3;font-weight:600;font-size:.75rem}
+thead tr.g th{top:0;height:var(--hd);border-bottom:1px solid var(--border);text-align:center;padding:0 8px}
+thead tr.c th{top:var(--hd);border-bottom:1px solid var(--border)}
+/* columna de identificación fija al desplazar en horizontal */
+td.kf,th.kf{position:sticky;left:0;border-right:1px solid var(--border)}
+td.kf{background:var(--surface);z-index:1}
+thead th.kf{z-index:4}
+td.let{background:var(--let-bg)} th.let{background:var(--let-hd)}
+td.may{background:var(--may-bg)} th.may{background:var(--may-hd)}
+input.c{width:92px;text-align:right;font:inherit;font-weight:500;font-variant-numeric:tabular-nums;
+  border:1px solid transparent;border-radius:var(--r-c);background:transparent;padding:0 4px;color:var(--text)}
+input.c:hover:not(:disabled){border-color:var(--border);background:var(--surface)}
+input.c:focus{border-color:var(--accent);background:var(--surface)}
+input.c.dirty{border-color:var(--accent);background:var(--surface);font-weight:600}
+input.c:disabled{color:var(--text);cursor:default}
+.iv{display:block;font-size:.75rem;padding-right:5px;color:var(--text-2)}
+td.empty{color:var(--text-2)}
+tfoot td{font-weight:600;border-top:1px solid var(--border);border-bottom:0;background:var(--surface);
+  position:sticky;bottom:0;z-index:2}
+tfoot td.let{background:var(--let-bg)} tfoot td.may{background:var(--may-bg)}
+tfoot .iv{font-weight:600}
+
+.val{display:inline-block;margin-top:8px;border:1px solid var(--border);border-radius:var(--r-c);max-width:100%;overflow-x:auto}
+.val table{width:auto}
+.val th{position:static}
+.val td.d{min-width:92px}
+.val tr.bad td.d{background:var(--late-bg);color:var(--late);font-weight:600}
+#resumen table,#siResumen table,#refTbl table{width:auto;min-width:520px}
+#resumen th,#siResumen th,#refTbl th{position:static}
+#resumen,#siResumen{max-width:100%;overflow-x:auto}
+#refTbl{border:1px solid var(--border);border-radius:var(--r-c);max-width:100%;overflow-x:auto;display:inline-block}
+#refTbl table{min-width:820px}
+#refTbl td.rc{padding:8px 12px;border-left:1px solid var(--border-2)}
+#refTbl td.rc b{display:block;font-size:.8125rem;font-weight:600;line-height:1.2}
+#refTbl td.rc span{display:block;font-size:.75rem;color:var(--text-2)}
+#refTbl td.rc.falta{background:var(--risk-bg)}
+#refTbl td.rc.falta b{color:var(--risk)}
+#refTbl td.rc.exceso{background:var(--late-bg)}
+#refTbl td.rc.exceso b{color:var(--late)}
+#refTbl td.rc.cuadra b{color:var(--ok)}
+#refTbl td.rc.vacia{color:var(--text-2)}
+#refTbl td.tot{border-left:1px solid var(--border)}
+.leyenda{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:.75rem;color:var(--text-2);padding:8px 12px}
+#refTbl .leyenda{border-top:1px solid var(--border-2)}
+#refTbl .leyenda i{font-style:normal;display:inline-block;width:10px;height:10px;margin-right:4px;border-radius:2px}
+
+/* configuración: panel claro sobre la capa neutra secundaria */
+.admin{background:var(--surface-2)}
+.admin textarea{width:100%;min-height:88px;font-family:ui-monospace,Menlo,Consolas,monospace;
+  font-size:.75rem;background:var(--surface);color:var(--text);border:1px solid var(--border);
+  border-radius:var(--r-c);padding:8px}
+.admin input,.admin select{font:inherit;padding:4px 8px;background:var(--surface);
+  color:var(--text);border:1px solid var(--border);border-radius:var(--r-c)}
+.admin label{font-size:.75rem;color:var(--text-2);display:block;margin-bottom:4px}
+.admin label.chk{display:flex;align-items:center;gap:8px;margin:0;font-size:.8125rem;color:var(--text)}
+.admin label.chk input{width:16px;height:16px;padding:0;accent-color:var(--accent)}
+.admin .fila{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-top:12px}
+.admin hr{border:0;border-top:1px solid var(--border);margin:24px 0 16px}
+.admin h3{font-size:.875rem;font-weight:600;margin:0 0 4px}
+.emg{border:1px solid var(--border);border-radius:var(--r-c);background:var(--surface);padding:12px 16px;margin-top:16px}
+.emg.on{border-color:var(--risk);background:var(--risk-bg)}
+.emg .tit{font-size:.875rem;font-weight:600;margin:0}
+.emg.on .tit{color:var(--risk)}
+.emg.on .note{color:var(--text)}
+.modal{position:fixed;inset:0;background:oklch(0.22 0.015 250 / .55);z-index:90;
+  display:flex;align-items:center;justify-content:center;padding:16px}
+.modal .caja{background:var(--surface);border-radius:var(--r-b);padding:24px;
+  max-width:460px;width:100%;box-shadow:0 16px 48px oklch(0.22 0.015 250 / .25)}
+.modal h3{margin:0 0 8px;font-size:1rem;font-weight:600}
+.modal p{margin:0;font-size:.875rem;color:var(--text-2);line-height:1.5}
+.modal .mBtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}
+td.sub,th.sub{border-left:1px solid var(--border)}
+td.edit{background:var(--accent-bg)} th.edit{background:var(--accent-bg);color:var(--accent)}
+td.up{color:var(--ok);font-weight:600} td.down{color:var(--late);font-weight:600}
+input.c.wide{width:130px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;
+  border-radius:var(--r-c);padding:8px 16px;font-size:.8125rem;z-index:95;box-shadow:0 8px 24px oklch(0.22 0.015 250 / .25)}
+
+/* portal: una fila por país, sin tarjetas anidadas */
+.portal{max-width:var(--page);margin:0 auto;padding:32px 16px 48px}
+.portal .ptop{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:24px}
+.portal .ptop>div{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.portal h1{font-size:1.375rem}
+.pais{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 0;border-top:1px solid var(--border-2)}
+.pais:first-child{border-top:0}
+.pais .pi{width:200px}
+.pais h3{margin:0;font-size:.875rem;font-weight:600}
+.pais .canal{font-size:.75rem;color:var(--text-2);margin:0}
+.pais.prox h3{color:var(--text-2);font-weight:500}
+.pais .mods{display:flex;gap:8px;flex-wrap:wrap;flex:1}
+.mod,.mod:hover:not(:disabled){display:block;width:280px;max-width:100%;text-align:left;padding:8px 12px;
+  background:var(--surface);color:var(--text);border:1px solid var(--border)}
+.mod:hover:not(:disabled){border-color:var(--accent)}
+.mod b{display:block;font-size:.875rem;font-weight:600}
+.mod span{display:block;font-size:.75rem;color:var(--text-2);font-weight:400}
+.mod .estado{float:right;font-style:normal;font-size:.75rem;font-weight:500;padding:0 8px;border-radius:var(--r-c)}
+.mod .estado.abierta{color:var(--ok);background:var(--ok-bg)}
+.mod .estado.cerrada{color:var(--late);background:var(--late-bg)}
+.mod .estado.pronto{color:var(--risk);background:var(--risk-bg)}
+.volver,.volver:hover:not(:disabled){background:transparent;border:0;color:var(--text-2);padding:0;font-weight:500;
+  cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.volver:hover:not(:disabled){color:var(--accent)}
+.hidden{display:none}
+.msg{font-size:.8125rem;margin:8px 0 0}
+.msg.err{color:var(--late)} .msg.ok{color:var(--ok)}
+.banner{background:var(--late-bg);color:var(--late);border:1px solid var(--late);border-radius:var(--r-c);
+  padding:8px 16px;margin-bottom:12px;font-size:.8125rem}
+.prog{font-size:.8125rem;color:var(--text-2);margin-top:8px}
+footer{max-width:var(--page);margin:0 auto;padding:8px 16px 48px;font-size:.75rem;color:var(--text-2)}
+footer strong{color:var(--text)}
+@media (max-width:640px){ .cell{min-width:50%} .wrap{padding:12px 8px 16px}
+  .ventana{flex-direction:column;align-items:flex-start;gap:8px} .v-dias{margin-left:0;text-align:left}
+  td.kf,th.kf{max-width:132px;overflow:hidden;text-overflow:ellipsis}
+  .pais .pi{width:100%} .mod{width:100%} .portal{padding:16px 8px 32px} }
+
+/* calendario de cuotas: línea de tiempo plan vs real */
+.pill.ej{background:var(--risk-bg);color:var(--risk);margin-left:0}
+.cal-res{font-size:1rem;font-weight:500;margin:4px 0 16px}
+.cal-res b{font-weight:600;color:var(--late)}
+.cal-res.sin b{color:var(--ok)}
+.cal-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:var(--r-c)}
+#calLinea table{width:auto;min-width:100%}
+#calLinea th,#calLinea td{position:relative;padding:0;height:28px;min-width:26px;text-align:center;font-size:.75rem}
+#calLinea thead th{position:static;font-weight:500;color:var(--text-2);vertical-align:bottom;padding-bottom:4px}
+#calLinea thead tr.mes th{height:24px;text-align:left;padding:0 8px;font-weight:600;color:var(--text);vertical-align:middle;
+  border-left:1px solid var(--border)}
+#calLinea thead tr.dia th{height:40px}
+#calLinea th.h,#calLinea td.h{position:sticky;left:0;z-index:2;text-align:left;padding:0 12px;min-width:176px;
+  background:var(--surface);border-right:1px solid var(--border);font-size:.8125rem;font-weight:400;color:var(--text)}
+#calLinea thead th.h{background:var(--surface-2);border-left:0}
+#calLinea tr.p td{background:var(--surface-2);height:24px}
+#calLinea tr.p td.h{background:var(--surface-2);font-weight:600}
+#calLinea .wk{background:oklch(0.965 0.004 250)}
+#calLinea tr.p td.wk{background:var(--surface-2)}
+#calLinea .hoy{border-left:2px solid var(--text)}
+#calLinea th.hoy{color:var(--text);font-weight:600}
+#calLinea th.hoy b{display:block;font-weight:600}
+#calLinea td.tr::before{content:"";position:absolute;left:0;right:0;top:50%;height:8px;transform:translateY(-50%);
+  background:repeating-linear-gradient(135deg,var(--late) 0 2px,var(--late-bg) 2px 6px)}
+#calLinea td.tr.ti::before{left:50%}
+#calLinea td.tr.tf::before{right:50%}
+.m{position:relative;z-index:1;display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;font-style:normal}
+.m.plan{border:2px solid var(--pending);background:var(--surface)}
+.m.ok{background:var(--ok)}
+.m.late{background:var(--late)}
+.m.raya{width:28px;height:8px;border-radius:0;background:repeating-linear-gradient(135deg,var(--late) 0 2px,var(--late-bg) 2px 6px)}
+.m.linea{width:0;height:14px;border-radius:0;border-left:2px solid var(--text)}
+#calLinea .lb{position:absolute;z-index:1;left:100%;top:50%;transform:translateY(-50%);margin-left:4px;padding:0 4px;
+  white-space:nowrap;font-size:.75rem;font-weight:600;color:var(--late);background:var(--surface)}
+#calLinea .lb.iz{left:auto;right:100%;margin:0 4px 0 0}
+#calLey{padding:8px 0 16px}
+#calLey span{display:inline-flex;align-items:center;gap:4px}
+#calTabla table{min-width:560px}
+#calTabla thead th{position:static;text-align:left}
+#calTabla td{text-align:left;padding:4px 12px}
+#calTabla th{padding:0}
+#calTabla th button,#calTabla th button:hover:not(:disabled){width:100%;text-align:inherit;background:transparent;border:0;border-radius:0;
+  color:var(--text);font-size:.75rem;font-weight:600;padding:8px 12px;cursor:pointer}
+#calTabla th button:hover:not(:disabled){color:var(--accent)}
+#calTabla th.num,#calTabla td.num{text-align:right}
+#calTabla td.late{color:var(--late);font-weight:600}
+.est{display:inline-block;font-size:.75rem;font-weight:500;padding:0 8px;border-radius:var(--r-c)}
+.est.ok{color:var(--ok);background:var(--ok-bg)}
+.est.late{color:var(--late);background:var(--late-bg)}
+.est.pend{color:var(--text-2);background:var(--surface-2)}
+@media (max-width:640px){ #calLinea th.h,#calLinea td.h{min-width:132px;padding:0 8px} .cal-res{font-size:.875rem} }
+.gLinks{display:flex;gap:16px;flex-wrap:wrap;margin:16px 0 0}
+.usr{margin-top:12px;border:1px solid var(--border);border-radius:var(--r-c);background:var(--surface);overflow-x:auto}
+.usr table{min-width:560px}
+.usr thead th{position:static;text-align:left}
+.usr td{text-align:left;padding:4px 8px}
+.usr td.acc{text-align:right}
+.usr td.acc button{margin-left:4px}
+.usrT{margin-top:16px}
+/* portal: barra con logo y sesión; una fila por país con avance, estado y módulos */
+.portal{max-width:none;margin:0;padding:0}
+.pbar{background:var(--surface);border-bottom:1px solid var(--border)}
+.pbar-in{max-width:var(--page);margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.pbar .logo img{display:block;height:32px;width:auto}
+.gate .glogo{display:block;height:28px;width:auto;margin:16px 0 24px}
+.pbar .logo .sub{font-size:.875rem;font-weight:600;color:var(--accent)}
+.pbar h1{font-size:1rem;font-weight:500;padding-left:16px;border-left:1px solid var(--border)}
+.pmain{max-width:var(--page);margin:0 auto;padding:24px 16px 48px}
+.pmain>.note{margin-top:8px}
+.prow{display:grid;grid-template-columns:minmax(140px,200px) 200px minmax(200px,1fr) minmax(240px,496px);gap:16px;
+  align-items:center;padding:12px 0;border-top:1px solid var(--border-2)}
+.prow.phead{border-top:0;padding:0 0 8px;font-size:.75rem;font-weight:600;color:var(--text-2)}
+.prow h3{margin:0;font-size:.875rem;font-weight:600}
+.prow .canal{font-size:.75rem;color:var(--text-2);margin:0}
+.pav{display:flex;align-items:center;gap:12px;font-size:.8125rem}
+.dots{display:inline-flex;gap:4px;align-items:center}
+.dots .m.abre{border-radius:2px;background:repeating-linear-gradient(135deg,var(--late) 0 2px,var(--late-bg) 2px 5px)}
+.pes{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.8125rem}
+.pdet{color:var(--text-2)}
+.est.cerr{color:#fff;background:var(--closed)}
+.prow .mods{display:flex;gap:8px;flex-wrap:wrap}
+.prow .mod,.prow .mod:hover:not(:disabled){width:244px}
+@media (max-width:1000px){ .prow{grid-template-columns:1fr 1fr} .prow.phead{display:none} .prow .mods{grid-column:1 / -1} }
+@media (max-width:640px){ .prow{grid-template-columns:1fr;gap:8px} .prow .mod,.prow .mod:hover:not(:disabled){width:100%}
+  .pbar h1{padding-left:0;border-left:0;width:100%;order:3} .pmain{padding:16px 8px 32px} }
+.gate .note{margin-top:8px}
+/* calendario oficial: pasos en filas, países en columnas */
+.hidden{display:none !important}
+.calBtns{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.cal-res.vacio{font-size:.875rem;font-weight:400;color:var(--text-2);margin:4px 0}
+#calMat table{min-width:860px;table-layout:fixed}
+#calMat th,#calMat td{text-align:left;vertical-align:top;white-space:normal;padding:12px 16px;border-left:1px solid var(--border-2)}
+#calMat thead th{position:static;font-size:.875rem;padding:8px 16px}
+#calMat th:first-child,#calMat td:first-child{border-left:0;width:27%}
+#calMat tbody tr:last-child td{border-bottom:0}
+#calMat td.vac{color:var(--text-2)}
+.cp{display:flex;gap:12px}
+.cp-n{flex:none;width:24px;height:24px;border-radius:50%;background:var(--surface-2);font-style:normal;font-weight:600;font-size:.75rem;
+  display:flex;align-items:center;justify-content:center}
+.cp b{display:block;font-size:.875rem;font-weight:600}
+.cp span,.cf-r{display:block;font-size:.75rem;color:var(--text-2)}
+.cf{display:block;font-size:1rem;font-weight:600}
+.cf small{font-size:.75rem;font-weight:400;color:var(--text-2);margin-right:4px}
+.ce{margin-top:4px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.75rem;color:var(--text-2)}
+.est.risk{color:var(--risk);background:var(--risk-bg)}
+#calPie{margin-top:12px}
+#calLista{display:none}
+#calLista h3{font-size:.875rem;font-weight:600;margin:16px 0 4px}
+#calLista h3:first-child{margin-top:0}
+.cl{display:flex;gap:12px;justify-content:space-between;padding:8px 0;border-top:1px solid var(--border-2)}
+.cl>div:first-child{min-width:0;flex:1}
+.cl>div:last-child{text-align:right;flex:0 1 auto;max-width:50%}
+.cl .ce{justify-content:flex-end}
+#calRaw{margin-top:12px}
+@media (max-width:640px){ #calMatW{display:none} #calLista{display:block} .calBtns{margin-left:0} }
+.sincal .prow{grid-template-columns:minmax(140px,200px) 1fr}
+.sincal .pav,.sincal .pes,.sincal .phead span:nth-child(2),.sincal .phead span:nth-child(3){display:none}
+</style>
+</head>
+<body>
+
+<div id="portal" class="portal">
+  <div class="pbar"><div class="pbar-in">
+    <span class="logo"><img id="pLogo" alt="Mondelēz International" src="data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCA1MTIgMTIyLjUiIHdpZHRoPSI1MTIiIGhlaWdodD0iMTIyLjUiIHhtbDpzcGFjZT0icHJlc2VydmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+Cgk8ZyBmaWxsPSIjNGYyMTcwIj4KCQk8cGF0aCBkPSJtMzQwLjQgMTE4LjAzcy0yLjE1NjMgNC4zNjM1LTYuMTM3NyA0LjM2MzVjLTMuMjc5NiAwLTcuMzE0Mi0yLjg5NjMtNy40ODIyLTcuMDg3My00ZS0zIC0wLjAzODItMC4wMjMxLTYuMDY5My0wLjAzOTQtMTEuMTEyaC0xLjExMjljLTAuNTgyNTIgMC0xLjYxMDgtMC4zNDYyNS0xLjYxMDgtMS44NjEgMC0xLjUxNDcgMS4xNTgtMS44MzU1IDEuNzMxMi0xLjgzNTVoMC45ODMyMmMtNWUtMyAtMS43NjI2LTdlLTMgLTIuOTczOS00ZS0zIC0zLjA1MDMgMC4xMDQyNC0yLjE3MjUgMi4xOTEtNC4wMDM0IDQuMjk2NC0zLjg5NjggMS45ODE0IDAuMDk5NiAzLjk1NzEgMS44MTU4IDQuMDE5NiAzLjg5Njh2My4wNDhoMy41MDg5YzAuNDg1MjYgMCAxLjYxMDkgMC4zMTczMSAxLjYxMDkgMS44NjEgMCAxLjU0MzctMS4xMjU2IDEuODM3OC0xLjczMjQgMS44Mzc4aC0zLjM4NzN2OS4yNTg2YzAgMy4wMDI4IDIuNTg3MSA0LjU2MjcgNS4zNjY0IDQuNTcybS0xMTAuODkgNWUtM3MtMi4xNTUxIDQuMzYzNi02LjEzNzcgNC4zNjM2Yy0zLjI3OTYgMC03LjMxNDItMi44OTYzLTcuNDgyMi03LjA4NzMtM2UtMyAtMC4wMzgyLTAuMDIzMi02LjA2OTMtMC4wMzgyLTExLjExMmgtMS4xMTI5Yy0wLjU4MjQ5IDAtMS42MTItMC4zNDYyNS0xLjYxMi0xLjg2MSAwLTEuNTE0NyAxLjE1OTItMS44MzU1IDEuNzMxMy0xLjgzNTVoMC45ODMxOWMtNWUtMyAtMS43NjI2LTZlLTMgLTIuOTczOS0zZS0zIC0zLjA1MDMgMC4xMDQyMy0yLjE3MjUgMi4xOTEtNC4wMDM0IDQuMjk2NC0zLjg5NjggMS45ODE0IDAuMDk5NiAzLjk1NyAxLjgxNTggNC4wMjA4IDMuODk2OHYzLjA0OGgzLjUwODljMC40ODUyMiAwIDEuNjEwOCAwLjMxNzMxIDEuNjEwOCAxLjg2MSAwIDEuNTQzNy0xLjEyNTYgMS44Mzc4LTEuNzMzNiAxLjgzNzhoLTMuMzg2MXY5LjI1ODZjMCAzLjAwMjggMi41ODcxIDQuNTYyNyA1LjM2NTIgNC41NzJtMjEuMTYyLTIuOTQ3MnMtMS4yNzUgMS43NDc1LTYuMjI0NSAxLjc0NzVjLTQuOTQ5NSAwLTYuMDEzOC0zLjg0Ny02LjAxMzgtMy44NDcgNy4yMTQ3IDAgMTMuMjY0LTAuNDg0MDcgMTMuMjY0LTYuMzI0MSAwLTUuODM4OS02LjU5OTgtNy43NjQ3LTEwLjUxMy03Ljc2NDctNi40NjE5IDAtMTEuMTg0IDUuMTUyMi0xMS4xODQgMTEuOTU1IDAgNy42NjE3IDYuMTQ4MSAxMS41NDcgMTEuMjUzIDExLjU0NyA4Ljk4NzYgMCA5LjQxODQtNy4zMTMxIDkuNDE4NC03LjMxMzFtLTEyLjcwNi01Ljg0ODJjMC4yNTI0NS0xLjg2NDUgMC43MDA2MS00LjIxMyAyLjM3ODYtNS4zMDA0IDEuMzkyLTAuOTA0NDMgMy4zNDMzIDAuMTI1MDcgMy4zNzIzIDEuODY1NiAwLjAzMTMgMS44NDAxLTEuMTU2OSAzLjA5Mi0yLjgxMjkgMy40NDE3LTAuMTc0ODYgMC4wMzcxLTIuOTYyMyAwLjE3NzE3LTIuOTM4LTdlLTNtMjkuNjA4LTkuNjg5NGMtMi40NjIgMC4xMDA3NS0zLjY3OCAxLjkzNTEtNS4zNTM3IDQuMjM3My0wLjAxMTYgMC4wMTg1IDJlLTMgLTEuMDYzMSAyZS0zIC0xLjEwNDgtMC4wNjQ5LTIuMDg1Ni0xLjk5My0zLjgwODgtMy45Nzc5LTMuOTA4NC0yLjExMjMtMC4xMDUzOC00LjIwMjYgMS43MjktNC4zMDggMy45MDg0djE1LjkxNWgtN2UtM2MwLjA2MzcgMi4wODY4IDEuOTkzIDMuODExMiAzLjk3OTEgMy45MDg0IDIuMDkxNCAwLjEwMzA2IDQuMTU5Ny0xLjY5ODkgNC4zMDEtMy44NDgyaDAuMDE4NGwtMmUtMyAtMTAuMDgyYzAuMTI1MDctMS40NzY1IDAuNzcwMS0zLjMyMzYgMS45NTgyLTMuMzE0NCAxLjY4MTUgMC4wMTM5LTAuMDU1NiA0LjA4MjEgMy44MDMgNC4wODIxIDUuNTMzMSAwIDYuMTIzOC0xMC4wNjItMC40MTIyNi05Ljc5MzZtODMuOTU5LTUuNDc4N2MwIDIuMjY2My0xLjgzOSA0LjEwNDEtNC4xMDc2IDQuMTA0MS0yLjI3MDkgMC00LjEwNzYtMS44Mzc4LTQuMTA3Ni00LjEwNDEgMC0yLjI3MDkgMS44MzY3LTQuMTExMSA0LjEwNzYtNC4xMTExIDIuMjY4NiAwIDQuMTA3NiAxLjg0MDEgNC4xMDc2IDQuMTExMW0wLjAzMTMgMTAuMzM3Yy0wLjA5OTYtMi4wNTktMS43MTYyLTMuNjc0NS0zLjc1NTYtMy44NDctMC4xMjI3Ni0wLjAxMTYtMC4yMzUwOS0wLjAzNzEtMC4zNTIwNC0wLjAzNzEtMS44NDU5IDAtNC4xNjc4IDEuNTk1OC00LjE2NzggMy42MTMxbDllLTMgNy42NDMxaC05ZS0zYzAuMDI1NSAyLjM4NDQtNGUtMyA2LjY5MTIgMCA2LjczOTggMC4wOTg0IDIuMDU5IDEuNzE3NCAzLjY3MzMgMy43NTMzIDMuODQ0NyAwLjEyMzg5IDAuMDE1MiAwLjIzMzkgMC4wMzgyIDAuMzUzMiAwLjAzODIgMS44NDQ4IDAgNC4xNjktMS41OTU4IDQuMTY5LTMuNjEybC05ZS0zIC02LjM4NjZoOWUtM2MtMC4wMjkxLTIuMzg1NiA0ZS0zIC03Ljk1IDAtNy45OTY0bTc2LjE3OS0yLjIyMzRjLTAuMDY0OS0yLjE4NTItMi4xMjA0LTMuOTkzLTQuMjAzNy00LjA5Ni0yLjIwOTYtMC4xMDg4Ni00LjM5ODMgMS44MTI0LTQuNTA5NCA0LjA5Ni00ZS0zIDAuMTU3NDktMC4wMjU1IDAuNDk3OTUtMC4wMjU1IDAuNTU4MTgtMS4wNDM0LTEuNDU1Ny0zLjM0NjctMy45MTQyLTYuOTcyNi0zLjkxNDItOS45Nzc4IDAtMTAuNjExIDE3Ljc2OS0zLjc2NzEgMjIuMTY0IDEuOTMxNiAxLjIzOCA0Ljg0MDYgMS41NTUzIDcuMDQxIDAuOTg0MzMgMS4yNDM3LTAuMzI1NCAzLjA3OTItMS4zODYyIDMuOTEzLTIuNzQxMSAwLjUwODM3IDEuNzQ1MiAyLjIzODUgMy4wNzM1IDQuMDEyNiAzLjE2MjYgMi4yMTA3IDAuMTA4ODcgNC40MDA2LTEuODEgNC41MTE4LTQuMDkyNiA5ZS0zIC0wLjI5NzYyIDVlLTMgLTE1LjkyMiAwLTE2LjEyMW0tMTIuNjYgMTQuMjk4djJlLTNoLTAuMDI0My0wLjAyNzl2LTJlLTNjLTIuMjI5Mi0wLjAzMzYtMy4zNDU2LTIuMjcxLTMuMzQ1Ni01LjkxNzYgMC0zLjY0MzIgMS40MTQtNS44NzQ4IDMuMzQ1Ni01LjkxNjV2LTJlLTNjMC4wMTE2IDAgMC4wMTc2IDJlLTMgMC4wMjc5IDJlLTMgOGUtMyAwIDAuMDE0LTJlLTMgMC4wMjQzLTJlLTN2MmUtM2MxLjkzMTYgMC4wNDE3IDMuMzQ1NiAyLjI3MzMgMy4zNDU2IDUuOTE2NSAwIDMuNjQ2Ny0xLjExNzUgNS44ODQtMy4zNDU2IDUuOTE3Nm0tOTMuMTk3LTE0LjI5OWMtMC4wNjcyLTIuMTg1Mi0yLjEyNS0zLjk5My00LjIwMjYtNC4wOTYtMi4yMTE4LTAuMTA4ODUtNC40MDE3IDEuODEyNC00LjUxMjkgNC4wOTYtM2UtMyAwLjE1NzQ5LTAuMDIyIDAuNDk3OTUtMC4wMjIgMC41NTgxOC0xLjA0OC0xLjQ1NTctMy4zNDY4LTMuOTE0Mi02Ljk3NS0zLjkxNDItOS45Nzc4IDAtMTAuNjExIDE3Ljc2OS0zLjc2NzEgMjIuMTY0IDEuOTMwNSAxLjIzOCA0LjgzOTUgMS41NTUzIDcuMDQyMSAwLjk4NDM0IDEuMjQzOC0wLjMyNTQgMy4wNzY5LTEuMzg2MiAzLjkwOTYtMi43NDExIDAuNTExODQgMS43NDUyIDIuMjM5NyAzLjA3MzQgNC4wMTYxIDMuMTYyNiAyLjIxMDcgMC4xMDg4NyA0LjQwMDYtMS44MSA0LjUxMTgtNC4wOTI1IDllLTMgLTAuMjk3NjMgN2UtMyAtMTUuOTIyIDAtMTYuMTIxbS0xMi42NjMgMTQuMjk4djJlLTNoLTAuMDIzMS0wLjAyNjd2LTJlLTNjLTIuMjMwNC0wLjAzMzYtMy4zNDU2LTIuMjcwOS0zLjM0NTYtNS45MTc2IDAtMy42NDMyIDEuNDE0LTUuODc0OCAzLjM0NTYtNS45MTY1di0yZS0zYzAuMDEwNSAwIDAuMDE2MiAyZS0zIDAuMDI2NyAyZS0zIDdlLTMgMCAwLjAxNjItMmUtMyAwLjAyMzEtMmUtM3YyZS0zYzEuOTMxNiAwLjA0MTcgMy4zNDkxIDIuMjczMiAzLjM0OTEgNS45MTY1IDAgMy42NDY3LTEuMTE5OCA1Ljg4NDEtMy4zNDkxIDUuOTE3Nm01Ni43NDctMTcuNjg4Yy02LjUxOTggMC0xMS44MDYgNS4yODMtMTEuODA2IDExLjgwNCAwIDYuNTIxIDUuMjg2NSAxMS44MDMgMTEuODA2IDExLjgwMyA2LjUxNzUgMCAxMS44MDUtNS4yODE5IDExLjgwNS0xMS44MDMgMC02LjUyMS01LjI4NzYtMTEuODA0LTExLjgwNS0xMS44MDRtMC4wODU3IDE4LjU5NHY1ZS0zYy0wLjAxMTYgMC0wLjAxODUtMWUtMyAtMC4wMjc4LTFlLTMgLTllLTMgMC0wLjAxNzYgMWUtMyAtMC4wMjA3IDFlLTN2LTVlLTNjLTIuMjMxNi0wLjA0MjktMy4zNDc5LTIuNjAxLTMuMzQ3OS02Ljc4OTcgMC00LjE4MTcgMS40MTQtNi43NDU2IDMuMzQ3OS02Ljc5MnYtOS45ZS00YzRlLTMgMCAwLjAxMTYgMCAwLjAyMDcgOS45ZS00IDllLTMgLTkuOWUtNCAwLjAxNjItOS45ZS00IDAuMDI3OC05LjllLTR2OS45ZS00YzEuOTI4MSAwLjA0NjMgMy4zNDMzIDIuNjEwMiAzLjM0MzMgNi43OTIgMCA0LjE4ODctMS4xMTQgNi43NDY4LTMuMzQzMyA2Ljc4OTdtLTE2MC4xMy0xNy41NTRjLTQuMzA5MSAwLTYuODYxNSAzLjYyNTktNy41ODUyIDQuODExN2wtMC4wMjMgMC4wMTc0Yy0xZS0zIC0xLjE5OTctNWUtMyAtMi4xNDctNWUtMyAtMi4xOTQ1LTAuMDYzNy0yLjA4OC0xLjk5NDItMy42NDc4LTMuOTgwMi0zLjc0NTEtMi4xMDg4LTAuMTA1MzgtNC4yMDM3IDEuNTY2OC00LjMwNjggMy43NDUxLThlLTMgMC4yODI1Ny04ZS0zIDE1Ljg2OCAwIDE2LjA3OCAwLjA2MzcgMi4wODU3IDEuOTk0MiAzLjgwODggMy45ODE0IDMuOTA2MSAyLjEwODggMC4xMDUzOCA0LjE5OTEtMS43MjkgNC4zMDU2LTMuOTA2MSA1ZS0zIC0wLjE2MDk2IDdlLTMgLTUuMjQ3MSA1ZS0zIC05LjYyNjlsMC4wMzQ3LTAuMDIzMmMwLjM1NTUzLTEuNjgxNSAxLjMwMjgtMy40MDEyIDIuNzM0Mi0zLjQwMTIgMS44NTE3IDAgMS45NTM2IDIuMDYwMiAxLjk2MjkgMi4wNjAybC0wLjAxODUgMTAuOTkxYzAuMDYzNyAyLjA4NTYgMS45OTQyIDMuODA4OCAzLjk4MDIgMy45MDYxIDIuMTExMSAwLjEwNTM5IDQuMjAxNC0xLjcyOSA0LjMwOC0zLjkwNjFsLTAuMDEyNy01Ljc0MzljMC01LjkwNiAwLjYxNjA4LTEyLjk5Ni01LjM4MDMtMTIuOTY5bTE5MC4wOS01ZS02Yy00LjMwOTEgMC02Ljg2MTUgMy42MjU5LTcuNTgyOSA0LjgxMTdsLTAuMDI0MyAwLjAxNzRjMC0xLjE5OTctNmUtMyAtMi4xNDctNmUtMyAtMi4xOTQ1LTAuMDYzNy0yLjA4OC0xLjk5NDItMy42NDc4LTMuOTc5MS0zLjc0NTEtMi4xMS0wLjEwNTM4LTQuMjAyNiAxLjU2NjgtNC4zMDggMy43NDUxLTdlLTMgMC4yODI1Ny03ZS0zIDE1Ljg2OCAwIDE2LjA3OCAwLjA2MzcgMi4wODU3IDEuOTk1MyAzLjgwODggMy45ODE0IDMuOTA2MSAyLjExIDAuMTA1MzggNC4yMDAzLTEuNzI5IDQuMzA1Ny0zLjkwNjEgNmUtMyAtMC4xNjA5NiA4ZS0zIC01LjI0NzEgNmUtMyAtOS42MjY5bDAuMDM0Ny0wLjAyMzJjMC4zNTU1Mi0xLjY4MTUgMS4zMDI4LTMuNDAxMiAyLjczMy0zLjQwMTIgMS44NTE3IDAgMS45NTM3IDIuMDYwMiAxLjk2MjkgMi4wNjAybC0wLjAxODQgMTAuOTkxYzAuMDY0OSAyLjA4NTYgMS45OTUzIDMuODA4OCAzLjk4MTQgMy45MDYxIDIuMTEgMC4xMDUzOSA0LjIwMDItMS43MjkgNC4zMDY4LTMuOTA2MWwtMC4wMTE2LTUuNzQzOWMwLTUuOTA2IDAuNjE2MDktMTIuOTk2LTUuMzgxNC0xMi45NjltLTEwNS45NC01ZS02Yy00LjMxMDMgMC02Ljg2MTQgMy42MjU5LTcuNTg0MSA0LjgxMTdsLTAuMDI0MyAwLjAxNzRjMC0xLjE5OTctNWUtMyAtMi4xNDctNWUtMyAtMi4xOTQ1LTAuMDYzNy0yLjA4OC0xLjk5NDItMy42NDc5LTMuOTgwMi0zLjc0NTEtMi4xMS0wLjEwNTM4LTQuMjAyNiAxLjU2NjgtNC4zMDY4IDMuNzQ1MS03ZS0zIDAuMjgyNTYtN2UtMyAxNS44NjggMCAxNi4wNzggMC4wNjM3IDIuMDg1NyAxLjk5NDEgMy44MDg4IDMuOTgwMiAzLjkwNjEgMi4xMSAwLjEwNTM4IDQuMjAwMi0xLjcyOSA0LjMwNjgtMy45MDYxIDVlLTMgLTAuMTYwOTYgN2UtMyAtNS4yNDcxIDZlLTMgLTkuNjI2OWwwLjAzMzYtMC4wMjMyYzAuMzU1NTEtMS42ODE1IDEuMzAzOS0zLjQwMTIgMi43MzMtMy40MDEyIDEuODUxNyAwIDEuOTU0OCAyLjA2MDIgMS45NjI5IDIuMDYwMmwtMC4wMTc2IDEwLjk5MWMwLjA2MzcgMi4wODU2IDEuOTk0MSAzLjgwODggMy45ODAyIDMuOTA2MSAyLjExIDAuMTA1MzkgNC4yMDAzLTEuNzI5IDQuMzA2OC0zLjkwNjFsLTAuMDExNi01Ljc0MzljMC01LjkwNiAwLjYxNjA3LTEyLjk5Ni01LjM4MDMtMTIuOTY5bTE0OS45OCAxOC41MDNjLTAuMTcxMzktMC43MDUyNS0wLjI2NDA1LTEuMzk1NC0wLjMwOTIxLTIuMDkzOC0zZS0zIC0wLjIxMDc2IDAuMDExNi0yNS4wNjYgM2UtMyAtMjUuMzYxLTAuMDYzNy0yLjA5MDMtMS45OTUzLTMuODEzNS0zLjk4MjUtMy45MTMxLTIuMTExMS0wLjEwNDIyLTQuMjAxNCAxLjczMTMtNC4zMDkxIDMuOTEzMS04ZS0zIDAuMjgzNzIgMCAyMi42NjggMCAyMi42NjggMC4wMTk1IDEuODc4NC0wLjE2MjA5IDMuNzk5NiAwLjcyMjYxIDUuNTI4NSAwLjk0MjY2IDEuOTE4OSAzLjI2MTEgMy4zOTc3IDYuMDYzNiAzLjM5NzcgMi40MzMgMCAzLjg3MjUtMS45MzE2IDMuODcyNS0xLjkzMTZzLTEuNDE5OC0wLjUwMjU4LTIuMDYwMi0yLjIwNzJtLTI2Mi43OC0yNy4yMzNjMC4xNzI1NCAwLjcwNDEgMC4yNjI4NyAxLjM5NjYgMC4zMDkxOSAyLjA5MjYgMWUtMyAwLjIxMTkyLTAuMDEyNyAyNS4wNjctOS45ZS00IDI1LjM2NSAwLjA2MjQgMi4wODggMS45OTQyIDMuODExMiAzLjk4MDIgMy45MTA4IDIuMTEyMyAwLjEwNTM4IDQuMjAzNy0xLjczMDIgNC4zMDkxLTMuOTEwOCA5ZS0zIC0wLjI4NDg3IDAtMjIuNjY5IDAtMjIuNjY5LTAuMDE4NS0xLjg4MDcgMC4xNjQ0NC0zLjgwMTktMC43MjI2Mi01LjUyNzQtMC45NDAzNC0xLjkyLTMuMjYxMS0zLjQtNi4wNjI0LTMuNC0yLjQzMzEgMC0zLjg3MzcgMS45MzE2LTMuODczNyAxLjkzMTZzMS40MjA5IDAuNTAwMjggMi4wNjEzIDIuMjA3MiIvPgoJCTxwYXRoIGQ9Im01NC42MDQgODEuMjg1Yy0yLjM3MTcgMi4xNTE3LTUuNzk2MSAyLjg2OTctNy45NDA4IDMuMTQzLTQuMzcwNSAwLjU0NTQ1LTguODg5Mi0wLjkwNDQ0LTExLjc3My00LjM3OTgtMi4zNjgyLTIuODQwNy0zLjU4NDItNi41MTY0LTUuODk1Ny05LjQ1NjctMy42NTEzLTQuNjUzMS05LjQ5MDMtNy43MDExLTE1LjUwNC02LjYyNDEtMTEuODg3IDIuMTU2My0xNy4yODIgMTYuMDE4LTEwLjU2MSAyNS42MzQgOS42MDcyIDEzLjc0MSAzMS4yMSAxMS4zNjMgNDIuMjk3IDEuODQyNSAzLjQ1MjItMi45NjEyIDYuNjc1LTYuMjUzNSA5LjM3NzktMTAuMTU4bTQwMi44LTAuMDAyM2MyLjM3NjQgMi4xNTYzIDUuNzg5MSAyLjg3MzEgNy45NDIgMy4xNDQxIDQuMzY3IDAuNTQ4OTIgOC44ODkyLTAuODk5ODEgMTEuNzcyLTQuMzc3NCAyLjM2NzEtMi44NDQyIDMuNTg3Ni02LjUxNjQgNS44OTU3LTkuNDU2NyAzLjY1ODMtNC42NTU0IDkuNDk0OS03LjcwMjIgMTUuNTA2LTYuNjI0MSAxMS44ODMgMi4xNTI4IDE3LjI3NyAxNi4wMTcgMTAuNTUyIDI1LjYzNC05LjYwMjYgMTMuNzM4LTMxLjIwNCAxMS4zNjItNDIuMjg0IDEuODQzNi0zLjQ1NDUtMi45NjExLTYuNjg1NC02LjI1Ny05LjM4MzctMTAuMTYzbS0zMjUuMDQtNS43Njk1Yy04LjkzNjctOS43OTgzLTExLjczMi0yNi4wOTMtMTIuMjgxLTM2LjkyNS0wLjQ3NDgxLTkuMzU1OSAwLjAzMTMtMjUuNTYxIDcuNDA0Ni0zMC4yNzctMi40Njc4LTMuMTAxMy03LjMzNzQtNC4zNTItMTEuMDM3LTQuMzUyLTguMzEzNyAwLTEyLjMyMSA1LjUzNjctMTUuMTY0IDkuNTE5Mi0wLjkzOTE5IDEuMzE1Ni0xNC45MTcgMjAuNTk5LTE0LjkxNyAyMC41OTlzLTExLjc1OS0xOC4xOTEtMTMuMjA0LTIwLjM3NWMtMS45OTc2LTMuMDE1NS01LjczNy04LjU1NjgtMTIuMzA5LTkuNTE1Ny0yLjgzMDMtMC40MTM0My0xMC4xNzItMC43ODg2NC0xNC4xNjkgNC42OTU5IDYuODg4MSA1LjUxMTIgNi43MTU2IDE5LjU0NyA1LjIyMDUgMjkuMTI5LTQuNDg3NSAyOC43NjMtMTYuNzI2IDMxLjQxMi0xNi43MjYgMzEuNDEyIDYuMjY4NiAxNi45MyAyMi40MTQgMTAuMjQyIDI2Ljk3Ni0zLjI1NzYgMi45NTU0LTguNzc0NiA0Ljg2MjctMTkuODgxIDUuMzAyNy0yOS4wOTJsMTcuNzE4IDI3LjE3OHMyMC4wNjItMjcuMDk0IDIwLjA2Mi0yNy4wN2MtMy4zMDM5IDQ3LjkxNiAxMy4xNTEgNjEuNDk5IDI3LjU0MiA2MS40OTkgMTQuNDAzIDAgMTkuMzAyLTEzLjE3MSAxOS4zMDItMTMuMTcxLTcuNzg2OC0wLjQ2OTAxLTE0LjYwMi00LjM4NTYtMTkuNzIyLTkuOTk4N20zMjguNDQtMTEuMDg1aC0xMS4wNDljMC44MTQxMiAwIDguOTg3Ny02Ljg5MTYgMTEuNjk4LTkuMTg5MiA3LjA5NzctNi4wMjQyIDE5Ljg2My0xNC43MTcgMTYuMTQyLTI1Ljk3NGw5ZS0zIDAuMDc4NzRjLTAuNjgzMjYtMi42ODA5LTIuNzQ2OS00LjIyODEtMi43NDY5LTQuMjI4MXMtMC43NzI0MSAyLjE4ODctMy4zOTc3IDMuMTY4NGMtMS4wNzEyIDAuMjU5NC0yLjE0MzYgMC40NTUxMS0zLjIxMjUgMC41MTg4MS0wLjg4MjQ0IDAuMDE2MjEtMzAuODg0IDAtMzAuODg0IDAtNC4wNTc4LTAuMDA1OC03LjQ1NzkgMy4yNTc2LTcuNTE0NiA3LjEwNy0wLjA0NjMgMy44ODE4IDMuMTYyNiA2Ljk5NTggNy4yNzQ5IDcuMDUxNGwxNy41MDIgMC4xMTExN2MtOC4xMTIyIDQuNTI0NS0xNy44MDIgOS44ODI4LTIyLjcyIDE4LjA2NS0yLjgwOTQgNC42OTU5LTUuODE2OSAxMS45MzYtNC42NzM5IDE3LjQ4OSAzLjg4NzYtMy40NDUyIDE0LjA5NC02Ljc4MTYgMjEuODYxLTUuMTYxNSAyLjkwOSAwLjYwNzk4IDYuMDAxIDIuMDkyNiA4LjUxNTIgMy42NjQxIDE0LjU2OCA5LjExMzkgMjMuMzI0LTguNzA5NyAxNi4zNi0xNi41NjcgMCAwLTMuOTcyMSAzLjg2NjctMTMuMTYyIDMuODY2N20tMzYuMzg0LTEuNDA5NHMtMi44NDQyIDMuODk2OS0xMy44NzggMy44OTY5Yy0xMS4wMzMgMC0xMy40MDEtOC41Nzc3LTEzLjQwMS04LjU3NzcgMTYuMDggMCAyOS41NjYtMS4wNzcgMjkuNTY2LTE0LjA5NiAwLTEzLjAxNy0xNC43MTMtMTcuMzA5LTIzLjQzNy0xNy4zMDktMTQuNDA1IDAtMjQuOTMxIDExLjQ4OC0yNC45MzEgMjYuNjUzIDAgMTcuMDc3IDEzLjcwNiAyNS43MzcgMjUuMDgyIDI1LjczNyAyMC4wMzcgMCAyMC45OTgtMTYuMzAzIDIwLjk5OC0xNi4zMDNtLTI4LjMyMS0xMy4wMzNjMC41NjM5Ny00LjE1NjMgMS41NTk5LTkuMzkzIDUuMjk4MS0xMS44MTggMy4xMDM2LTIuMDE3MyA3LjQ1MjEgMC4yNzkwOSA3LjUxNjkgNC4xNjA5IDAuMDcxOCA0LjEwMDctMi41ODAxIDYuODkyNy02LjI3MDkgNy42Njk4LTAuMzkxNDIgMC4wODMzOS02LjU5ODYgMC4zOTM3NC02LjU0NDItMC4wMTI3NG0tNDkuMjU5IDEzLjAzM3MtMi44NDQyIDMuODk2OS0xMy44NzggMy44OTY5Yy0xMS4wMzMgMC0xMy40MDEtOC41Nzc3LTEzLjQwMS04LjU3NzcgMTYuMDggMCAyOS41NjYtMS4wNzcgMjkuNTY2LTE0LjA5NiAwLTEzLjAxNy0xNC43MTMtMTcuMzA5LTIzLjQzOC0xNy4zMDktMTQuNDA0IDAtMjQuOTI5IDExLjQ4OC0yNC45MjkgMjYuNjUzIDAgMTcuMDc3IDEzLjcwNiAyNS43MzcgMjUuMDgyIDI1LjczNyAyMC4wMzcgMCAyMC45OTgtMTYuMzAzIDIwLjk5OC0xNi4zMDNtLTI4LjMyMS0xMy4wMzNjMC41NjM5Ny00LjE1NjMgMS41NTk5LTkuMzkzIDUuMjk2OS0xMS44MTggMy4xMDQ3LTIuMDE3MyA3LjQ1MjEgMC4yNzkwOSA3LjUxODEgNC4xNjA5IDAuMDcwNiA0LjEwMDctMi41ODAxIDYuODkyNy02LjI3MDkgNy42Njk4LTAuMzkxNCAwLjA4MzM5LTYuNTk4NiAwLjM5Mzc0LTYuNTQ0Mi0wLjAxMjc0bS0yMi4xMzQgMTkuNjY0Yy0wLjQwMTg0LTEuNjQxLTAuNjE2MDctMy4yNTY1LTAuNzIyNjQtNC44ODU4bDAuMDE0LTU1LjA2N2MxZS01IC01LjM1Ni00LjM0MDQtOS42OTc2LTkuNjk3NS05LjY5NzYtNS4zNTYgMC05LjY5NzYgNC4zNDE1LTkuNjk3NiA5LjY5NzZsLTAuMDM4MiAyNi4wODJjLTIuMzMyMy0zLjI0Ni03LjQ3MDYtOC43MzUyLTE1LjU2NS04LjczNTItMjIuMjcxIDAtMjMuNjc4IDM5LjY1OS04LjQwNTIgNDkuNDY5IDQuMzA1NiAyLjc2MiAxMC43OTkgMy40NzMgMTUuNzEyIDIuMTk2OCAzLjM5Mi0wLjg4NDc1IDguNzM5OC00LjIxNzYgOS42MDAzLTguMTk3OSAwLjEyMTU4IDAuMjkxODMgMC4yNTM1OCAwLjU4MjUgMC40MDE4IDAuODcyMDEgMi4xOTggNC40ODQgNy42MTY2IDcuOTM4NSAxNC4xNjcgNy45Mzg1IDUuNjgyNiAwIDkuMDQ2Ny00LjUxMDYgOS4wNDY3LTQuNTEwNnMtMy4zMTktMS4xNzMxLTQuODE1Mi01LjE2MTRtLTI4LjktMy4yMDQzdjAuMDA4MWMtMC4wMjA5IDAtMC4wMzU5LTAuMDAyNC0wLjA1NDQtMC4wMDI0LTAuMDIyIDAtMC4wMzM2IDAuMDAyNC0wLjA1NzkgMC4wMDI0di0wLjAwODFjLTQuOTc2Mi0wLjA3NDEyLTcuNDY2LTUuMDYzLTcuNDY2LTEzLjIwMiAwLTguMTM0MiAzLjE1NTctMTMuMTE2IDcuNDY2LTEzLjIwOHYtMC4wMDY5YzAuMDI0MyAwIDAuMDM1OCAwLjAwNjkgMC4wNTc5IDAuMDA2OSAwLjAxODUgMCAwLjAzMzYtMC4wMDY5IDAuMDU0NC0wLjAwNjl2MC4wMDY5YzQuMzEzOCAwLjA5MTUgNy40NzA2IDUuMDczNCA3LjQ3MDYgMTMuMjA4IDAgOC4xMzg4LTIuNDk1NiAxMy4xMjgtNy40NzA2IDEzLjIwMm0tMTEwLjItMzkuODJjLTE0LjU1MyAwLTI2LjM0OCAxMS43OTQtMjYuMzQ4IDI2LjM0OSAwIDE0LjU1MiAxMS43OTUgMjYuMzQ3IDI2LjM0OCAyNi4zNDcgMTQuNTUgMCAyNi4zNS0xMS43OTUgMjYuMzUtMjYuMzQ3IDAtMTQuNTU2LTExLjgwMS0yNi4zNDktMjYuMzUtMjYuMzQ5bTAuMTkzNCA0MS41MDV2MC4wMTE1OGMtMC4wMjMyIDAtMC4wMzk0LTAuMDA2OS0wLjA1NzgtMC4wMDY5LTAuMDIwOCAwLTAuMDM4MiAwLjAwNjktMC4wNTQ0IDAuMDA2OXYtMC4wMTE1OGMtNC45NzUtMC4wOTAzMy03LjQ2OTQtNS44MDc2LTcuNDY5NC0xNS4xNTUgMC05LjMzNTEgMy4xNjAzLTE1LjA1OCA3LjQ2OTQtMTUuMTYxdi0wLjAwMTFjMC4wMTYyIDAgMC4wMzM2IDAgMC4wNTQ0IDAuMDAxMSAwLjAxODUtMC4wMDExIDAuMDM0Ny0wLjAwMTEgMC4wNTc4LTAuMDAxMXYwLjAwMTFjNC4zMDMzIDAuMTAzMDYgNy40NjcyIDUuODI2MiA3LjQ2NzIgMTUuMTYxIDAgOS4zNDc4LTIuNDg5OCAxNS4wNjUtNy40NjcyIDE1LjE1NW0yMTYuNSAxLjUxOTRjLTAuNDAwNzEtMS42NDEtMC42MTQ5My0zLjI1NjUtMC43MjAzMS00Ljg4NThsMC4wMTYyLTU1LjA2N2MzZS01IC01LjM1Ni00LjM0MTUtOS42OTc2LTkuNjk3NS05LjY5NzYtNS4zNTYgMC05LjY5NzYgNC4zNDE1LTkuNjk3NiA5LjY5NzZsMC4wMTI3IDQ4Ljc2OGMwLjA0ODcgNC4zOTI1LTAuMzgzMzIgOC44ODExIDEuNjg5NiAxMi45MTggMi4xOTY4IDQuNDg0IDcuNjE1NCA3LjkzODUgMTQuMTY0IDcuOTM4NSA1LjY4NDkgMCA5LjA0NjctNC41MTA2IDkuMDQ2Ny00LjUxMDZzLTMuMzE3OC0xLjE3MzEtNC44MTQtNS4xNjE0bS0xMzYuODYgMGMtMC4zOTcxOS0xLjY0MS0wLjYwNzk1LTMuMjU2NS0wLjcyMDI5LTQuODg1OC0wLjAxOTYtMi4zNTMyLTAuMDE5Ni01LjY1NDgtMC4wMTk2LTguNjk0NyAwLjI5NjQ1LTEwLjQ5NyAyLjI1NTktMjguOTYzLTExLjk4Mi0yOC45NjMtOS42MTU0IDAtMTUuMzEyIDguMDkxMy0xNi45MjYgMTAuNzM2LTAuMjMwNDUtNy4zNzU3LTYuMDQ5Ny0xMi43MjctMTQuOTM5LTEyLjcyNy01LjY3MSAwLTkuMDM5OCA0LjUxNDEtOS4wMzk4IDQuNTE0MXM1LjUzMzIgMS45MTc3IDUuNTMzMiA5LjM1MTNjMC4wNTkxIDUuMzIyNC05ZS0zIDMxLjIzNyAwIDMxLjM0NyAwLjIxNjU0IDQuNTkyOCAzLjQyNjcgOC44OTg1IDkuMTY2IDguODk4NSA1LjczOTMgMCA5LjMwMTUtNC40MTIyIDkuMzAxNS04LjkwNjZ2LTIyLjk4NGMwLjc5OTA2LTMuNzU2NyAyLjkxMzctNy41OTIyIDYuMTAwNi03LjU5MjIgNC4xMzQyIDAgNC4zNjcgNC41OTc1IDQuMzg2NyA0LjU5NzVsLTAuMDE5NyAyMi4yNWMwLjAxOTcgMC43MjM3OSAwLjExMTE3IDEuNDE3NSAwLjIzNjI1IDIuMDk4NCAwLjIwNjEzIDEuMTYwNCAwLjU1NTg2IDIuMjM4NSAxLjA1OTYgMy4yMjg3IDIuMjA0OSA0LjQ4MTcgNy4wODM4IDcuNDAzNCAxMy42NDEgNy40MDM0IDUuNjY2NCAwIDkuMDM2My00LjUxMDYgOS4wMzYzLTQuNTEwNnMtMy4zMjQ4LTEuMTczMS00LjgxNDEtNS4xNjE0bTE4MC43LTYxLjY1NWMtMC4yOTc2LTAuMDExNTgzLTI4LjY3MS0wLjAxMTU4My0yOC45MzQtMC4wMDExMS0zLjEwODIgMC4wOTM4MDQtNS42ODAyIDIuOTcyNy01LjgyNzMgNS45MzUtMC4xNTc1MSAzLjE0NzYgMi41Nzc4IDYuMjY4NiA1LjgyNzMgNi40MjQ5IDAuMjk5OTQgMC4wMDkyIDI4LjY3MyAwLjAwOTIgMjguOTM0IDAgMy4xMTE3LTAuMDk0OTcgNS42ODI2LTIuOTczOSA1LjgyODUtNS45MzYyIDAuMTU4NjQtMy4xNDg4LTIuNTc2Ny02LjI2NTEtNS44Mjg1LTYuNDIyNiIvPgoJPC9nPgo8L3N2Zz4K"></span>
+    <h1>Sales Operations Pacífico</h1>
+    <span class="who" id="pWho"></span>
+    <button class="small hidden" id="pEntrar">Iniciar sesión</button>
+    <button class="ghost small hidden" id="pSalir">Cerrar sesión</button>
+  </div></div>
+  <div class="pmain">
+  <section>
+    <div class="sh"><h2>Cuotas</h2><span class="note">Ajuste de cuotas por país. Pide iniciar sesión al entrar.</span>
+      <span class="pill ej hidden" id="pEj">Avance y estado con datos de ejemplo</span></div>
+    <div class="bd"><div class="pgrid" id="pPaises"></div></div>
+  </section>
+  <section id="calSec">
+    <div class="sh"><h2>Calendario de cuotas</h2><span class="note" id="calPer"></span>
+      <span class="pill ej hidden" id="calEj">Datos de ejemplo</span>
+      <span class="calBtns hidden" id="calBtns"><button class="ghost small" id="calImg">Descargar imagen</button>
+        <button class="ghost small" id="calCopiar">Copiar tabla para correo</button></span></div>
+    <div class="bd">
+      <p class="cal-res" id="calRes"></p>
+      <div class="cal-scroll hidden" id="calMatW"><div id="calMat"></div></div>
+      <div id="calLista"></div>
+      <p class="note" id="calPie"></p>
+    </div>
+  </section>
+  <p class="note">Información confidencial de uso interno.</p>
+  </div>
+</div>
+
+<div id="gate" class="gate hidden">
+  <button class="volver" id="gVolver">Volver al inicio</button>
+  <img class="glogo" id="gLogo" alt="Mondelēz International">
+  <h2>Cuotas</h2>
+  <p class="tag" id="gTag">Sales Operations Pacífico</p>
+  <div id="gateBody">
+    <div id="gEd">
+      <label for="gName">Tu nombre</label>
+      <input id="gName" autocomplete="name" placeholder="Nombre y apellido">
+    </div>
+    <div id="gAd" class="hidden">
+      <label for="gMail">Correo del administrador</label>
+      <input id="gMail" type="email" autocomplete="username">
+    </div>
+    <label for="gKey">Contraseña</label>
+    <input id="gKey" type="password" autocomplete="current-password">
+    <p class="note" id="gNota">La contraseña define tu acceso: solo ver o editar.</p>
+    <button id="gGo">Entrar</button>
+    <p class="gLinks"><button class="volver" id="gModo">Soy administrador</button>
+      <button class="volver hidden" id="gOlvide">Olvidé mi contraseña</button></p>
+  </div>
+  <p class="msg" id="gMsg"></p>
+  <div class="conf">
+    <strong>Información confidencial.</strong> Las cifras de cuota son de uso interno de
+    Mondelēz. No compartas este enlace ni la contraseña con personas que no estén autorizadas
+    a ajustar cuotas.
+  </div>
+</div>
+
+<div class="wrap hidden" id="app">
+<header>
+  <button class="volver" id="inicio">Inicio</button>
+  <h1 id="hTit">Cuotas</h1>
+  <span class="sub" id="hSub"></span>
+  <div class="who" id="whoAmI"></div>
+  <button class="ghost small" id="salir">Salir</button>
+</header>
+
+<div class="ventana hidden" id="ventana">
+  <span class="v-estado" id="vEstado"></span>
+  <span class="v-detalle" id="vDetalle"></span>
+  <span class="v-dias hidden" id="vDias"><b id="vDiasN"></b><span id="vDiasT"></span></span>
+</div>
+
+<div class="conf-strip">
+  <strong>Confidencial, uso interno.</strong> No compartas el enlace ni la contraseña fuera del
+  grupo autorizado. Esta herramienta cubre las cuotas de Traditional Trade;
+  el proceso de los demás países de Pacífico está en estandarización.
+</div>
+
+<div class="banner hidden" id="banner"></div>
+
+<div class="modal hidden" id="modal">
+  <div class="caja">
+    <h3 id="mTit">Tienes cambios sin guardar</h3>
+    <p id="mTxt"></p>
+    <div class="mBtns">
+      <button id="mGuardar">Guardar y salir</button>
+      <button class="ghost" id="mDescartar">Salir sin guardar</button>
+      <button class="ghost" id="mCancelar">Seguir editando</button>
+    </div>
+    <p class="msg" id="mMsg"></p>
+  </div>
+</div>
+
+<div class="bar">
+  <div class="cell"><span class="n" id="kTons">–</span><span class="l" id="kTonsL">TONS ingresadas</span></div>
+  <div class="cell"><span class="n" id="kIV">–</span><span class="l" id="kIVL">Valorizado S/</span></div>
+  <div class="cell" id="cDif"><span class="n" id="kDif">–</span><span class="l" id="kDifL">Diferencia vs IBP</span></div>
+  <div class="cell"><span class="n" id="kPend">0</span><span class="l">Cambios sin guardar</span></div>
+  <div class="acts">
+    <button id="save" disabled>Guardar cambios</button>
+    <button class="ghost small" id="undo">Volver a lo guardado</button>
+  </div>
+</div>
+
+<section id="main" class="hidden">
+  <div class="tabs" role="tablist">
+    <button class="tab" id="tCli" role="tab" aria-selected="true">Split por cliente<span class="pill">oficial</span></button>
+    <button class="tab" id="tReg" role="tab" aria-selected="false">Split regional<span class="pill">referencial</span></button>
+    <button class="tab hidden" id="tSI" role="tab" aria-selected="true">Sell in oficial<span class="pill">oficial</span></button>
+  </div>
+  <div class="bd"><p class="note" id="levelNote"></p></div>
+  <div class="toolbar">
+    <label for="filtro" class="note">Región</label>
+    <select id="filtro"><option value="">Todas las regiones</option></select>
+    <span class="note" id="filtroInfo"></span>
+    <button class="ghost small" id="expGrid" style="margin-left:auto">Exportar a Excel</button>
+    <span class="note" id="lastInfo"></span>
+  </div>
+  <div class="scroll"><div id="grid"></div></div>
+  <div class="bd"><div class="val" id="validador"></div></div>
+</section>
+
+<section id="refSec" class="hidden">
+  <div class="sh">
+    <h2>Referencia regional por categoría</h2>
+    <span class="note" id="refNota"></span>
+    <button class="ghost small" id="expRef" style="margin-left:auto">Exportar a Excel</button>
+  </div>
+  <div class="bd"><div id="refTbl"></div></div>
+</section>
+
+<section id="resSec" class="hidden">
+  <div class="sh">
+    <h2>Valorizado por subcanal y región</h2>
+    <span class="note">Total en soles, sin abrir por categoría ni LET/MAY.</span>
+    <button class="ghost small" id="expRes" style="margin-left:auto">Exportar a Excel</button>
+  </div>
+  <div class="bd"><div id="resumen"></div></div>
+</section>
+
+<section id="siResSec" class="hidden">
+  <div class="sh">
+    <h2>Sell in por subcanal y región</h2>
+    <span class="note">Total en soles, abierto por categoría.</span>
+    <button class="ghost small" id="expSIRes" style="margin-left:auto">Exportar a Excel</button>
+  </div>
+  <div class="bd"><div id="siResumen"></div></div>
+</section>
+
+<div class="toast hidden" id="toast"></div>
+
+<p style="text-align:center"><button class="ghost small hidden" id="toggleAdmin">Configuración</button></p>
+
+<section class="admin hidden" id="adminBox">
+  <div class="sh"><h2>Configuración, solo administrador</h2></div>
+  <div class="bd">
+    <h3 id="vTitAdm">Ventana de registro</h3>
+    <p class="note">Fuera de estas fechas, los editores solo pueden consultar este módulo. El bloqueo es automático.
+      Sell in y sell out tienen ventanas separadas.</p>
+    <div class="fila">
+      <div><label for="dOpen">Apertura</label><input type="date" id="dOpen"></div>
+      <div><label for="dClose">Cierre</label><input type="date" id="dClose"></div>
+      <button id="saveFechas">Guardar fechas</button>
+      <label class="chk">
+        <input type="checkbox" id="override">
+        Permitirme editar fuera de la ventana
+      </label>
+    </div>
+    <p class="msg" id="fechasMsg"></p>
+
+    <div class="emg" id="emgBox">
+      <p class="tit">Apertura de emergencia</p>
+      <p class="note" style="margin-top:4px">Habilita la edición para todos los editores aunque la ventana esté cerrada. Úsalo solo cuando haga falta y apágalo al terminar: queda registrado quién lo activó y cuándo.</p>
+      <div class="fila">
+        <button id="emgOn">Abrir edición de emergencia</button>
+        <button class="ghost hidden" id="emgOff">Cerrar edición de emergencia</button>
+        <span class="note" id="emgInfo"></span>
+      </div>
+    </div>
+
+    <hr>
+    <h3>Contraseñas de acceso</h3>
+    <p class="note">Hay una contraseña para ver y otra para editar; todo el equipo comparte la de su nivel.
+      Cámbialas cuando alguien deje el equipo y avisa: la anterior deja de funcionar. Las dos deben ser distintas.</p>
+    <div class="fila">
+      <div><label for="edNivel">Nivel</label>
+        <select id="edNivel"><option value="editor">Editores (ver y editar)</option><option value="lector">Lectores (solo ver)</option></select></div>
+      <div><label for="edAct">Contraseña actual de ese nivel</label><input type="password" id="edAct" autocomplete="off"></div>
+      <div><label for="edNue">Nueva contraseña (mínimo 8 caracteres)</label><input type="text" id="edNue" autocomplete="off"></div>
+      <button id="saveClaveEd">Cambiar contraseña</button>
+    </div>
+    <p class="msg" id="edMsg"></p>
+
+    <hr>
+    <h3>Calendario de cuotas</h3>
+    <p class="note">Pega la tabla desde Excel con estos encabezados: <strong>PAIS, PASO, RESPONSABLE, FECHA PLAN, FECHA REAL</strong>.
+      Una fila por país y paso; los pasos salen en el orden en que aparecen. Deja FECHA REAL vacía si el paso aún no se cumple.
+      Reemplaza el calendario publicado.</p>
+    <div class="fila">
+      <div><label for="calPerIn">Periodo</label><input type="text" id="calPerIn" placeholder="Cuota de diciembre 2026"></div>
+      <div><label for="calDias">Desfase en</label>
+        <select id="calDias"><option value="habiles">Días hábiles</option><option value="calendario">Días calendario</option></select></div>
+      <button class="ghost" id="calPlant">Descargar plantilla</button>
+    </div>
+    <textarea id="calRaw" placeholder="Pega aquí la tabla del calendario desde Excel"></textarea>
+    <div class="fila"><button id="calPub">Publicar calendario</button></div>
+    <p class="msg" id="calMsg"></p>
+
+    <div id="admSO">
+    <hr>
+    <h3>Base del mes</h3>
+    <p class="note">Abre un CSV o pega <strong>Tbl_Live_SO</strong> con encabezados. Se resume por celda y Format Flavor antes de guardarse.</p>
+    <textarea id="raw" placeholder="Pega aquí la tabla desde Excel"></textarea>
+    <div class="fila">
+      <input type="file" id="csv" accept=".csv,.txt,.tsv" style="max-width:240px">
+      <button id="pub">Publicar base</button>
+    </div>
+    <p class="prog hidden" id="prog"></p>
+    <p class="msg" id="adminMsg"></p>
+    </div>
+
+    <div id="admSI">
+    <hr>
+    <h3>Propuesta de sell in del mes</h3>
+    <p class="note">Abre el CSV <strong>Propuesta_SI_para_web</strong> que deja el proceso de Perú en
+      <strong>salidas\PE</strong>. Reemplaza la propuesta anterior; los ajustes guardados no se borran.</p>
+    <div class="fila">
+      <input type="file" id="csvSI" accept=".csv,.txt,.tsv" style="max-width:240px">
+      <button id="pubSI">Publicar propuesta de sell in</button>
+    </div>
+    <p class="msg" id="siMsg"></p>
+    </div>
+
+    <hr>
+    <h3>Ajustes</h3>
+    <p class="note">Un archivo por tipo de ajuste, para el proceso de Python: el de sell in va en
+      <strong>ajustes\PE\sell_in</strong> y el de sell out en <strong>ajustes\PE\sell_out</strong>.
+      El nombre lleva la fecha y la hora; el proceso usa el más reciente de cada carpeta.</p>
+    <div class="fila">
+      <button class="ghost" id="expSO">Exportar sell out</button>
+      <button class="ghost" id="expSIaj">Exportar sell in</button>
+      <button class="ghost" id="wipe">Borrar ajustes de este módulo</button>
+    </div>
+    <p class="note">Mientras el proceso no lea los archivos separados, usa este botón: descarga los dos
+      ajustes juntos en <strong>ajustes_cuota.csv</strong>, como hasta ahora.</p>
+    <div class="fila">
+      <button class="ghost small" id="exp">Exportar ambos (formato anterior)</button>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer id="foot" class="hidden"><span id="footTxt"></span>. Cualquier consulta, escribe al área de
+  <strong>Sales Operations</strong>.</footer>
+
+<script type="module">
+/* Proyecto de Firebase de Sales Operations. Para cambiar de proyecto, reemplaza este bloque completo
+   por el que da la consola (Configuración del proyecto > General > Tus apps > Configuración del SDK).
+   Nada más del archivo depende del nombre del proyecto. */
+const firebaseConfig = {
+  apiKey: "AIzaSyB-INPPhC2cGHUHiByIuIwAT6PudSkRTV4",
+  authDomain: "sales-op-pacifico.firebaseapp.com",
+  projectId: "sales-op-pacifico",
+  storageBucket: "sales-op-pacifico.firebasestorage.app",
+  messagingSenderId: "497426521410",
+  appId: "1:497426521410:web:91de336fdf4d92cfd53cdb"
+};
+
+import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail,
+  updatePassword, setPersistence, browserSessionPersistence, inMemoryPersistence }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, onSnapshot }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* Países y herramientas de cuotas. Para sumar un país, se agrega aquí. Perú usa las
+   rutas de datos originales (prefijo vacío); un país nuevo debe tener su propio prefijo. */
+const PAISES=[
+  {cod:"PE", nombre:"Perú", canal:"Traditional Trade", prefijo:"", modulos:[
+    {id:"so", nombre:"Sell out", desc:"Toneladas por cliente y región"},
+    {id:"si", nombre:"Sell in oficial", desc:"Total en soles por cliente"}]},
+  {cod:"EC", nombre:"Ecuador", canal:"Traditional Trade", modulos:[]},
+  {cod:"BO", nombre:"Bolivia", canal:"Traditional Trade", modulos:[]},
+  {cod:"CL", nombre:"Chile", canal:"Traditional Trade", modulos:[]},
+];
+let pais=PAISES[0], modulo="so", destino=null;
+const CATS=["BISCUITS","GUMS & CANDIES","PBS & MEALS"];
+/* Orden de subcanales en sell in */
+const SC_SI=["DISTRIBUTOR","CODEX","BROKER","WHOLESALER"];
+const scIdxSI=s=>{const u=String(s).toUpperCase(); const i=SC_SI.findIndex(k=>u.includes(k));
+  return i<0?SC_SI.length:i;};
+const SUBS=["LET","MAY"];
+const SC_ORDER=["TDS","ECOMMERCE","BROKER","CODEX","TT WHOLESALERS"];
+const REQ=["SUBCANAL","REGION","SubCanalCliente","Categoria","DISTRIBUIDOR",
+  "F FLAVOR","CUOTA TONS SO","IV_POR_TON_SKU","RAW_IBP_FF_TONS"];
+const SEP="\u001F";
+const CHUNK_BYTES=700000;
+const TOL=0.001;
+
+let dbF=null, auth=null, nombrePend="", soloLectura=false, base=null, meta=null, siBase=null;
+let saved={reg:{},cli:{},si:{},by:"",at:""};
+let local={reg:{},cli:{},si:{}};
+let focusPend=null, lastSIRows=null;
+let level="cli", me="", isAdmin=false, filtro="", override=false;
+let lastCalc=null, lastRows=null, lastRef=null;
+
+/* ---------- utilidades ---------- */
+function num(v){
+  if(v==null) return 0;
+  let s=String(v).trim().replace(/\s|'|S\/|\$/g,"");
+  if(!s||s==="-") return 0;
+  const d=s.lastIndexOf("."), c=s.lastIndexOf(",");
+  if(d>-1&&c>-1) s = c>d ? s.replace(/\./g,"").replace(",",".") : s.replace(/,/g,"");
+  else if(c>-1) s = /^\d{1,3}(,\d{3})+$/.test(s) ? s.replace(/,/g,"") : s.replace(",",".");
+  const n=parseFloat(s); return isNaN(n)?0:n;
+}
+/* Parte una línea en columnas respetando comillas: "NOMBRE, CON COMA" es una sola columna. */
+function partir(linea,sep){
+  if(!linea.includes('"') || (linea.split('"').length-1)%2) return linea.split(sep);
+  const out=[]; let cur="", q=false;
+  for(let i=0;i<linea.length;i++){ const ch=linea[i];
+    if(q){ if(ch==='"'){ if(linea[i+1]==='"'){ cur+='"'; i++; } else q=false; } else cur+=ch; }
+    else if(ch==='"') q=true;
+    else if(ch===sep){ out.push(cur); cur=""; }
+    else cur+=ch;
+  }
+  out.push(cur); return out;
+}
+const f1=n=>(n??0).toLocaleString("es-PE",{minimumFractionDigits:3,maximumFractionDigits:3});
+const f0=n=>(n??0).toLocaleString("es-PE",{minimumFractionDigits:2,maximumFractionDigits:2});
+const fK=n=>(n??0).toLocaleString("es-PE",{minimumFractionDigits:0,maximumFractionDigits:0});
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const $=id=>document.getElementById(id);
+function banner(t){const b=$("banner"); if(!t){b.classList.add("hidden");return;}
+  b.textContent=t; b.classList.remove("hidden");}
+async function sha(s){
+  const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+const scIdx=s=>{const i=SC_ORDER.indexOf(String(s).trim().toUpperCase());
+  return i<0?SC_ORDER.length:i;};
+const fechaLarga=iso=>{
+  if(!iso) return "";
+  const d=new Date(iso+"T12:00:00");
+  return d.toLocaleDateString("es-PE",{weekday:"long",day:"numeric",month:"long"});
+};
+
+/* ---------- ventana de registro ---------- */
+/* Cada módulo tiene su ventana: sell out usa openAt/closeAt/emgOn…; sell in, siOpenAt/siCloseAt/siEmgOn… */
+const campo=(n,mod)=>((mod||modulo)==="si" ? "si"+n[0].toUpperCase()+n.slice(1) : n);
+const M=(n,mod)=>meta ? meta[campo(n,mod)] : undefined;
+function ventana(mod){
+  if(M("emgOn",mod)===true)
+    return {estado:"forzada", editable:true};
+  if(!meta || !M("openAt",mod) || !M("closeAt",mod))
+    return {estado:"sin-fechas", editable:true};
+  const ahora=new Date();
+  const ini=new Date(M("openAt",mod)+"T00:00:00");
+  const fin=new Date(M("closeAt",mod)+"T23:59:59");
+  const dia=86400000;
+  if(ahora<ini) return {estado:"pronto", editable:false,
+    dias:Math.ceil((ini-ahora)/dia)};
+  if(ahora>fin) return {estado:"cerrada", editable:false};
+  return {estado:"abierta", editable:true, dias:Math.ceil((fin-ahora)/dia)};
+}
+function puedeEditar(){
+  if(soloLectura) return false;          // lectores: nunca editan (Firestore también lo impide)
+  const v=ventana();
+  return v.editable || (isAdmin && override);
+}
+function pintaVentana(){
+  pintaVentana0();
+  if(soloLectura) $("vDetalle").textContent += " Tu acceso es de solo lectura.";
+}
+function pintaVentana0(){
+  const v=ventana(), el=$("ventana");
+  el.classList.remove("hidden","abierta","pronto","cerrada","forzada");
+  $("vDias").classList.add("hidden");
+  if(v.estado==="forzada"){
+    el.classList.add("forzada");
+    $("vEstado").textContent="Edición habilitada por excepción";
+    $("vDetalle").textContent="Sales Operations abrió el registro fuera de la ventana"+
+      (M("emgBy")?", a solicitud. Autorizó "+M("emgBy"):"")+
+      (M("emgAt")?" el "+new Date(M("emgAt")).toLocaleString("es-PE"):"")+
+      ". Guarda tus cambios cuanto antes.";
+    return;
+  }
+  if(v.estado==="sin-fechas"){
+    el.classList.add("pronto");
+    $("vEstado").textContent="Sin fechas definidas";
+    $("vDetalle").textContent="El administrador aún no ha fijado la ventana de registro. La edición está habilitada.";
+    return;
+  }
+  if(v.estado==="abierta"){
+    el.classList.add("abierta");
+    $("vEstado").textContent="Ventana de ajuste abierta";
+    $("vDetalle").textContent="Cierra el "+fechaLarga(M("closeAt"))+". Después de esa fecha solo podrás consultar.";
+    $("vDias").classList.remove("hidden");
+    $("vDiasN").textContent=String(v.dias);
+    $("vDiasT").textContent=v.dias===1?"día restante":"días restantes";
+  } else if(v.estado==="pronto"){
+    el.classList.add("pronto");
+    $("vEstado").textContent="Ventana aún no abre";
+    $("vDetalle").textContent="Abre el "+fechaLarga(M("openAt"))+" y cierra el "+fechaLarga(M("closeAt"))+". Por ahora solo consulta.";
+    $("vDias").classList.remove("hidden");
+    $("vDiasN").textContent=String(v.dias);
+    $("vDiasT").textContent=v.dias===1?"día para abrir":"días para abrir";
+  } else {
+    el.classList.add("cerrada");
+    $("vEstado").textContent="Ventana cerrada";
+    $("vDetalle").textContent="Cerró el "+fechaLarga(M("closeAt"))+". La información quedó en solo lectura.";
+  }
+  if(isAdmin && override && !v.editable){
+    $("vDetalle").textContent += " Edición habilitada para ti como administrador.";
+  }
+}
+
+/* ---------- base agregada ---------- */
+function build(text){
+  const lines=text.replace(/\r/g,"").split("\n").filter(l=>l.trim());
+  if(lines.length<2) throw new Error("No hay filas que leer.");
+  const h0=lines[0];
+  const sep=h0.includes("\t")?"\t":(h0.split(";").length>h0.split(",").length?";":",");
+  const cols=h0.split(sep).map(s=>s.trim().replace(/^"|"$/g,""));
+  const miss=REQ.filter(c=>!cols.includes(c));
+  if(miss.length) throw new Error("Faltan columnas: "+miss.join(", "));
+  const ix={}; cols.forEach((c,i)=>ix[c]=i);
+  const raw=[], todosDs=new Set();
+  for(let i=1;i<lines.length;i++){
+    const v=partir(lines[i],sep), t=num(v[ix["CUOTA TONS SO"]]);
+    const dsF=(v[ix.DISTRIBUIDOR]||"").trim(); if(dsF) todosDs.add(dsF);
+    if(!t) continue;
+    raw.push({sc:(v[ix.SUBCANAL]||"").trim(), rg:(v[ix.REGION]||"").trim(),
+      sb:(v[ix.SubCanalCliente]||"").trim(), ct:(v[ix.Categoria]||"").trim(),
+      ds:(v[ix.DISTRIBUIDOR]||"").trim(), ff:(v[ix["F FLAVOR"]]||"").trim(),
+      t, iv:num(v[ix.IV_POR_TON_SKU]), ibp:num(v[ix["RAW_IBP_FF_TONS"]])});
+  }
+  if(!raw.length) throw new Error("Ninguna fila tiene CUOTA TONS SO.");
+  // Filas que no entran en ninguna columna de la web: no se muestran ni se suman
+  const fuera={n:0,t:0,v:0,ej:[]};
+  raw.forEach(r=>{
+    if(CATS.includes(r.ct) && SUBS.includes(r.sb)) return;
+    fuera.n++; fuera.t+=r.t; fuera.v+=r.t*r.iv;
+    if(fuera.ej.length<5) fuera.ej.push(r.ds+" · "+r.ff+" ("+(r.ct||"sin categoría")+", "+(r.sb||"sin LET/MAY")+")");
+  });
+  const ibp={}; raw.forEach(r=>{ if(!(r.ff in ibp)) ibp[r.ff]=r.ibp; });
+  const mk=keyf=>{
+    const tot={}; raw.forEach(r=>{const k=keyf(r); tot[k]=(tot[k]||0)+r.t;});
+    const agg=new Map();
+    raw.forEach(r=>{
+      const k=keyf(r), p=r.t/tot[k], id=k+SEP+r.ff;
+      let a=agg.get(id); if(!a){a={k,ff:r.ff,sp:0,sv:0};agg.set(id,a);}
+      a.sp+=p; a.sv+=p*r.iv;
+    });
+    const byKey=new Map();
+    for(const a of agg.values()){
+      if(!byKey.has(a.k)) byKey.set(a.k,[]);
+      byKey.get(a.k).push([a.ff,+a.sp.toFixed(10),+a.sv.toFixed(6)]);
+    }
+    return {tot,byKey};
+  };
+  /* distribuidores del archivo que no llegan a la web: todas sus filas tienen cuota 0 o vacía */
+  const conCuota=new Set(raw.map(r=>r.ds)), sinCuota=[...todosDs].filter(d=>!conCuota.has(d));
+  return {ibp, fuera, sinCuota,
+    reg:mk(r=>[r.sc,r.rg,r.ct,r.sb].join(SEP)),
+    cli:mk(r=>[r.sc,r.rg,r.ds,r.ct,r.sb].join(SEP))};
+}
+function chunkify(part){
+  const out=[]; let cur={tot:{},cells:{}}, size=0;
+  for(const [k,cells] of part.byKey){
+    const add=JSON.stringify(cells).length+k.length*2+20;
+    if(size+add>CHUNK_BYTES && size>0){ out.push(cur); cur={tot:{},cells:{}}; size=0; }
+    const flat=[]; for(const c of cells) flat.push(c[0],c[1],c[2]);
+    cur.tot[k]=+part.tot[k].toFixed(6); cur.cells[k]=flat; size+=add;
+  }
+  if(size>0) out.push(cur);
+  return out;
+}
+
+/* ---------- cálculo ---------- */
+function computeFor(lvl){
+  const b=base[lvl], ed={...saved[lvl],...local[lvl]}, sumFF={};
+  for(const k in b.cells){
+    const mgr = k in ed ? ed[k] : b.tot[k];
+    const a=b.cells[k];
+    for(let i=0;i<a.length;i+=3) sumFF[a[i]]=(sumFF[a[i]]||0)+mgr*a[i+1];
+  }
+  const fac={};
+  for(const ff in base.ibp) fac[ff] = !sumFF[ff] ? 1 : base.ibp[ff]/sumFF[ff];
+  const tons={}, iv={}, raw={};
+  for(const k in b.cells){
+    const mgr = k in ed ? ed[k] : b.tot[k];
+    const a=b.cells[k]; let t=0,v=0;
+    for(let i=0;i<a.length;i+=3){ const f=fac[a[i]]??1; t+=mgr*a[i+1]*f; v+=mgr*a[i+2]*f; }
+    tons[k]=t; iv[k]=v; raw[k]=mgr;          // raw: lo que se escribió en la celda, sin el cierre contra el IBP
+  }
+  return {tons,iv,ed,raw};
+}
+const compute=()=>computeFor(level);
+
+/* Referencia: lo que el split regional asignó por región y categoría, tal como se escribió,
+   contra lo que hoy suma lo escrito en el split por cliente. Sin el cierre contra el IBP, que
+   mueve los números y haría que el objetivo no coincida con lo que el gerente asignó. */
+function referencia(){
+  const R=computeFor("reg"), C=computeFor("cli");
+  const reg={}, cli={}, regiones=new Set();
+  for(const k in base.reg.cells){
+    const p=k.split(SEP), kk=p[1]+SEP+p[2];
+    regiones.add(p[1]);
+    reg[kk]=(reg[kk]||0)+(R.raw[k]||0);
+  }
+  for(const k in base.cli.cells){
+    const p=k.split(SEP), kk=p[1]+SEP+p[3];
+    regiones.add(p[1]);
+    cli[kk]=(cli[kk]||0)+(C.raw[k]||0);
+  }
+  const out=[];
+  for(const rg of [...regiones].sort((a,b)=>a.localeCompare(b,"es")))
+    for(const ct of CATS){
+      const kk=rg+SEP+ct, a=reg[kk]||0, b=cli[kk]||0;
+      if(a===0 && b===0) continue;
+      out.push({rg, ct, regional:a, cliente:b, dif:b-a});
+    }
+  return out;
+}
+
+/* ---------- filas ---------- */
+const colDefs=()=>{const o=[];for(const s of SUBS)for(const c of CATS)o.push({c,s});return o;};
+function rowsOf(){
+  const b=base[level], byRow=new Map();
+  for(const k in b.cells){
+    const p=k.split(SEP);
+    const head = level==="reg" ? [p[0],p[1]] : [p[0],p[1],p[2]];
+    const ci   = level==="reg" ? p[2]+"|"+p[3] : p[3]+"|"+p[4];
+    const rk=head.join(SEP);
+    if(!byRow.has(rk)) byRow.set(rk,{head,cells:{}});
+    byRow.get(rk).cells[ci]=k;
+  }
+  let arr=[...byRow.values()];
+  arr.sort((a,b)=>{
+    const d=scIdx(a.head[0])-scIdx(b.head[0]); if(d) return d;
+    for(let i=0;i<a.head.length;i++){
+      const c=String(a.head[i]).localeCompare(String(b.head[i]),"es"); if(c) return c;
+    }
+    return 0;
+  });
+  if(filtro) arr=arr.filter(r=>String(r.head[1])===filtro);
+  return arr;
+}
+function fillRegiones(){
+  const set=new Set();
+  if(level==="si"){ if(siBase) siBase.clientes.forEach(c=>set.add(c.rg)); }
+  else if(base) for(const lv of ["reg","cli"])
+    for(const k in base[lv].cells) set.add(k.split(SEP)[1]);
+  const arr=[...set].filter(Boolean).sort((a,b)=>a.localeCompare(b,"es"));
+  const sel=$("filtro"), prev=sel.value;
+  sel.innerHTML='<option value="">Todas las regiones</option>'+
+    arr.map(r=>'<option value="'+esc(r)+'">'+esc(r)+'</option>').join("");
+  if(arr.includes(prev)) sel.value=prev; else { sel.value=""; filtro=""; }
+}
+
+/* ---------- render ---------- */
+function draw(){
+  if(level==="si"){ drawSI(); return; }
+  if(!base) return;
+  $("siResSec").classList.add("hidden");
+  $("validador").parentElement.classList.remove("hidden");
+  $("kTonsL").textContent="TONS ingresadas"; $("kIVL").textContent="Valorizado S/";
+  $("kDifL").textContent="Diferencia vs IBP";
+  const editable=puedeEditar();
+  const calc=compute(); lastCalc=calc;
+  const {iv,ed}=calc;
+  const b=base[level], cols=colDefs(), rws=rowsOf();
+  lastRows=rws;
+  const heads = level==="reg" ? ["Subcanal","Región"] : ["Subcanal","Región","Distribuidor"];
+  const dis = editable ? "" : " disabled";
+
+  let h='<table><thead><tr class="g"><th class="k" colspan="'+heads.length+'"></th>'+
+    '<th class="let" colspan="3">LET, toneladas y soles (S/)</th>'+
+    '<th class="may" colspan="3">MAY, toneladas y soles (S/)</th><th class="sub" colspan="3">Totales, toneladas y soles (S/)</th></tr><tr class="c">';
+  heads.forEach((x,i)=>h+='<th class="k'+(i===heads.length-1?' kf':'')+'">'+x+'</th>');
+  cols.forEach(c=>h+='<th class="'+(c.s==="LET"?"let":"may")+'">'+esc(c.c)+'</th>');
+  h+='<th class="let sub">LET</th><th class="may">MAY</th><th>Total</th></tr></thead><tbody>';
+  const ct=cols.map(()=>0), cvv=cols.map(()=>0);
+  let gt=0, gv=0;
+  const gS={LET:0,MAY:0}, gSv={LET:0,MAY:0};
+  for(const [ri,r] of rws.entries()){
+    h+='<tr>'; r.head.forEach((x,i)=>h+='<td class="k'+(i===r.head.length-1?' kf':'')+'">'+esc(x)+'</td>');
+    let rt=0, rv=0; const rS={LET:0,MAY:0}, rSv={LET:0,MAY:0};
+    cols.forEach((c,i)=>{
+      const k=r.cells[c.c+"|"+c.s], cls=c.s==="LET"?"let":"may";
+      if(!k){ h+='<td class="'+cls+' empty">–</td>'; return; }
+      const v = k in ed ? ed[k] : b.tot[k];
+      const sv = iv[k]||0;
+      rt+=v; ct[i]+=v; rv+=sv; cvv[i]+=sv; rS[c.s]+=v; rSv[c.s]+=sv;
+      h+='<td class="'+cls+'"><input class="c'+(k in local[level]?" dirty":"")+
+        '" data-k="'+esc(k)+'" data-r="'+ri+'" data-c="'+i+'" value="'+v.toFixed(3)+'" inputmode="decimal"'+dis+'>'+
+        '<span class="iv">'+fK(sv)+'</span></td>';
+    });
+    gt+=rt; gv+=rv; for(const x of SUBS){ gS[x]+=rS[x]; gSv[x]+=rSv[x]; }
+    h+='<td class="let sub">'+f1(rS.LET)+'<span class="iv">'+fK(rSv.LET)+'</span></td>'+
+       '<td class="may">'+f1(rS.MAY)+'<span class="iv">'+fK(rSv.MAY)+'</span></td>'+
+       '<td>'+f1(rt)+'<span class="iv">'+fK(rv)+'</span></td></tr>';
+  }
+  h+='</tbody><tfoot><tr><td class="k" colspan="'+heads.length+'">Total</td>';
+  cols.forEach((c,i)=>h+='<td class="'+(c.s==="LET"?"let":"may")+'">'+f1(ct[i])+
+    '<span class="iv">'+fK(cvv[i])+'</span></td>');
+  h+='<td class="let sub">'+f1(gS.LET)+'<span class="iv">'+fK(gSv.LET)+'</span></td>'+
+     '<td class="may">'+f1(gS.MAY)+'<span class="iv">'+fK(gSv.MAY)+'</span></td>';
+  h+='<td>'+f1(gt)+'<span class="iv">'+fK(gv)+'</span></td></tr></tfoot></table>';
+  $("grid").innerHTML=h;
+  $("filtroInfo").textContent = filtro ? rws.length+" filas en "+filtro : rws.length+" filas";
+
+  /* validador por categoría */
+  const ibpCat={}, inCat={};
+  for(const k in b.cells){
+    const p=k.split(SEP), cat = level==="reg"?p[2]:p[3];
+    const mgr = k in ed ? ed[k] : b.tot[k];
+    let sp=0; const ak=b.cells[k]; for(let i=1;i<ak.length;i+=3) sp+=ak[i];
+    inCat[cat]=(inCat[cat]||0)+mgr*sp;
+    ibpCat[cat]=(ibpCat[cat]||0)+b.tot[k]*sp;
+  }
+  let v='<table><thead><tr><th class="k">Validador vs IBP</th><th>Total IBP</th>'+
+    '<th>Total ingresado</th><th>Diferencia</th></tr></thead><tbody>';
+  let ti=0,tn=0;
+  for(const c of CATS){
+    const a=ibpCat[c]||0, bb=inCat[c]||0, d=bb-a;
+    ti+=a; tn+=bb;
+    v+='<tr class="'+(Math.abs(d)>TOL?"bad":"")+'"><td class="k">'+esc(c)+'</td><td>'+
+      f1(a)+'</td><td>'+f1(bb)+'</td><td class="d">'+f1(d)+'</td></tr>';
+  }
+  v+='</tbody><tfoot><tr><td class="k">Total</td><td>'+f1(ti)+'</td><td>'+f1(tn)+
+    '</td><td class="d">'+f1(tn-ti)+'</td></tr></tfoot></table>';
+  $("validador").innerHTML=v;
+
+  /* referencia regional por categoría */
+  if(level!=="cli"){ $("refSec").classList.add("hidden"); lastRef=[]; }
+  else {
+  const ref=referencia(); lastRef=ref;
+  $("refSec").classList.remove("hidden");
+  const porRg=new Map();
+  for(const x of ref){
+    if(!porRg.has(x.rg)) porRg.set(x.rg,{});
+    porRg.get(x.rg)[x.ct]=x;
+  }
+  const celdaRef=(x)=>{
+    if(!x) return '<td class="rc vacia">–</td>';
+    const cls = Math.abs(x.dif)<=TOL ? "cuadra" : (x.dif>0 ? "exceso" : "falta");
+    const txt = Math.abs(x.dif)<=TOL ? "Cuadra"
+      : (x.dif>0 ? "Sobran "+f1(x.dif) : "Faltan "+f1(-x.dif));
+    return '<td class="rc '+cls+'"><b>'+txt+'</b><span>llevas '+
+      f1(x.cliente)+' de '+f1(x.regional)+'</span></td>';
+  };
+  let g='<table><thead><tr><th class="k">Región</th>';
+  CATS.forEach(c=>g+='<th>'+esc(c)+'</th>');
+  g+='<th class="tot">Total región</th></tr></thead><tbody>';
+  const colA=CATS.map(()=>0), colB=CATS.map(()=>0);
+  for(const [rg,cols] of [...porRg.entries()].sort((a,b)=>a[0].localeCompare(b[0],"es"))){
+    g+='<tr><td class="k">'+esc(rg)+'</td>';
+    let ra=0, rb=0;
+    CATS.forEach((c,i)=>{
+      const x=cols[c];
+      if(x){ ra+=x.regional; rb+=x.cliente; colA[i]+=x.regional; colB[i]+=x.cliente; }
+      g+=celdaRef(x);
+    });
+    g+=celdaRef({regional:ra, cliente:rb, dif:rb-ra}).replace('class="rc','class="rc tot');
+    g+='</tr>';
+  }
+  g+='</tbody><tfoot><tr><td class="k">Total</td>';
+  CATS.forEach((c,i)=>g+=celdaRef({regional:colA[i], cliente:colB[i], dif:colB[i]-colA[i]}));
+  const ta=colA.reduce((a,b)=>a+b,0), tb=colB.reduce((a,b)=>a+b,0);
+  g+=celdaRef({regional:ta, cliente:tb, dif:tb-ta}).replace('class="rc','class="rc tot');
+  g+='</tr></tfoot></table>'+
+     '<div class="leyenda">'+
+     '<span>Objetivo: lo que asignaste en el split regional por región y categoría, tal como lo escribiste.</span>'+
+     '<span><i style="background:var(--risk)"></i>Falta repartir</span>'+
+     '<span><i style="background:var(--late)"></i>Repartiste de más</span>'+
+     '</div>';
+  $("refTbl").innerHTML=g;
+  $("refNota").textContent = "Cuánto de cada categoría te queda por repartir, según lo que asignaste en el split regional.";
+  }
+
+  /* valorizado por subcanal y región */
+  if(level==="cli"){
+    $("resSec").classList.remove("hidden");
+    const arr=resumenSO(b,iv);
+    let q='<table><thead><tr><th class="k">Subcanal</th><th class="k">Región</th>'+
+      '<th class="let">LET S/</th><th class="may">MAY S/</th><th>Total S/</th></tr></thead><tbody>';
+    let tv=0, tl=0, tm=0;
+    for(const x of arr){ tv+=x.val; tl+=x.LET; tm+=x.MAY;
+      q+='<tr><td class="k">'+esc(x.sc)+'</td><td class="k">'+esc(x.rg)+'</td><td class="let">'+f0(x.LET)+
+        '</td><td class="may">'+f0(x.MAY)+'</td><td>'+f0(x.val)+'</td></tr>'; }
+    q+='</tbody><tfoot><tr><td class="k" colspan="2">Total</td><td class="let">'+f0(tl)+'</td><td class="may">'+
+      f0(tm)+'</td><td>'+f0(tv)+'</td></tr></tfoot></table>';
+    $("resumen").innerHTML=q;
+  } else $("resSec").classList.add("hidden");
+
+  /* barra */
+  $("kTons").textContent=f1(gt);
+  $("kIV").textContent=fK(gv);
+  const dif=tn-ti;
+  $("kDif").textContent=f1(dif);
+  $("cDif").classList.toggle("off",Math.abs(dif)>TOL);
+  $("cDif").classList.toggle("good",Math.abs(dif)<=TOL);
+  const pend=Object.keys(local.reg).length+Object.keys(local.cli).length;
+  $("kPend").textContent=String(pend);
+  $("save").disabled = pend===0 || !me || !editable;
+  $("undo").disabled = pend===0;
+  $("levelNote").textContent = level==="cli"
+    ? "Este es el split que tiene validez para la cuota. Escribe las toneladas y los soles se recalculan al salir de la celda."
+    : "Referencial: no alimenta la cuota oficial, pero define cuánto de cada categoría te toca repartir por región en el split por cliente.";
+
+  if(editable) cablear();
+  pintaVentana();
+}
+
+
+/* ---------- edición: un valor, pegado desde Excel y teclado ---------- */
+function valorBase(lvl,k){
+  if(lvl==="si"){ const c=siBase && siBase.porCod[k]; return c ? c.tot : 0; }
+  return base[lvl].tot[k]||0;
+}
+function aplicar(lvl,k,val){
+  if(Math.abs(val-valorBase(lvl,k))<1e-9 && !(k in saved[lvl])) delete local[lvl][k];
+  else local[lvl][k]=val;
+}
+/* Texto copiado de Excel → filas y columnas (tabulador entre columnas, salto de línea entre filas) */
+function parsePegado(t){
+  const filas=String(t).replace(/\r/g,"").split("\n");
+  if(filas.length && filas[filas.length-1]==="") filas.pop();
+  return filas.map(f=>f.split("\t"));
+}
+let toastT=null;
+function toast(txt){
+  const el=$("toast"); el.textContent=txt; el.classList.remove("hidden");
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.add("hidden"),3500);
+}
+function pegar(r0,c0,bloque){
+  let n=0, sinCasilla=0;
+  bloque.forEach((fila,i)=>fila.forEach((txt,j)=>{
+    const r=r0+i, c=c0+j, v=String(txt).trim();
+    if(v==="") return;
+    let k=null;
+    if(level==="si"){ if(j>0) return; k=lastSIRows && lastSIRows[r] ? lastSIRows[r].cod : null; }
+    else {
+      const cols=colDefs();
+      if(lastRows && lastRows[r] && c<cols.length) k=lastRows[r].cells[cols[c].c+"|"+cols[c].s];
+    }
+    if(!k){ sinCasilla++; return; }
+    aplicar(level,k,num(v)); n++;
+  }));
+  draw();
+  toast("Pegaste "+n+(n===1?" valor":" valores")+
+        (sinCasilla?"; "+sinCasilla+" quedaron fuera de la grilla o en casillas sin cuota":""));
+}
+function cablear(){
+  document.querySelectorAll("input.c").forEach(i=>{
+    i.addEventListener("focus",()=>i.select());
+    i.addEventListener("change",()=>{ if(i._hecho) return; aplicar(level,i.dataset.k,num(i.value)); draw(); });
+    i.addEventListener("paste",e=>{
+      const t=(e.clipboardData||window.clipboardData).getData("text");
+      if(!/[\t\n]/.test(t.replace(/\r?\n$/,""))) return;        // un solo valor: pegado normal
+      e.preventDefault(); i._hecho=true;
+      pegar(+i.dataset.r, +i.dataset.c, parsePegado(t));
+    });
+    i.addEventListener("keydown",e=>{
+      let dr=0;
+      if(e.key==="Enter"||e.key==="ArrowDown") dr=1; else if(e.key==="ArrowUp") dr=-1; else return;
+      e.preventDefault(); i._hecho=true;
+      aplicar(level,i.dataset.k,num(i.value));
+      focusPend={r:+i.dataset.r+dr, c:+i.dataset.c};
+      draw();
+    });
+  });
+  if(focusPend){
+    const el=document.querySelector('input.c[data-r="'+focusPend.r+'"][data-c="'+focusPend.c+'"]');
+    focusPend=null;
+    if(el){ el.focus(); el.select(); }
+  }
+}
+
+/* ---------- sell in: total por cliente en soles ---------- */
+function buildSI(text){
+  const lines=String(text).replace(/\r/g,"").split("\n").filter(l=>l.trim());
+  if(lines.length<2) throw new Error("No hay filas que leer.");
+  const h0=lines[0];
+  const sep=h0.includes("\t")?"\t":(h0.split(";").length>h0.split(",").length?";":",");
+  const cols=h0.split(sep).map(x=>x.trim().replace(/^"|"$/g,"").replace(/^\uFEFF/,""));
+  const req=["SUBCANAL","REGION","CUSTOMER CODE","DISTRIBUIDOR","TOTAL"];
+  const miss=req.filter(c=>!cols.includes(c));
+  if(miss.length) throw new Error("Faltan columnas: "+miss.join(", ")+". ¿Es el archivo Propuesta_SI_para_web?");
+  const cats=cols.filter(c=>!req.includes(c) && c);
+  const ix={}; cols.forEach((c,i)=>ix[c]=i);
+  const clientes=[];
+  for(let i=1;i<lines.length;i++){
+    const v=partir(lines[i],sep).map(x=>x.trim().replace(/^"|"$/g,""));
+    const cod=String(v[ix["CUSTOMER CODE"]]||"").replace(/\.0+$/,"");
+    if(!cod) continue;
+    const pc={}; cats.forEach(c=>pc[c]=num(v[ix[c]]));
+    clientes.push({cod, sc:v[ix.SUBCANAL]||"", rg:v[ix.REGION]||"", ds:v[ix.DISTRIBUIDOR]||"",
+                   p:pc, tot:num(v[ix.TOTAL])});
+  }
+  if(!clientes.length) throw new Error("Ninguna fila trae CUSTOMER CODE.");
+  const vistos=new Set(), dup=new Set();
+  clientes.forEach(c=>{ if(vistos.has(c.cod)) dup.add(c.cod); vistos.add(c.cod); });
+  return {cats, clientes, dup:[...dup]};
+}
+function prepSI(d){
+  if(!d || !d.clientes) return null;
+  const porCod={}; d.clientes.forEach(c=>porCod[c.cod]=c);
+  return {...d, porCod};
+}
+async function loadSI(){
+  const d=await getDoc(doc(dbF,"cfg","si"));
+  return d.exists() ? prepSI(d.data()) : null;
+}
+const fS=n=>(n??0).toLocaleString("es-PE",{minimumFractionDigits:0,maximumFractionDigits:2});
+function filasSI(){
+  const ed={...saved.si,...local.si};
+  let arr=siBase.clientes.map(c=>{
+    const aj = c.cod in ed ? ed[c.cod] : c.tot;
+    const ajc={}; siBase.cats.forEach(k=>ajc[k]= c.tot ? aj*(c.p[k]||0)/c.tot : 0);
+    return {...c, aj, ajc, sinMix: !c.tot && aj!==0};
+  });
+  arr.sort((a,b)=>{const d=scIdxSI(a.sc)-scIdxSI(b.sc); if(d) return d;
+    return a.sc.localeCompare(b.sc,"es") || a.rg.localeCompare(b.rg,"es") || a.ds.localeCompare(b.ds,"es");});
+  return arr;
+}
+function drawSI(){
+  ["refSec","resSec"].forEach(x=>$(x).classList.add("hidden"));
+  $("validador").parentElement.classList.add("hidden");
+  $("kTonsL").textContent="Total ingresado S/"; $("kIVL").textContent="Clientes";
+  $("kDifL").textContent="Sin mix por categoría";
+  $("levelNote").textContent="Escribe el total en soles de cada cliente; también puedes pegar una columna desde Excel. "+
+    "Se abre por categoría con el mix de la propuesta. Las toneladas, el NR y el GR se recalculan en el proceso. "+
+    "Los clientes que no cambies se quedan con su propuesta. Para dejar un cliente en cero, escribe 0 "+
+    "(si borras el valor, también queda en cero).";
+  if(!siBase){
+    $("grid").innerHTML='<p class="note" style="padding:14px">Todavía no hay una propuesta de sell in publicada. Avisa a Sales Operations.</p>';
+    $("siResSec").classList.add("hidden");
+    ["kTons","kIV","kDif"].forEach(x=>$(x).textContent="–"); pintaVentana(); return;
+  }
+  const editable=puedeEditar(), dis=editable?"":" disabled", cats=siBase.cats;
+  const todas=filasSI(), rws=filtro ? todas.filter(r=>r.rg===filtro) : todas;
+  lastSIRows=rws;
+  let h='<table><thead><tr class="g"><th class="k" colspan="4"></th><th class="edit">Cuota oficial</th>'+
+    '<th class="sub" colspan="'+cats.length+'">Por categoría S/ (mix de la propuesta)</th></tr>'+
+    '<tr class="c"><th class="k">Subcanal</th><th class="k">Región</th><th class="k">Código</th><th class="k kf">Distribuidor</th>'+
+    '<th class="edit">Total S/</th>';
+  cats.forEach((c,i)=>h+='<th'+(i===0?' class="sub"':'')+'>'+esc(c)+'</th>');
+  h+='</tr></thead><tbody>';
+  const ta={}; cats.forEach(c=>ta[c]=0); let ga=0, sinMix=0;
+  rws.forEach((r,ri)=>{
+    h+='<tr><td class="k">'+esc(r.sc)+'</td><td class="k">'+esc(r.rg)+'</td><td class="k">'+esc(r.cod)+
+       '</td><td class="k kf">'+esc(r.ds)+'</td><td class="edit"><input class="c wide'+(r.cod in local.si?" dirty":"")+
+       '" data-k="'+esc(r.cod)+'" data-r="'+ri+'" data-c="0" value="'+f0(r.aj)+'" inputmode="decimal"'+dis+'></td>';
+    cats.forEach((c,i)=>{ h+='<td'+(i===0?' class="sub"':'')+'>'+
+      (r.sinMix?'<span title="El cliente no tiene mix en la propuesta">–</span>':fS(Math.round(r.ajc[c])))+'</td>';
+      ta[c]+=r.ajc[c]; });
+    h+='</tr>'; ga+=r.aj; if(r.sinMix) sinMix++;
+  });
+  h+='</tbody><tfoot><tr><td class="k" colspan="4">Total</td><td class="edit">'+f0(ga)+'</td>';
+  cats.forEach((c,i)=>h+='<td'+(i===0?' class="sub"':'')+'>'+fS(Math.round(ta[c]))+'</td>');
+  h+='</tr></tfoot></table>';
+  $("grid").innerHTML=h;
+  $("filtroInfo").textContent = filtro ? rws.length+" clientes en "+filtro : rws.length+" clientes";
+
+  /* resumen por subcanal y región, de todo el país */
+  const res=new Map();
+  for(const r of todas){ const k=r.sc+SEP+r.rg;
+    if(!res.has(k)){ const o={sc:r.sc,rg:r.rg,t:0}; cats.forEach(c=>o[c]=0); res.set(k,o); }
+    const o=res.get(k); o.t+=r.aj; cats.forEach(c=>o[c]+=r.ajc[c]); }
+  let q='<table><thead><tr><th class="k">Subcanal</th><th class="k">Región</th>';
+  cats.forEach(c=>q+='<th>'+esc(c)+'</th>'); q+='<th>Total S/</th></tr></thead><tbody>';
+  const tq={}; cats.forEach(c=>tq[c]=0); let tt=0;
+  for(const o of res.values()){ tt+=o.t;
+    q+='<tr><td class="k">'+esc(o.sc)+'</td><td class="k">'+esc(o.rg)+'</td>';
+    cats.forEach(c=>{ q+='<td>'+f0(o[c])+'</td>'; tq[c]+=o[c]; });
+    q+='<td>'+f0(o.t)+'</td></tr>'; }
+  q+='</tbody><tfoot><tr><td class="k" colspan="2">Total</td>';
+  cats.forEach(c=>q+='<td>'+f0(tq[c])+'</td>'); q+='<td>'+f0(tt)+'</td></tr></tfoot></table>';
+  $("siResumen").innerHTML=q; $("siResSec").classList.remove("hidden");
+
+  $("kTons").textContent=fK(ga); $("kIV").textContent=String(todas.length);
+  const sm=todas.filter(r=>r.sinMix).length;
+  $("kDif").textContent=String(sm);
+  $("cDif").classList.toggle("off",sm>0); $("cDif").classList.toggle("good",sm===0);
+  const pend=pendientes();
+  $("kPend").textContent=String(pend);
+  $("save").disabled = pend===0 || !me || !editable;
+  $("undo").disabled = pend===0;
+  if(editable) cablear();
+  pintaVentana();
+}
+function exportSI(){
+  const cats=siBase.cats;
+  csvDump("sell_in_oficial_por_cliente.csv",
+    ["SUBCANAL","REGION","CUSTOMER CODE","DISTRIBUIDOR","TOTAL S/",...cats],
+    lastSIRows.map(r=>[r.sc,r.rg,r.cod,r.ds,r.aj.toFixed(2),...cats.map(c=>r.ajc[c].toFixed(2))]));
+}
+
+/* ---------- exportar ---------- */
+function csvDump(name,head,data){
+  const q=v=>{const s=String(v??"");return /[;"\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};
+  const txt=head.map(q).join(";")+"\n"+data.map(r=>r.map(q).join(";")).join("\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob(["\uFEFF"+txt],{type:"text/csv;charset=utf-8"}));
+  a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+function exportGrid(){
+  const cols=colDefs(), b=base[level], {iv,ed}=lastCalc;
+  const heads = level==="reg" ? ["SUBCANAL","REGION"] : ["SUBCANAL","REGION","DISTRIBUIDOR"];
+  const head=[...heads];
+  cols.forEach(c=>head.push("TONS "+c.c+" "+c.s));
+  cols.forEach(c=>head.push("SOLES "+c.c+" "+c.s));
+  head.push("TONS LET","TONS MAY","SOLES LET","SOLES MAY","TONS TOTAL","SOLES TOTAL");
+  const data=[];
+  for(const r of lastRows){
+    let rt=0, rv=0; const tvals=[], vvals=[], tS={LET:0,MAY:0}, vS={LET:0,MAY:0};
+    cols.forEach(c=>{
+      const k=r.cells[c.c+"|"+c.s];
+      const t=k?(k in ed?ed[k]:b.tot[k]):0, s=k?(iv[k]||0):0;
+      tvals.push(k?t.toFixed(3):""); vvals.push(k?s.toFixed(2):"");
+      rt+=t; rv+=s; tS[c.s]+=t; vS[c.s]+=s;
+    });
+    data.push([...r.head,...tvals,...vvals,tS.LET.toFixed(3),tS.MAY.toFixed(3),
+      vS.LET.toFixed(2),vS.MAY.toFixed(2),rt.toFixed(3),rv.toFixed(2)]);
+  }
+  csvDump((level==="cli"?"split_cliente":"split_regional")+".csv",head,data);
+}
+function exportRef(){
+  csvDump("referencia_regional.csv",
+    ["REGION","CATEGORIA","OBJETIVO REGIONAL TONS","REPARTIDO POR CLIENTE TONS","PENDIENTE"],
+    lastRef.map(x=>[x.rg,x.ct,x.regional.toFixed(3),x.cliente.toFixed(3),(-x.dif).toFixed(3)]));
+}
+function resumenSO(b,iv){
+  const res=new Map();
+  for(const k in b.cells){
+    const p=k.split(SEP), rk=p[0]+SEP+p[1], sb=p[p.length-1];
+    if(!res.has(rk)) res.set(rk,{sc:p[0],rg:p[1],LET:0,MAY:0,val:0});
+    const o=res.get(rk), v=iv[k]||0;
+    o.val+=v; if(sb in o) o[sb]+=v;
+  }
+  return [...res.values()].sort((a,b)=>{const d=scIdx(a.sc)-scIdx(b.sc); if(d) return d;
+    return a.rg.localeCompare(b.rg,"es");});
+}
+function exportResumen(){
+  const arr=resumenSO(base[level], lastCalc.iv);
+  csvDump("valorizado_subcanal_region.csv",["SUBCANAL","REGION","LET S/","MAY S/","TOTAL S/"],
+    arr.map(r=>[r.sc,r.rg,r.LET.toFixed(2),r.MAY.toFixed(2),r.val.toFixed(2)]));
+}
+
+/* ---------- Firestore ---------- */
+async function readPart(name){
+  const snap=await getDocs(collection(dbF,name));
+  if(snap.empty) return null;
+  const tot={},cells={};
+  snap.forEach(d=>{const o=d.data(); Object.assign(tot,o.tot||{}); Object.assign(cells,o.cells||{});});
+  return {tot,cells};
+}
+async function loadBase(){
+  const m=await getDoc(doc(dbF,"cfg","meta"));
+  if(!m.exists()) return null;
+  meta=m.data();
+  const ibpDoc=await getDoc(doc(dbF,"cfg","ibp"));
+  const reg=await readPart("basereg"), cli=await readPart("basecli");
+  if(!reg||!cli) return null;
+  return {ibp:(ibpDoc.data()||{}).map||{}, reg, cli};
+}
+async function writePart(name,chunks,label){
+  const old=await getDocs(collection(dbF,name));
+  for(let i=0;i<chunks.length;i++){
+    $("prog").textContent=label+": guardando bloque "+(i+1)+" de "+chunks.length+"…";
+    await setDoc(doc(dbF,name,"c"+i),chunks[i]);
+  }
+  for(const d of old.docs){
+    const n=parseInt(d.id.slice(1),10);
+    if(isNaN(n)||n>=chunks.length) await deleteDoc(doc(dbF,name,d.id));
+  }
+}
+async function mergeMeta(campos){
+  const ref=doc(dbF,"cfg","meta");
+  const cur=(await getDoc(ref)).data()||{};
+  const nuevo={...cur,...campos};
+  await setDoc(ref,nuevo);
+  meta=nuevo;
+  return nuevo;
+}
+function info(){
+  $("lastInfo").textContent = saved.at
+    ? "Último guardado: "+(saved.by||"alguien")+", "+new Date(saved.at).toLocaleString("es-PE")
+    : "Sin ajustes guardados.";
+}
+async function save(){
+  if(!puedeEditar()){ alert("La ventana de registro de "+nombreModulo()+" está cerrada."); return; }
+  const btn=$("save"); btn.disabled=true; btn.textContent="Guardando…";
+  try{
+    const ref=doc(dbF,"ajustes","actual");
+    const cur=(await getDoc(ref)).data()||{reg:{},cli:{}};
+    const merged={reg:{...(cur.reg||{}),...local.reg},cli:{...(cur.cli||{}),...local.cli},
+      si:{...(cur.si||{}),...local.si}, by:me, at:new Date().toISOString()};
+    await setDoc(ref,merged);
+    saved=merged; local={reg:{},cli:{},si:{}};
+    info(); draw();
+  }catch(e){ alert("No se pudo guardar: "+(e&&e.message||e)); }
+  btn.textContent="Guardar cambios"; draw();
+}
+
+/* ---------- eventos ---------- */
+$("save").onclick=save;
+$("undo").onclick=()=>{local={reg:{},cli:{},si:{}};draw();};
+$("tReg").onclick=()=>setLevel("reg");
+$("tCli").onclick=()=>setLevel("cli");
+$("tSI").onclick=()=>setLevel("si");
+function setLevel(l){
+  level=l;
+  $("tReg").setAttribute("aria-selected",String(l==="reg"));
+  $("tCli").setAttribute("aria-selected",String(l==="cli"));
+  $("tSI").setAttribute("aria-selected",String(l==="si"));
+  fillRegiones();
+  draw();
+}
+$("filtro").addEventListener("change",e=>{ filtro=e.target.value; draw(); });
+$("expGrid").onclick=()=>level==="si" ? (siBase && exportSI()) : exportGrid();
+$("expSIRes").onclick=()=>{
+  if(!siBase) return;
+  const cats=siBase.cats, res=new Map();
+  for(const r of filasSI()){ const k=r.sc+SEP+r.rg;
+    if(!res.has(k)) res.set(k,{sc:r.sc,rg:r.rg,t:0,...Object.fromEntries(cats.map(c=>[c,0]))});
+    const o=res.get(k); o.t+=r.aj; cats.forEach(c=>o[c]+=r.ajc[c]); }
+  csvDump("sell_in_subcanal_region.csv",["SUBCANAL","REGION",...cats,"TOTAL S/"],
+    [...res.values()].map(o=>[o.sc,o.rg,...cats.map(c=>o[c].toFixed(2)),o.t.toFixed(2)]));
+};
+$("expRef").onclick=exportRef;
+$("expRes").onclick=exportResumen;
+$("toggleAdmin").onclick=()=>$("adminBox").classList.toggle("hidden");
+$("override").addEventListener("change",e=>{ override=e.target.checked; draw(); });
+
+function pintaEmg(){
+  const on = !!M("emgOn");
+  $("emgBox").classList.toggle("on",on);
+  $("emgOn").classList.toggle("hidden",on);
+  $("emgOff").classList.toggle("hidden",!on);
+  $("emgInfo").textContent = on
+    ? "Activa desde el "+(M("emgAt")?new Date(M("emgAt")).toLocaleString("es-PE"):"–")+
+      (M("emgBy")?", "+M("emgBy"):"")
+    : "Apagada. Rige la ventana de fechas.";
+}
+$("emgOn").onclick=async()=>{
+  if(!confirm("Se habilitará la edición de "+nombreModulo()+" para todos los editores aunque la ventana esté cerrada. ¿Continuar?")) return;
+  try{
+    await mergeMeta({[campo("emgOn")]:true, [campo("emgBy")]:me, [campo("emgAt")]:new Date().toISOString()});
+    pintaEmg(); draw();
+  }catch(e){ alert("No se pudo activar: "+(e.message||e)); }
+};
+$("emgOff").onclick=async()=>{
+  try{
+    await mergeMeta({[campo("emgOn")]:false});
+    pintaEmg(); draw();
+  }catch(e){ alert("No se pudo apagar: "+(e.message||e)); }
+};
+
+$("saveFechas").onclick=async()=>{
+  const m=$("fechasMsg"), o=$("dOpen").value, c=$("dClose").value;
+  if(!o||!c){ m.className="msg err"; m.textContent="Define las dos fechas."; return; }
+  if(c<o){ m.className="msg err"; m.textContent="El cierre no puede ser anterior a la apertura."; return; }
+  try{
+    await mergeMeta({[campo("openAt")]:o, [campo("closeAt")]:c});
+    m.className="msg ok";
+    m.textContent="Ventana guardada: "+fechaLarga(o)+" a "+fechaLarga(c)+".";
+    draw();
+  }catch(e){ m.className="msg err"; m.textContent="No se pudo guardar: "+(e.message||e); }
+};
+/* ---------- contraseñas comunes de editores y lectores (solo administrador) ---------- */
+/* Se cambian entrando a la cuenta del nivel en una sesión aparte, sin cerrar la del administrador. */
+$("saveClaveEd").onclick=async()=>{
+  const m=$("edMsg"), a=$("edAct").value, n=$("edNue").value.trim(), ed=$("edNivel").value==="editor";
+  const mail=ed?EDITOR_MAIL:LECTOR_MAIL, otro=ed?LECTOR_MAIL:EDITOR_MAIL, quien=ed?"editores":"lectores";
+  const mala=e=>/invalid-credential|wrong-password|user-not-found/.test(String(e&&e.code));
+  m.className="msg";
+  if(!a||!n){ m.className="msg err"; m.textContent="Escribe la contraseña actual y la nueva."; return; }
+  if(n.length<8){ m.className="msg err"; m.textContent="La nueva contraseña debe tener al menos 8 caracteres."; return; }
+  if(n===a){ m.className="msg err"; m.textContent="La nueva contraseña es igual a la actual."; return; }
+  m.textContent="Cambiando…"; $("saveClaveEd").disabled=true;
+  let aux=null;
+  try{
+    aux=initializeApp(firebaseConfig,"aux");
+    const au=getAuth(aux);
+    await setPersistence(au,inMemoryPersistence);
+    /* la nueva no puede ser la del otro nivel: la contraseña es lo que define el acceso */
+    let repetida=false;
+    try{ await signInWithEmailAndPassword(au,otro,n); repetida=true; await signOut(au); }catch(e){ if(!mala(e)) throw e; }
+    if(repetida){ m.className="msg err"; m.textContent="Esa contraseña ya es la del otro nivel. Elige una distinta."; }
+    else {
+      let c=null;
+      try{ c=await signInWithEmailAndPassword(au,mail,a); }
+      catch(e){ if(!mala(e)) throw e; m.className="msg err"; m.textContent="La contraseña actual de "+quien+" no es correcta."; }
+      if(c){
+        await updatePassword(c.user,n);
+        await signOut(au);
+        $("edAct").value=""; $("edNue").value="";
+        m.className="msg ok";
+        m.textContent="Contraseña de "+quien+" actualizada. Avísales: la anterior dejó de funcionar.";
+      }
+    }
+  }catch(e){ m.className="msg err"; m.textContent=errAuth(e); }
+  if(aux){ try{ await deleteApp(aux); }catch(e){} }
+  $("saveClaveEd").disabled=false;
+};
+$("csv").onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const m=$("adminMsg"), rd=new FileReader();
+  rd.onload=()=>{$("raw").value=rd.result; m.className="msg ok";
+    m.textContent='Archivo "'+f.name+'" leído. Pulsa Publicar base.';};
+  rd.onerror=()=>{m.className="msg err"; m.textContent="No se pudo leer el archivo.";};
+  rd.readAsText(f,"UTF-8");
+};
+$("pub").onclick=async()=>{
+  const m=$("adminMsg"); m.className="msg"; m.textContent="";
+  $("prog").classList.remove("hidden"); $("prog").textContent="Procesando…";
+  try{
+    const b=build($("raw").value);
+    if(b.fuera.n>0){
+      const txt=b.fuera.n+" filas del archivo no tienen categoría o LET/MAY: no se van a mostrar ni sumar en la web.\n\n"+
+        "Suman "+f1(b.fuera.t)+" t y S/ "+f0(b.fuera.v)+".\n\nEjemplos:\n· "+b.fuera.ej.join("\n· ")+
+        "\n\nLo correcto es completar su categoría (Maestro Andino) y volver a generar el archivo.\n\n¿Publicar de todas formas?";
+      if(!confirm(txt)){
+        m.className="msg"; m.textContent="Publicación cancelada: "+b.fuera.n+" filas sin categoría o LET/MAY (S/ "+f0(b.fuera.v)+").";
+        $("prog").classList.add("hidden"); return;
+      }
+    }
+    const cr=chunkify(b.reg), cc=chunkify(b.cli);
+    await setDoc(doc(dbF,"cfg","ibp"),{map:b.ibp});
+    await writePart("basereg",cr,"Split regional");
+    await writePart("basecli",cc,"Split por cliente");
+    await mergeMeta({at:new Date().toISOString(), emgOn:false,
+      nReg:Object.keys(b.reg.tot).length,
+      nCli:Object.keys(b.cli.tot).length, nFF:Object.keys(b.ibp).length});
+    m.className="msg ok";
+    m.textContent="Base publicada: "+Object.keys(b.reg.tot).length+" celdas región, "+
+      Object.keys(b.cli.tot).length+" celdas cliente, "+Object.keys(b.ibp).length+
+      " format flavors. Revisa que la ventana de registro esté definida para este mes."+
+      (b.fuera.n>0?" Atención: "+b.fuera.n+" filas sin categoría o LET/MAY no se muestran (S/ "+f0(b.fuera.v)+").":"")+
+      (b.sinCuota.length?" "+b.sinCuota.length+(b.sinCuota.length===1?" distribuidor no aparece":" distribuidores no aparecen")+
+        " en la web porque todas sus filas tienen CUOTA TONS SO en 0 o vacía: "+b.sinCuota.slice(0,8).join(", ")+
+        (b.sinCuota.length>8?" y "+(b.sinCuota.length-8)+" más":"")+".":"");
+    $("prog").classList.add("hidden");
+    $("raw").value=""; $("csv").value="";
+    base=await loadBase(); abrirModulo("so");
+  }catch(e){ $("prog").classList.add("hidden");
+    m.className="msg err"; m.textContent=(e&&e.message)||String(e); }
+};
+$("wipe").onclick=async()=>{
+  if(!confirm("Se borran todos los ajustes de "+nombreModulo()+" guardados por los editores. ¿Continuar?")) return;
+  const ref=doc(dbF,"ajustes","actual"), cur=(await getDoc(ref)).data()||{};
+  const limpio = modulo==="si" ? {si:{}} : {reg:{},cli:{}};
+  await setDoc(ref,{reg:{},cli:{},si:{},...cur,...limpio,by:me,at:new Date().toISOString()});
+};
+// Ajustes para el proceso de Python. tipo: "so" (región y cliente), "si" (sell in por cliente) o "todo".
+// Solo se exportan los ajustes de celdas que existen en la base publicada hoy. Los guardados con una
+// base anterior (por ejemplo, un cliente que cambió de región) se omiten y se avisa.
+const CAB_AJUSTES=["NIVEL","SUBCANAL","REGION","DISTRIBUIDOR","Categoria","SubCanalCliente","TONS","CUSTOMER CODE","SOLES"];
+function selloLocal(){
+  const d=new Date(), z=n=>String(n).padStart(2,"0");
+  return d.getFullYear()+z(d.getMonth()+1)+z(d.getDate())+"_"+z(d.getHours())+z(d.getMinutes());
+}
+function exportarAjustes(tipo){
+  const data=[], omit={reg:0,cli:0,si:0}, omitN=[];
+  if(tipo!=="si") for(const lv of ["reg","cli"]) for(const k in saved[lv]){
+    if(!(base && base[lv] && k in base[lv].tot)){ omit[lv]++;
+      omitN.push((lv==="reg"?"Regional: ":"Cliente: ")+k.split(SEP).join(" / ")+" = "+saved[lv][k]); continue; }
+    const p=k.split(SEP);
+    data.push(lv==="reg"?["REGION",p[0],p[1],"",p[2],p[3],saved.reg[k],"",""]
+                        :["CLIENTE",p[0],p[1],p[2],p[3],p[4],saved.cli[k],"",""]);
+  }
+  if(tipo!=="so") for(const cod in (saved.si||{})){
+    const c=siBase && siBase.porCod[cod];
+    if(siBase && !c){ omit.si++; omitN.push("Sell in: código "+cod+" = "+saved.si[cod]); continue; }
+    data.push(["SI_CLIENTE",c?c.sc:"",c?c.rg:"",c?c.ds:"","","","",cod,saved.si[cod]]);
+  }
+  const nombre = tipo==="todo" ? "ajustes_cuota.csv"
+               : "ajustes_"+(tipo==="si"?"SI":"SO")+"_PE_"+selloLocal()+".csv";
+  if(!data.length){
+    alert("No hay ajustes de "+(tipo==="si"?"sell in":tipo==="so"?"sell out":"sell in ni sell out")+
+      " guardados para exportar."+(omitN.length?"\n\n"+(omitN.length===1?"Hay 1 ajuste guardado con una base anterior que ya no coincide":"Hay "+omitN.length+" ajustes guardados con una base anterior que ya no coinciden")+" con la publicada:\n"+
+        omitN.slice(0,12).join("\n")+(omitN.length>12?"\n… y "+(omitN.length-12)+" más":""):"")); return;
+  }
+  csvDump(nombre, CAB_AJUSTES, data);
+  const n=omit.reg+omit.cli+omit.si;
+  if(n) setTimeout(()=>alert("Se omitieron "+n+" ajustes guardados que no existen en la base publicada ("+
+    omit.reg+" regionales, "+omit.cli+" por cliente, "+omit.si+" de sell in). Son de una publicación anterior "+
+    "de la base, por ejemplo un cliente que cambió de región. El archivo exportado no los incluye.\n\n"+
+    omitN.slice(0,12).join("\n")+(omitN.length>12?"\n… y "+(omitN.length-12)+" más":"")),300);
+}
+$("expSO").onclick=()=>exportarAjustes("so");
+$("expSIaj").onclick=()=>exportarAjustes("si");
+$("exp").onclick=()=>exportarAjustes("todo");
+$("pubSI").onclick=async()=>{
+  const m=$("siMsg"), f=$("csvSI").files[0]; m.className="msg";
+  if(!f){ m.className="msg err"; m.textContent="Elige el archivo Propuesta_SI_para_web."; return; }
+  try{
+    const txt=await new Promise((ok,mal)=>{const rd=new FileReader();
+      rd.onload=()=>ok(rd.result); rd.onerror=()=>mal(new Error("No se pudo leer el archivo."));
+      rd.readAsText(f,"UTF-8");});
+    const d=buildSI(txt);
+    await setDoc(doc(dbF,"cfg","si"),{...d, at:new Date().toISOString(), by:me});
+    await mergeMeta({siEmgOn:false});
+    siBase=prepSI(d);
+    const tot=d.clientes.reduce((a,c)=>a+c.tot,0);
+    m.className="msg ok";
+    m.textContent="Propuesta publicada: "+d.clientes.length+" clientes, "+d.cats.length+
+      " categorías, S/ "+fK(tot)+" en total."+
+      (d.dup.length?" Atención: "+d.dup.length+(d.dup.length===1?" código de cliente repetido":" códigos de cliente repetidos")+
+        " ("+d.dup.slice(0,6).join(", ")+"). En la web comparten un solo ajuste y al exportar sale una sola fila por código.":"");
+    $("csvSI").value=""; fillRegiones(); draw();
+  }catch(e){ m.className="msg err"; m.textContent=(e&&e.message)||String(e); }
+};
+function pendientes(){ return Object.keys(local.reg).length+Object.keys(local.cli).length+Object.keys(local.si).length; }
+function cerrarSesion(){
+  local={reg:{},cli:{},si:{}};
+  me=""; isAdmin=false; override=false; base=null;
+  const fin=()=>location.reload();
+  if(auth) signOut(auth).then(fin,fin); else fin();
+}
+let accionModal="salir";
+$("inicio").onclick=()=>{ if(pendientes()===0){ verPortal(); return; } accionModal="inicio"; abrirModal(); };
+$("salir").onclick=()=>{
+  if(pendientes()===0){ cerrarSesion(); return; }
+  accionModal="salir"; abrirModal();
+};
+function abrirModal(){
+  const n=pendientes();
+  $("mMsg").textContent="";
+  $("mTit").textContent = n===1 ? "Tienes 1 cambio sin guardar"
+                                : "Tienes "+n+" cambios sin guardar";
+  $("mTxt").textContent = puedeEditar()
+    ? "Si sales sin guardar, esos ajustes se pierden y nadie más los verá."
+    : "La ventana de registro está cerrada, así que ya no se pueden guardar. Al salir se pierden.";
+  $("mGuardar").classList.toggle("hidden", !puedeEditar());
+  $("mGuardar").textContent = accionModal==="inicio" ? "Guardar y volver" : "Guardar y salir";
+  $("mDescartar").textContent = accionModal==="inicio" ? "Volver sin guardar" : "Salir sin guardar";
+  $("modal").classList.remove("hidden");
+}
+function terminarAccion(){
+  if(accionModal==="inicio"){ local={reg:{},cli:{},si:{}}; $("modal").classList.add("hidden"); verPortal(); }
+  else cerrarSesion();
+}
+$("mCancelar").onclick=()=>$("modal").classList.add("hidden");
+$("mDescartar").onclick=()=>{ $("modal").classList.add("hidden"); terminarAccion(); };
+$("mGuardar").onclick=async()=>{
+  const m=$("mMsg"); m.className="msg"; m.textContent="Guardando…";
+  $("mGuardar").disabled=true; $("mDescartar").disabled=true;
+  try{
+    const ref=doc(dbF,"ajustes","actual");
+    const cur=(await getDoc(ref)).data()||{reg:{},cli:{}};
+    const merged={reg:{...(cur.reg||{}),...local.reg},cli:{...(cur.cli||{}),...local.cli},
+      si:{...(cur.si||{}),...local.si}, by:me, at:new Date().toISOString()};
+    await setDoc(ref,merged); saved=merged;
+    local={reg:{},cli:{},si:{}};
+    $("mGuardar").disabled=false; $("mDescartar").disabled=false;
+    terminarAccion();
+  }catch(e){
+    m.className="msg err"; m.textContent="No se pudo guardar: "+(e&&e.message||e)+". Puedes reintentar o salir sin guardar.";
+    $("mGuardar").disabled=false; $("mDescartar").disabled=false;
+  }
+};
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape" && !$("modal").classList.contains("hidden"))
+    $("modal").classList.add("hidden");
+});
+
+window.addEventListener("beforeunload",e=>{
+  if(pendientes()>0){e.preventDefault();e.returnValue="";}
+});
+
+const nombreModulo=()=>modulo==="si" ? "sell in" : "sell out";
+function pintaPortal(){
+  /* avance y estado de cada país: salen del calendario de cuotas */
+  const cal={}; calFilas().forEach(f=>{ if(f.plan) (cal[f.cod]=cal[f.cod]||[]).push(f); });
+  $("pEj").classList.toggle("hidden",!(CAL&&CAL.ejemplo));
+  $("pPaises").classList.toggle("sincal",!Object.keys(cal).length);
+  let h='<div class="prow phead"><span>País</span><span>Avance del calendario</span><span>Estado</span><span>Ajuste de cuotas</span></div>';
+  for(const p of PAISES){
+    const fs=cal[p.cod]||[];
+    h+='<div class="prow"><div class="pi"><h3>'+esc(p.nombre)+'</h3><p class="canal">'+esc(p.canal)+'</p></div>';
+    if(!fs.length) h+='<div class="pav"><span class="pdet">Sin dato</span></div><div class="pes"><span class="est pend">Sin dato</span></div>';
+    else {
+      const hechos=fs.filter(f=>f.real).length, ab=fs.filter(f=>f.estado==="abierto"), sig=fs.find(f=>!f.real);
+      h+='<div class="pav"><span class="dots">'+fs.map(f=>'<i class="m '+
+        (f.estado==="a tiempo"?"ok":f.estado==="retrasado"?"late":f.estado==="abierto"?"abre":"plan")+
+        '" title="'+esc(f.hito+": plan "+fCorta(f.plan)+(f.real?", real "+fCorta(f.real):"")+(f.dif?", "+difTxt(f):""))+'"></i>').join("")+
+        '</span><span>'+hechos+' de '+fs.length+' pasos</span></div><div class="pes">'+
+        (ab.length ? '<span class="est late">Retrasado</span><span class="pdet">'+esc(ab[0].hito)+', +'+ab[0].dif+' d (abierto)'+
+            (ab.length>1?' y '+(ab.length-1)+' más':'')+'</span>'
+         : !sig ? '<span class="est cerr">Cerrado</span>'
+         : '<span class="est ok">A tiempo</span><span class="pdet">Sigue: '+esc(sig.hito.toLowerCase())+', '+fCorta(sig.plan)+'</span>')+'</div>';
+    }
+    h+='<div class="mods">';
+    if(!p.modulos.length) h+='<span class="note">Próximamente</span>';
+    for(const m of p.modulos){
+      let est="";
+      if(meta && me){ const v=ventana(m.id);
+        est = v.estado==="abierta"||v.estado==="forzada" ? '<em class="estado abierta">abierta</em>'
+            : v.estado==="cerrada" ? '<em class="estado cerrada">cerrada</em>'
+            : v.estado==="pronto" ? '<em class="estado pronto">abre pronto</em>' : ""; }
+      h+='<button class="mod" data-p="'+p.cod+'" data-m="'+m.id+'">'+est+'<b>'+esc(m.nombre)+'</b><span>'+
+         esc(m.desc)+'</span></button>';
+    }
+    h+='</div></div>';
+  }
+  $("pPaises").innerHTML=h;
+  $("pWho").textContent = me ? "Sesión: "+me+(isAdmin?", administrador":soloLectura?", solo lectura":"") : "";
+  $("pSalir").classList.toggle("hidden",!me);
+  $("pEntrar").classList.toggle("hidden",!!me);
+  document.querySelectorAll(".mod").forEach(b=>b.onclick=()=>irA(b.dataset.p,b.dataset.m));
+  pintaCalendario();
+}
+$("gLogo").src=$("pLogo").src;
+$("pEntrar").onclick=()=>{
+  destino=null; $("portal").classList.add("hidden"); $("gate").classList.remove("hidden");
+  $("gTag").textContent="Sales Operations Pacífico"; gateModo("entrar");
+};
+function verPortal(){
+  ["gate","app","foot"].forEach(x=>$(x).classList.add("hidden"));
+  $("portal").classList.remove("hidden");
+  pintaPortal();
+}
+function irA(pc,mod){
+  pais=PAISES.find(p=>p.cod===pc); destino=mod;
+  if(!me){
+    $("portal").classList.add("hidden"); $("gate").classList.remove("hidden");
+    $("gTag").textContent="Cuotas "+pais.nombre+", "+pais.modulos.find(m=>m.id===mod).nombre;
+    gateModo("entrar");
+    return;
+  }
+  if(!base && mod==="so" && !isAdmin){ toast("Todavía no hay una base publicada. Avisa a Sales Operations."); return; }
+  abrirModulo(mod);
+}
+function abrirModulo(mod){
+  modulo=mod; filtro="";
+  level = mod==="si" ? "si" : "cli";
+  const m=pais.modulos.find(x=>x.id===mod);
+  $("portal").classList.add("hidden"); $("gate").classList.add("hidden");
+  $("hTit").textContent="Cuotas "+m.nombre+", "+pais.canal+" "+pais.nombre;
+  $("hSub").textContent = mod==="si" ? "Total en soles por cliente" : "Toneladas y valorización en soles";
+  $("tCli").classList.toggle("hidden",mod==="si"); $("tReg").classList.toggle("hidden",mod==="si");
+  $("tSI").classList.toggle("hidden",mod!=="si");
+  $("tCli").setAttribute("aria-selected","true"); $("tReg").setAttribute("aria-selected","false");
+  $("admSO").classList.toggle("hidden",mod==="si"); $("admSI").classList.toggle("hidden",mod!=="si");
+  $("vTitAdm").textContent="Ventana de registro: "+m.nombre;
+  $("footTxt").innerHTML = mod==="si"
+    ? "El <strong>total por cliente</strong> es la cuota oficial de sell in. Se abre por categoría con el mix de la propuesta; las toneladas, el NR y el GR se recalculan en el proceso"
+    : "El <strong>split por cliente</strong> es el que tiene validez para la cuota. El <strong>split regional</strong> es solo referencial: sirve de guía para repartir por categoría y no alimenta la cuota oficial";
+  showApp(); fillRegiones(); draw();
+}
+function showApp(){
+  $("gate").classList.add("hidden");
+  $("app").classList.remove("hidden");
+  $("main").classList.remove("hidden");
+  $("foot").classList.remove("hidden");
+  $("whoAmI").textContent = me + (isAdmin ? ", administrador" : soloLectura ? ", solo lectura" : "");
+  if(isAdmin){
+    $("toggleAdmin").classList.remove("hidden");
+    $("dOpen").value=M("openAt")||""; $("dClose").value=M("closeAt")||"";
+    pintaEmg();
+    if(CAL){ $("calPerIn").value=CAL.periodo||""; $("calDias").value=CAL.dias||"habiles"; }
+  }
+  pintaVentana();
+}
+
+/* ---------- calendario de cuotas: oficial, paso por país ---------- */
+/* Se publica desde Configuración y vive en Firestore (cfg/calendario); solo lo ven quienes inician sesión.
+   CAL = {periodo, dias:"habiles"|"calendario", ejemplo?, at, filas:[{pais, paso, resp, plan, real}]} */
+let CAL=null;
+const PASOS_BASE=["Envío de propuesta","Validación","Carga en sistema","Comunicación a ventas","Cierre"];
+const MES_C=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const DIA_C=["dom","lun","mar","mié","jue","vie","sáb"];
+const dISO=s=>new Date(s+"T12:00:00");
+const isoDe=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const fCorta=s=>{ if(!s) return "–"; const d=dISO(s); return d.getDate()+"-"+MES_C[d.getMonth()]; };
+const fDia=s=>DIA_C[dISO(s).getDay()];
+const finde=d=>d.getDay()===0||d.getDay()===6;
+/* Días de a hasta b (sin contar a). Negativo si b es anterior. */
+function desfase(a,b){
+  if(a===b) return 0;
+  const sg=b>a?1:-1, d=dISO(sg>0?a:b), fin=dISO(sg>0?b:a); let n=0;
+  while(d<fin){ d.setDate(d.getDate()+1); if((CAL&&CAL.dias)==="calendario"||!finde(d)) n++; }
+  return sg*n;
+}
+function calPasos(){ const o=[]; ((CAL&&CAL.filas)||[]).forEach(f=>{ if(!o.includes(f.paso)) o.push(f.paso); }); return o; }
+function calFilas(){
+  if(!CAL||!CAL.filas) return [];
+  const hoy=isoDe(new Date()), pasos=calPasos(), out=[];
+  for(const x of CAL.filas){
+    const pi=PAISES.findIndex(p=>p.cod===x.pais); if(pi<0) continue;
+    const plan=x.plan||"", real=x.real||"";
+    let estado="pendiente", dif=null;
+    if(!plan) estado="sin dato";
+    else if(real){ dif=desfase(plan,real); estado = dif>0 ? "retrasado" : "a tiempo"; }
+    else if(hoy>plan){ const n=desfase(plan,hoy); if(n>0){ dif=n; estado="abierto"; } }
+    out.push({pi,hi:pasos.indexOf(x.paso),cod:x.pais,pais:PAISES[pi].nombre,hito:x.paso,resp:x.resp||"",plan,real,estado,dif});
+  }
+  return out.sort((a,b)=>a.pi-b.pi||a.hi-b.hi);
+}
+const difTxt=f=> f.estado==="retrasado" ? "+"+f.dif+" d" : f.estado==="abierto" ? "+"+f.dif+" d (abierto)"
+  : f.estado==="a tiempo" ? (f.dif<0 ? "−"+(-f.dif)+" d" : "0 d") : "–";
+/* estado para leer: [clase, etiqueta, detalle] */
+function estadoInfo(f){
+  const hoy=isoDe(new Date());
+  return f.estado==="a tiempo" ? ["ok","Cumplido", f.real!==f.plan ? "el "+fCorta(f.real) : ""]
+    : f.estado==="retrasado" ? ["late","Cumplido con retraso","+"+f.dif+" d, el "+fCorta(f.real)]
+    : f.estado==="abierto" ? ["late","Retrasado","+"+f.dif+" d"]
+    : f.estado==="sin dato" ? ["pend","Sin fecha",""]
+    : f.plan===hoy ? ["risk","Vence hoy",""] : ["pend","Pendiente",""];
+}
+/* estructura común a la pantalla, la imagen y la tabla para correo */
+function calModelo(){
+  const filas=calFilas(), pasos=calPasos(), paises=PAISES.filter(p=>filas.some(f=>f.cod===p.cod)), celda={};
+  filas.forEach(f=>celda[f.cod+"|"+f.hi]=f);
+  /* si el responsable es el mismo en todos los países, se muestra una vez junto al paso */
+  const comun=pasos.map((_,hi)=>{ const r=paises.map(p=>(celda[p.cod+"|"+hi]||{}).resp||"");
+    return r.length && r[0] && r.every(x=>x===r[0]) ? r[0] : ""; });
+  const tarde=filas.filter(f=>f.estado==="retrasado"||f.estado==="abierto"), hoy=isoDe(new Date());
+  const resumen = "Al "+fCorta(hoy)+": "+(tarde.length
+    ? tarde.length+(tarde.length===1?" paso con retraso":" pasos con retraso")+": "+
+      tarde.map(f=>f.cod+" "+f.hito.toLowerCase()+" ("+(f.estado==="abierto"?"+"+f.dif+" d, abierto":"+"+f.dif+" d")+")").join(", ")+"."
+    : "ningún paso con retraso.");
+  const pie="Desfase en "+((CAL&&CAL.dias)==="calendario"?"días calendario":"días hábiles, de lunes a viernes, sin feriados")+"."+
+    (CAL&&CAL.at?" Actualizado el "+fCorta(String(CAL.at).slice(0,10))+".":"");
+  return {filas,pasos,paises,celda,comun,tarde,resumen,pie};
+}
+function pintaCalendario(){
+  const M=calModelo(), hay=M.filas.some(f=>f.plan);
+  $("calPer").textContent=(CAL&&CAL.periodo)||"";
+  $("calEj").classList.toggle("hidden",!(CAL&&CAL.ejemplo));
+  $("calBtns").classList.toggle("hidden",!hay);
+  $("calMatW").classList.toggle("hidden",!hay);
+  if(!hay){
+    $("calRes").className="cal-res vacio";
+    $("calRes").textContent = !me ? "Inicia sesión para ver el calendario de cuotas."
+      : isAdmin ? "Aún no hay un calendario publicado. Publícalo desde Configuración, dentro de cualquier módulo."
+      : "Aún no hay un calendario publicado. Avisa a Sales Operations.";
+    ["calMat","calLista","calPie"].forEach(x=>$(x).innerHTML=""); return;
+  }
+  $("calRes").className="cal-res"+(M.tarde.length?"":" sin");
+  const i=M.resumen.indexOf(": ")+2, j=M.tarde.length ? M.resumen.indexOf(": ",i) : M.resumen.length-1;
+  $("calRes").innerHTML=esc(M.resumen.slice(0,i))+"<b>"+esc(M.resumen.slice(i,j))+"</b>"+esc(M.resumen.slice(j));
+  const cel=f=>{ const e=estadoInfo(f);
+    return '<span class="cf"><small>'+fDia(f.plan)+'</small>'+fCorta(f.plan)+'</span>'+
+      '<div class="ce"><span class="est '+e[0]+'">'+e[1]+'</span>'+(e[2]?'<span>'+e[2]+'</span>':'')+'</div>'; };
+  /* escritorio: pasos en filas, países en columnas */
+  let t='<table><thead><tr><th>Paso</th>'+M.paises.map(p=>'<th>'+esc(p.nombre)+'</th>').join("")+'</tr></thead><tbody>';
+  M.pasos.forEach((ps,hi)=>{
+    t+='<tr><td><div class="cp"><i class="cp-n">'+(hi+1)+'</i><div><b>'+esc(ps)+'</b>'+
+       (M.comun[hi]?'<span>Responsable: '+esc(M.comun[hi])+'</span>':'')+'</div></div></td>';
+    M.paises.forEach(p=>{ const f=M.celda[p.cod+"|"+hi];
+      t+= !f||!f.plan ? '<td class="vac">–</td>'
+        : '<td>'+cel(f)+(!M.comun[hi]&&f.resp?'<span class="cf-r">Responsable: '+esc(f.resp)+'</span>':'')+'</td>'; });
+    t+='</tr>';
+  });
+  $("calMat").innerHTML=t+'</tbody></table>';
+  /* celular: un bloque por país */
+  let q="";
+  for(const p of M.paises){
+    q+='<h3>'+esc(p.nombre)+'</h3>';
+    M.pasos.forEach((ps,hi)=>{ const f=M.celda[p.cod+"|"+hi]; if(!f||!f.plan) return;
+      q+='<div class="cl"><div class="cp"><i class="cp-n">'+(hi+1)+'</i><div><b>'+esc(ps)+'</b>'+
+         (f.resp?'<span>Responsable: '+esc(f.resp)+'</span>':'')+'</div></div><div>'+cel(f)+'</div></div>'; });
+  }
+  $("calLista").innerHTML=q;
+  $("calPie").textContent=M.pie;
+}
+
+/* ----- imagen PNG para adjuntar al correo ----- */
+const CALC={t:"#1D232B",t2:"#5B6470",b:"#D0D5DB",b2:"#E6E9ED",s2:"#ECEEF1",ac:"#4F2170",
+  ok:["#2F7A47","#E4F3E7"], late:["#B3392B","#F9E7E3"], risk:["#7A5A10","#FBF0D0"], pend:["#5B6470","#ECEEF1"]};
+async function calImagen(){
+  const M=calModelo(); if(!M.pasos.length) return;
+  try{ await document.fonts.ready; }catch(e){}
+  const F="'IBM Plex Sans','Segoe UI',Arial,sans-serif", S=2, P=32, c0=310;
+  const W=Math.max(980, 2*P+c0+M.paises.length*240), cw=(W-2*P-c0)/M.paises.length;
+  const cv=document.createElement("canvas"), x=cv.getContext("2d");
+  const fnt=(w,s)=>{ x.font=w+" "+s+"px "+F; };
+  const wrap=(txt,maxW,maxL)=>{ const ws=String(txt).split(/\s+/), ls=[]; let c="";
+    for(const w of ws){ const p=c?c+" "+w:w; if(x.measureText(p).width<=maxW||!c) c=p; else { ls.push(c); c=w; } }
+    if(c) ls.push(c);
+    if(ls.length>maxL){ ls.length=maxL; let u=ls[maxL-1]; while(u.length>1 && x.measureText(u+"…").width>maxW) u=u.slice(0,-1); ls[maxL-1]=u+"…"; }
+    return ls; };
+  /* medir filas */
+  const filas=M.pasos.map((ps,hi)=>{
+    fnt(600,16); const nom=wrap(ps,c0-60,2);
+    fnt(400,13); const rc=M.comun[hi]?wrap("Responsable: "+M.comun[hi],c0-60,2):[];
+    let alto=nom.length*22+rc.length*18;
+    const cs=M.paises.map(p=>{ const f=M.celda[p.cod+"|"+hi]; if(!f||!f.plan) return null;
+      fnt(400,13); const r=!M.comun[hi]&&f.resp?wrap("Responsable: "+f.resp,cw-28,2):[];
+      const det=estadoInfo(f)[2]?1:0;
+      alto=Math.max(alto,26+26+det*18+r.length*18+(r.length?4:0)); return {f,r,det}; });
+    return {nom,rc,cs,alto:alto+28};
+  });
+  fnt(400,14); const res=wrap(M.resumen,W-2*P,3);
+  const yT=P+52+20+res.length*20+16, altoT=40+filas.reduce((a,f)=>a+f.alto,0), H=yT+altoT+20+18*2+P;
+  cv.width=W*S; cv.height=H*S; x.scale(S,S); x.textBaseline="top";
+  x.fillStyle="#fff"; x.fillRect(0,0,W,H);
+  /* encabezado */
+  const lg=$("pLogo"); let lx=P;
+  try{ const lw=40*lg.naturalWidth/lg.naturalHeight; x.drawImage(lg,P,P,lw,40); lx=P+lw+20; }catch(e){}
+  x.fillStyle=CALC.b; x.fillRect(lx-10,P,1,40);
+  x.fillStyle=CALC.t; fnt(600,20); x.fillText("Calendario de cuotas",lx+4,P);
+  x.fillStyle=CALC.t2; fnt(400,14); x.fillText(((CAL&&CAL.periodo)?CAL.periodo+". ":"")+"Sales Operations Pacífico",lx+4,P+25);
+  x.fillStyle=CALC.t; fnt(400,14); res.forEach((l,i)=>x.fillText(l,P,P+52+20+i*20));
+  /* tabla */
+  x.fillStyle=CALC.s2; x.fillRect(P,yT,W-2*P,40);
+  x.fillStyle=CALC.t; fnt(600,14); x.fillText("Paso",P+16,yT+12);
+  M.paises.forEach((p,i)=>x.fillText(p.nombre,P+c0+i*cw+14,yT+12));
+  let y=yT+40;
+  const pastilla=(e,px,py)=>{ fnt(500,12); const w=x.measureText(e[1]).width+16, c=CALC[e[0]];
+    x.fillStyle=c[1]; if(x.roundRect){ x.beginPath(); x.roundRect(px,py,w,20,4); x.fill(); } else x.fillRect(px,py,w,20);
+    x.fillStyle=c[0]; x.fillText(e[1],px+8,py+4);
+    if(e[2]){ x.fillStyle=CALC.t2; fnt(400,12); x.fillText(e[2],px,py+26); } };
+  filas.forEach((r,hi)=>{
+    x.fillStyle=CALC.s2; x.beginPath(); x.arc(P+28,y+26,13,0,Math.PI*2); x.fill();
+    x.fillStyle=CALC.t; fnt(600,13); x.textAlign="center"; x.fillText(String(hi+1),P+28,y+19); x.textAlign="left";
+    fnt(600,16); r.nom.forEach((l,i)=>x.fillText(l,P+52,y+14+i*22));
+    x.fillStyle=CALC.t2; fnt(400,13); r.rc.forEach((l,i)=>x.fillText(l,P+52,y+14+r.nom.length*22+2+i*18));
+    r.cs.forEach((c,i)=>{ const cx=P+c0+i*cw+14;
+      x.fillStyle=CALC.b2; x.fillRect(P+c0+i*cw,y,1,r.alto);
+      if(!c){ x.fillStyle=CALC.t2; fnt(400,14); x.fillText("–",cx,y+14); return; }
+      x.fillStyle=CALC.t2; fnt(400,13); const d=fDia(c.f.plan)+" "; x.fillText(d,cx,y+17); const dw=x.measureText(d).width;
+      x.fillStyle=CALC.t; fnt(600,18); x.fillText(fCorta(c.f.plan),cx+dw,y+13);
+      pastilla(estadoInfo(c.f),cx,y+42);
+      x.fillStyle=CALC.t2; fnt(400,13); c.r.forEach((l,k)=>x.fillText(l,cx,y+70+c.det*18+k*18));
+    });
+    y+=r.alto; x.fillStyle=CALC.b2; x.fillRect(P,y,W-2*P,1);
+  });
+  x.strokeStyle=CALC.b; x.lineWidth=1; x.strokeRect(P+.5,yT+.5,W-2*P-1,altoT-1);
+  x.fillStyle=CALC.t2; fnt(400,12);
+  x.fillText(M.pie+((CAL&&CAL.ejemplo)?" Datos de ejemplo.":""),P,y+20);
+  x.fillText("Información confidencial de uso interno.",P,y+38);
+  cv.toBlob(b=>{ const a=document.createElement("a"); a.href=URL.createObjectURL(b);
+    a.download="calendario_cuotas"+((CAL&&CAL.periodo)?"_"+CAL.periodo.toLowerCase().replace(/[^a-z0-9áéíóúñ]+/g,"_"):"")+".png";
+    a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); },"image/png");
+}
+/* ----- tabla con estilos propios para pegar en el cuerpo del correo ----- */
+function calHtmlCorreo(){
+  const M=calModelo(), ff="font-family:'Segoe UI',Arial,sans-serif;", td="padding:8px 12px;border:1px solid "+CALC.b+";vertical-align:top;"+ff;
+  let t='<p style="'+ff+'font-size:16px;font-weight:600;color:'+CALC.t+';margin:0 0 4px">Calendario de cuotas'+
+    ((CAL&&CAL.periodo)?': '+esc(CAL.periodo):'')+'</p><p style="'+ff+'font-size:13px;color:'+CALC.t+';margin:0 0 12px">'+esc(M.resumen)+'</p>'+
+    '<table style="border-collapse:collapse;'+ff+'font-size:13px;color:'+CALC.t+'"><tr><th style="'+td+'background:'+CALC.s2+';text-align:left">Paso</th>'+
+    M.paises.map(p=>'<th style="'+td+'background:'+CALC.s2+';text-align:left">'+esc(p.nombre)+'</th>').join("")+'</tr>';
+  M.pasos.forEach((ps,hi)=>{
+    t+='<tr><td style="'+td+'"><b>'+(hi+1)+'. '+esc(ps)+'</b>'+(M.comun[hi]?'<br><span style="color:'+CALC.t2+';font-size:12px">Responsable: '+esc(M.comun[hi])+'</span>':'')+'</td>';
+    M.paises.forEach(p=>{ const f=M.celda[p.cod+"|"+hi];
+      if(!f||!f.plan){ t+='<td style="'+td+'">–</td>'; return; }
+      const e=estadoInfo(f);
+      t+='<td style="'+td+'"><b style="font-size:14px">'+fDia(f.plan)+' '+fCorta(f.plan)+'</b>'+
+        (!M.comun[hi]&&f.resp?'<br><span style="color:'+CALC.t2+';font-size:12px">Responsable: '+esc(f.resp)+'</span>':'')+
+        '<br><span style="color:'+CALC[e[0]][0]+';font-size:12px;font-weight:600">'+e[1]+'</span>'+
+        (e[2]?' <span style="color:'+CALC.t2+';font-size:12px">'+e[2]+'</span>':'')+'</td>'; });
+    t+='</tr>';
+  });
+  return t+'</table><p style="'+ff+'font-size:11px;color:'+CALC.t2+';margin:8px 0 0">'+esc(M.pie)+((CAL&&CAL.ejemplo)?' Datos de ejemplo.':'')+'</p>';
+}
+function calCopiar(){
+  const d=document.createElement("div");
+  d.contentEditable="true"; d.style.cssText="position:fixed;left:-9999px;top:0;background:#fff";
+  d.innerHTML=calHtmlCorreo(); document.body.appendChild(d);
+  const r=document.createRange(); r.selectNodeContents(d);
+  const s=getSelection(); s.removeAllRanges(); s.addRange(r);
+  let ok=false; try{ ok=document.execCommand("copy"); }catch(e){}
+  s.removeAllRanges(); d.remove();
+  toast(ok ? "Tabla copiada. Pégala en el cuerpo del correo." : "No se pudo copiar. Usa Descargar imagen.");
+}
+$("calImg").onclick=calImagen;
+$("calCopiar").onclick=calCopiar;
+
+/* ----- publicar el calendario (solo administrador) ----- */
+function parseFecha(t){          // "" si está vacía, null si no se entiende
+  t=String(t??"").trim().toLowerCase();
+  if(!t||t==="-"||t==="–") return "";
+  const arma=(y,m,d)=>{ y=+y; m=+m; d=+d; if(y<100) y+=2000;
+    const f=new Date(y,m-1,d,12); return (f.getFullYear()===y&&f.getMonth()===m-1&&f.getDate()===d) ? isoDe(f) : null; };
+  let m;
+  if((m=t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) return arma(m[1],m[2],m[3]);
+  if((m=t.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/))) return arma(m[3],m[2],m[1]);      // día/mes/año
+  if((m=t.match(/^(\d{1,2})[\/\-. ]+(?:de )?([a-zñ]{3,})\.?(?:[\/\-. ]+(?:de )?(\d{2,4}))?$/))){
+    const k=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"].indexOf(m[2].slice(0,3).replace("set","sep"));
+    return k<0 ? null : arma(m[3]||new Date().getFullYear(),k+1,m[1]);
+  }
+  return null;
+}
+function leerCalendario(text){
+  const lines=String(text).replace(/\r/g,"").split("\n").filter(l=>l.trim());
+  if(lines.length<2) throw new Error("Pega la tabla con sus encabezados.");
+  const h0=lines[0], sep=h0.includes("\t")?"\t":(h0.split(";").length>h0.split(",").length?";":",");
+  const norm=s=>String(s??"").trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/^﻿/,"");
+  const cols=partir(h0,sep).map(norm), col=(...ks)=>cols.findIndex(c=>ks.some(k=>c.includes(k)));
+  const iP=col("pais"), iH=col("paso","hito"), iR=col("respons","involucr"), iA=col("plan"), iB=col("real");
+  if(iP<0||iH<0||iA<0) throw new Error("Faltan encabezados. Se necesitan PAIS, PASO y FECHA PLAN; RESPONSABLE y FECHA REAL son opcionales.");
+  const out=[], err=[];
+  for(let i=1;i<lines.length;i++){
+    const v=partir(lines[i],sep).map(x=>x.trim()), pn=norm(v[iP]), paso=v[iH]||"";
+    if(!pn&&!paso) continue;
+    const p=PAISES.find(q=>norm(q.cod)===pn||norm(q.nombre)===pn);
+    if(!p){ err.push("fila "+(i+1)+": país \""+(v[iP]||"")+"\" no reconocido"); continue; }
+    if(!paso){ err.push("fila "+(i+1)+": falta el paso"); continue; }
+    const plan=parseFecha(v[iA]), real=iB<0?"":parseFecha(v[iB]);
+    if(!plan){ err.push("fila "+(i+1)+": fecha plan \""+(v[iA]||"")+"\" no válida"); continue; }
+    if(real===null){ err.push("fila "+(i+1)+": fecha real \""+(v[iB]||"")+"\" no válida"); continue; }
+    out.push({pais:p.cod, paso, resp:iR<0?"":(v[iR]||""), plan, real});
+  }
+  if(err.length) throw new Error("No se publicó. Corrige: "+err.slice(0,6).join("; ")+(err.length>6?"; y "+(err.length-6)+" más":"")+
+    ". Países válidos: "+PAISES.map(p=>p.cod).join(", ")+" o su nombre. Fechas como 9/11/2026 o 2026-11-09.");
+  if(!out.length) throw new Error("La tabla no tiene filas con país y paso.");
+  return out;
+}
+$("calPub").onclick=async()=>{
+  const m=$("calMsg"); m.className="msg"; m.textContent="";
+  try{
+    const filas=leerCalendario($("calRaw").value);
+    const nuevo={periodo:$("calPerIn").value.trim(), dias:$("calDias").value, filas, at:new Date().toISOString(), by:me};
+    await setDoc(doc(dbF,"cfg","calendario"),nuevo);
+    CAL=nuevo; $("calRaw").value="";
+    const np=new Set(filas.map(f=>f.pais)).size, ns=calPasos().length;
+    m.className="msg ok";
+    m.textContent="Calendario publicado: "+ns+(ns===1?" paso":" pasos")+" en "+np+(np===1?" país":" países")+". Míralo en Inicio.";
+  }catch(e){ m.className="msg err"; m.textContent=(e&&e.message)||String(e); }
+};
+$("calPlant").onclick=()=>{
+  const f=(CAL&&CAL.filas&&CAL.filas.length) ? CAL.filas.map(x=>[x.pais,x.paso,x.resp||"",x.plan||"",x.real||""])
+    : PAISES.flatMap(p=>PASOS_BASE.map(ps=>[p.cod,ps,"","",""]));
+  csvDump("plantilla_calendario.csv",["PAIS","PASO","RESPONSABLE","FECHA PLAN","FECHA REAL"],f);
+};
+
+/* ---------- arranque ---------- */
+let suscrito=false;
+function suscribir(){
+  if(suscrito) return; suscrito=true;
+  onSnapshot(doc(dbF,"ajustes","actual"), snap=>{
+    const d=snap.exists()?snap.data():null;
+    saved = d?{reg:d.reg||{},cli:d.cli||{},si:d.si||{},by:d.by||"",at:d.at||""}:{reg:{},cli:{},si:{},by:"",at:""};
+    info(); if(!$("app").classList.contains("hidden")) draw();
+  }, ()=>banner("Se perdió la conexión con los datos compartidos. Recarga la página."));
+  onSnapshot(doc(dbF,"cfg","meta"), snap=>{
+    if(snap.exists()){ meta=snap.data();
+      if(!$("app").classList.contains("hidden")){ pintaVentana(); if(isAdmin) pintaEmg(); draw(); }
+      else pintaPortal(); }
+  }, ()=>{});
+}
+$("gVolver").onclick=verPortal;
+$("pSalir").onclick=()=>{ if(pendientes()===0){ cerrarSesion(); return; } accionModal="salir"; abrirModal(); };
+/* ---------- entrada ----------
+   Tres cuentas en Firebase Authentication: la del administrador (su correo y su contraseña) y dos
+   cuentas comunes, una de editores y otra de lectores, cuya contraseña comparte cada equipo.
+   La contraseña escrita decide el nivel. El acceso real lo decide Firestore: solo entran las cuentas
+   con documento en la colección "usuarios", y la de lectores no puede escribir. */
+const EDITOR_MAIL="editores@"+firebaseConfig.authDomain;   // cuentas internas: siguen al proyecto
+const LECTOR_MAIL="lectores@"+firebaseConfig.authDomain;
+let modoAdmin=false;
+const gMsg=(t,c)=>{ const m=$("gMsg"); m.className="msg"+(c?" "+c:""); m.textContent=t||""; };
+function gateModo(x){   // "admin" o "entrar" (editor)
+  modoAdmin = x==="admin";
+  $("gEd").classList.toggle("hidden",modoAdmin);
+  $("gAd").classList.toggle("hidden",!modoAdmin);
+  $("gOlvide").classList.toggle("hidden",!modoAdmin);
+  $("gNota").classList.toggle("hidden",modoAdmin);
+  $("gModo").textContent = modoAdmin ? "Soy lector o editor" : "Soy administrador";
+  $("gKey").value="";
+}
+function errAuth(e){
+  const c=String((e&&e.code)||"");
+  return /invalid-credential|wrong-password|user-not-found/.test(c) ? (modoAdmin ? "Correo o contraseña incorrectos." : "Contraseña incorrecta.")
+    : c.includes("invalid-email") ? "El correo no es válido."
+    : c.includes("weak-password") ? "La contraseña es muy corta."
+    : c.includes("too-many-requests") ? "Demasiados intentos. Espera unos minutos y vuelve a probar."
+    : c.includes("network") ? "No hay conexión con Firebase. Revisa tu red."
+    : "No se pudo completar: "+((e&&e.message)||e);
+}
+$("gModo").onclick=()=>{ gMsg(""); gateModo(modoAdmin?"entrar":"admin"); };
+$("gKey").addEventListener("keydown",e=>{ if(e.key==="Enter") $("gGo").click(); });
+$("gGo").onclick=async()=>{
+  const nm=$("gName").value.trim(), em=modoAdmin ? $("gMail").value.trim() : "", kv=$("gKey").value;
+  if(!modoAdmin && !nm){ gMsg("Escribe tu nombre.","err"); return; }
+  if(modoAdmin && !em){ gMsg("Escribe tu correo.","err"); return; }
+  if(!kv){ gMsg("Escribe la contraseña.","err"); return; }
+  nombrePend = modoAdmin ? "" : nm;
+  gMsg("Entrando…"); $("gGo").disabled=true;
+  try{
+    if(modoAdmin) await signInWithEmailAndPassword(auth,em,kv);
+    else {
+      /* prueba la contraseña como editor; si no es, como lector */
+      try{ await signInWithEmailAndPassword(auth,EDITOR_MAIL,kv); }
+      catch(e){
+        if(!/invalid-credential|wrong-password|user-not-found/.test(String(e&&e.code))) throw e;
+        await signInWithEmailAndPassword(auth,LECTOR_MAIL,kv);
+      }
+    }
+  }catch(e){ gMsg(errAuth(e),"err"); }
+  $("gGo").disabled=false;
+};
+$("gOlvide").onclick=async()=>{
+  const em=$("gMail").value.trim();
+  if(!em){ gMsg("Escribe tu correo arriba y vuelve a pulsar.","err"); return; }
+  try{ await sendPasswordResetEmail(auth,em);
+    gMsg("Si ese correo tiene cuenta, recibirás un enlace para cambiar la contraseña. Revisa también el correo no deseado.","ok");
+  }catch(e){ gMsg(errAuth(e),"err"); }
+};
+async function alEntrar(user){
+  let u=null;
+  try{ const d=await getDoc(doc(dbF,"usuarios",user.uid)); u=d.exists()?d.data():null; }catch(e){ u=null; }
+  if(!u){
+    try{ await signOut(auth); }catch(e){}
+    ["portal","app","foot"].forEach(x=>$(x).classList.add("hidden"));
+    $("gate").classList.remove("hidden");
+    gMsg("Esta cuenta no tiene acceso. Escribe a Sales Operations.","err");
+    return;
+  }
+  isAdmin = u.rol==="admin"; soloLectura = u.rol==="lector";
+  /* el editor o lector escribe su nombre al entrar; se recuerda mientras la pestaña siga abierta */
+  if(isAdmin) me=u.nombre||user.email;
+  else {
+    let guardado=""; try{ guardado=sessionStorage.getItem("cuotasNombre")||""; }catch(e){}
+    me=nombrePend||guardado||(soloLectura?"Lector":"Editor");
+    try{ sessionStorage.setItem("cuotasNombre",me); }catch(e){}
+  }
+  try{ meta=(await getDoc(doc(dbF,"cfg","meta"))).data()||null; }
+  catch(e){ gMsg("No se pudo leer la configuración: "+(e.message||e),"err"); return; }
+  /* las claves antiguas ya no se usan: se retiran sus huellas de la configuración */
+  if(isAdmin && meta && (meta.keyU||meta.keyA)){
+    const {keyU,keyA,...resto}=meta;
+    try{ await setDoc(doc(dbF,"cfg","meta"),resto); meta=resto; }catch(e){}
+  }
+  base=await loadBase();
+  try{ siBase=await loadSI(); }catch(e){ siBase=null; }
+  try{ const d=await getDoc(doc(dbF,"cfg","calendario")); CAL=d.exists()?d.data():null; }catch(e){ CAL=null; }
+  suscribir(); gMsg("");
+  if(!destino){ verPortal(); return; }
+  if(!base && destino==="si"){
+    abrirModulo("si");
+    if(isAdmin) $("adminBox").classList.remove("hidden");
+    return;
+  }
+  if(!base){
+    if(isAdmin){ abrirModulo("so"); $("adminBox").classList.remove("hidden"); }
+    else { verPortal(); toast("Todavía no hay una base publicada. Avisa a Sales Operations."); }
+    return;
+  }
+  abrirModulo(destino||"so");
+  info(); draw();
+}
+
+(async()=>{
+  pintaPortal();
+  pintaCalendario();
+  try{
+    const app=initializeApp(firebaseConfig);
+    dbF=getFirestore(app);
+    auth=getAuth(app);
+    await setPersistence(auth, browserSessionPersistence);   // la sesión termina al cerrar la pestaña
+  }catch(e){
+    gMsg("No se pudo conectar con la base de datos de Firebase.","err");
+    return;
+  }
+  onAuthStateChanged(auth, user=>{ if(user) alEntrar(user); });
+})();
+</script>
+</body>
+</html>
