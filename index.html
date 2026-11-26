@@ -336,6 +336,16 @@ footer strong{color:var(--text)}
 @media (max-width:640px){ #calMatW{display:none} #calLista{display:block} .calBtns{margin-left:0} }
 .sincal .prow{grid-template-columns:minmax(140px,200px) 1fr}
 .sincal .pav,.sincal .pes,.sincal .phead span:nth-child(2),.sincal .phead span:nth-child(3){display:none}
+.flag{display:inline-block;flex:none;width:24px;height:16px;border-radius:2px;vertical-align:middle}
+.pi{display:flex;align-items:center;gap:12px}
+.thf{display:inline-flex;align-items:center;gap:8px}
+#calLista h3{display:flex;align-items:center;gap:8px}
+.mod .estado.pend{color:var(--text-2);background:var(--surface-2)}
+.prow.otro .pi h3{color:var(--text-2);font-weight:500}
+.vacio-cta{padding:24px 16px}
+.vacio-cta p{margin:0 0 12px;font-size:.875rem}
+.admin .sh .cerrar{margin-left:auto}
+.cal-res.vacio button{margin-left:12px}
 </style>
 </head>
 <body>
@@ -346,6 +356,7 @@ footer strong{color:var(--text)}
     <h1>Sales Operations Pacífico</h1>
     <span class="who" id="pWho"></span>
     <button class="small hidden" id="pEntrar">Iniciar sesión</button>
+    <button class="ghost small hidden" id="pConfig">Configuración</button>
     <button class="ghost small hidden" id="pSalir">Cerrar sesión</button>
   </div></div>
   <div class="pmain">
@@ -405,6 +416,7 @@ footer strong{color:var(--text)}
   <h1 id="hTit">Cuotas</h1>
   <span class="sub" id="hSub"></span>
   <div class="who" id="whoAmI"></div>
+  <button class="ghost small hidden" id="toggleAdmin">Configuración</button>
   <button class="ghost small" id="salir">Salir</button>
 </header>
 
@@ -493,10 +505,9 @@ footer strong{color:var(--text)}
 
 <div class="toast hidden" id="toast"></div>
 
-<p style="text-align:center"><button class="ghost small hidden" id="toggleAdmin">Configuración</button></p>
 
 <section class="admin hidden" id="adminBox">
-  <div class="sh"><h2>Configuración, solo administrador</h2></div>
+  <div class="sh"><h2>Configuración, solo administrador</h2><button class="ghost small cerrar" id="cfgCerrar">Cerrar configuración</button></div>
   <div class="bd">
     <h3 id="vTitAdm">Ventana de registro</h3>
     <p class="note">Fuera de estas fechas, los editores solo pueden consultar este módulo. El bloqueo es automático.
@@ -523,7 +534,7 @@ footer strong{color:var(--text)}
     </div>
 
     <hr>
-    <h3>Contraseñas de acceso</h3>
+    <h3 id="cfgClaves">Contraseñas de acceso</h3>
     <p class="note">Hay una contraseña para ver y otra para editar; todo el equipo comparte la de su nivel.
       Cámbialas cuando alguien deje el equipo y avisa: la anterior deja de funcionar. Las dos deben ser distintas.</p>
     <div class="fila">
@@ -536,7 +547,7 @@ footer strong{color:var(--text)}
     <p class="msg" id="edMsg"></p>
 
     <hr>
-    <h3>Calendario de cuotas</h3>
+    <h3 id="cfgCal">Calendario de cuotas</h3>
     <p class="note">Pega la tabla desde Excel con estos encabezados: <strong>PAIS, PASO, RESPONSABLE, FECHA PLAN, FECHA REAL</strong>.
       Una fila por país y paso; los pasos salen en el orden en que aparecen. Deja FECHA REAL vacía si el paso aún no se cumple.
       Reemplaza el calendario publicado.</p>
@@ -624,9 +635,34 @@ const PAISES=[
     {id:"so", nombre:"Sell out", desc:"Toneladas por cliente y región"},
     {id:"si", nombre:"Sell in oficial", desc:"Total en soles por cliente"}]},
   {cod:"EC", nombre:"Ecuador", canal:"Traditional Trade", modulos:[]},
-  {cod:"BO", nombre:"Bolivia", canal:"Traditional Trade", modulos:[]},
   {cod:"CL", nombre:"Chile", canal:"Traditional Trade", modulos:[]},
+  {cod:"BO", nombre:"Bolivia", canal:"Traditional Trade", modulos:[], nota:"Sin ajuste de cuotas en la web"},
 ];
+/* Banderas en SVG (los emojis de bandera no se ven en Windows). Formato 3:2, sin escudos salvo una marca en Ecuador. */
+const BANDERAS={
+  PE:[["#D91023",0,0,3,2],["#FFFFFF",1,0,1,2]],
+  EC:[["#ED1C24",0,0,3,2],["#034EA2",0,0,3,1.5],["#FFDD00",0,0,3,1]],
+  CL:[["#D52B1E",0,0,3,2],["#FFFFFF",0,0,3,1],["#0039A6",0,0,1,1]],
+  BO:[["#007934",0,0,3,2],["#F9E300",0,0,3,1.333],["#D52B1E",0,0,3,.667]],
+};
+const ESTRELLA=(cx,cy,r)=>[...Array(10)].map((_,i)=>{ const a=-Math.PI/2+i*Math.PI/5, q=i%2?r*.4:r;
+  return [cx+q*Math.cos(a), cy+q*Math.sin(a)]; });
+function bandera(cod){
+  const b=BANDERAS[cod]; if(!b) return "";
+  let s='<svg class="flag" viewBox="0 0 3 2" aria-hidden="true">'+b.map(r=>'<rect fill="'+r[0]+'" x="'+r[1]+'" y="'+r[2]+'" width="'+r[3]+'" height="'+r[4]+'"/>').join("");
+  if(cod==="CL") s+='<polygon fill="#FFFFFF" points="'+ESTRELLA(.5,.5,.3).map(p=>p.map(v=>v.toFixed(3)).join(",")).join(" ")+'"/>';
+  if(cod==="EC") s+='<ellipse cx="1.5" cy="1" rx=".28" ry=".36" fill="#8C6A2F"/>';
+  return s+'<rect x=".02" y=".02" width="2.96" height="1.96" fill="none" stroke="rgba(0,0,0,.18)" stroke-width=".04"/></svg>';
+}
+function banderaCanvas(x,cod,px,py,w,hh){
+  const b=BANDERAS[cod]; if(!b) return 0;
+  const k=w/3;
+  b.forEach(r=>{ x.fillStyle=r[0]; x.fillRect(px+r[1]*k,py+r[2]*k,r[3]*k,r[4]*k); });
+  if(cod==="CL"){ x.fillStyle="#FFFFFF"; x.beginPath(); ESTRELLA(.5,.5,.3).forEach((p,i)=>i?x.lineTo(px+p[0]*k,py+p[1]*k):x.moveTo(px+p[0]*k,py+p[1]*k)); x.closePath(); x.fill(); }
+  if(cod==="EC"){ x.fillStyle="#8C6A2F"; x.beginPath(); x.ellipse(px+1.5*k,py+k,.28*k,.36*k,0,0,Math.PI*2); x.fill(); }
+  x.strokeStyle="rgba(0,0,0,.18)"; x.lineWidth=1; x.strokeRect(px+.5,py+.5,w-1,hh-1);
+  return w;
+}
 let pais=PAISES[0], modulo="so", destino=null;
 const CATS=["BISCUITS","GUMS & CANDIES","PBS & MEALS"];
 /* Orden de subcanales en sell in */
@@ -906,7 +942,16 @@ function fillRegiones(){
 /* ---------- render ---------- */
 function draw(){
   if(level==="si"){ drawSI(); return; }
-  if(!base) return;
+  if(!base){
+    ["refSec","resSec","siResSec"].forEach(x=>$(x).classList.add("hidden"));
+    $("validador").parentElement.classList.add("hidden");
+    ["kTons","kIV","kDif"].forEach(x=>$(x).textContent="–");
+    $("grid").innerHTML = isAdmin
+      ? '<div class="vacio-cta"><p>Todavía no hay una base de sell out publicada. Súbela para que los editores puedan ajustar.</p>'+
+        '<button data-cfg="admSO">Publicar base del mes</button></div>'
+      : '<div class="vacio-cta"><p>Todavía no hay una base de sell out publicada. Avisa a Sales Operations.</p></div>';
+    $("filtroInfo").textContent=""; pintaVentana(); return;
+  }
   $("siResSec").classList.add("hidden");
   $("validador").parentElement.classList.remove("hidden");
   $("kTonsL").textContent="TONS ingresadas"; $("kIVL").textContent="Valorizado S/";
@@ -1180,7 +1225,9 @@ function drawSI(){
     "Los clientes que no cambies se quedan con su propuesta. Para dejar un cliente en cero, escribe 0 "+
     "(si borras el valor, también queda en cero).";
   if(!siBase){
-    $("grid").innerHTML='<p class="note" style="padding:14px">Todavía no hay una propuesta de sell in publicada. Avisa a Sales Operations.</p>';
+    $("grid").innerHTML = isAdmin
+      ? '<div class="vacio-cta"><p>Todavía no hay una propuesta de sell in publicada.</p><button data-cfg="admSI">Publicar propuesta de sell in</button></div>'
+      : '<div class="vacio-cta"><p>Todavía no hay una propuesta de sell in publicada. Avisa a Sales Operations.</p></div>';
     $("siResSec").classList.add("hidden");
     ["kTons","kIV","kDif"].forEach(x=>$(x).textContent="–"); pintaVentana(); return;
   }
@@ -1378,7 +1425,22 @@ $("expSIRes").onclick=()=>{
 };
 $("expRef").onclick=exportRef;
 $("expRes").onclick=exportResumen;
-$("toggleAdmin").onclick=()=>$("adminBox").classList.toggle("hidden");
+/* abre Configuración y lleva a la sección pedida */
+function irConfig(sec){
+  $("adminBox").classList.remove("hidden");
+  const el=(sec&&$(sec))||$("adminBox");
+  setTimeout(()=>el.scrollIntoView({behavior:"smooth",block:"start"}),0);
+}
+$("toggleAdmin").onclick=()=>irConfig();
+$("cfgCerrar").onclick=()=>{ $("adminBox").classList.add("hidden"); window.scrollTo({top:0,behavior:"smooth"}); };
+$("pConfig").onclick=()=>{ irA("PE","so"); irConfig(); };
+/* botones de los estados vacíos: data-cfg = sección de Configuración */
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-cfg]"); if(!b||!isAdmin) return;
+  if($("app").classList.contains("hidden") || (b.dataset.cfg==="admSO" && modulo!=="so") || (b.dataset.cfg==="admSI" && modulo!=="si"))
+    irA("PE", b.dataset.cfg==="admSI" ? "si" : "so");
+  irConfig(b.dataset.cfg);
+});
 $("override").addEventListener("change",e=>{ override=e.target.checked; draw(); });
 
 function pintaEmg(){
@@ -1627,7 +1689,7 @@ function pintaPortal(){
   let h='<div class="prow phead"><span>País</span><span>Avance del calendario</span><span>Estado</span><span>Ajuste de cuotas</span></div>';
   for(const p of PAISES){
     const fs=cal[p.cod]||[];
-    h+='<div class="prow"><div class="pi"><h3>'+esc(p.nombre)+'</h3><p class="canal">'+esc(p.canal)+'</p></div>';
+    h+='<div class="prow'+(p.nota?' otro':'')+'"><div class="pi">'+bandera(p.cod)+'<div><h3>'+esc(p.nombre)+'</h3><p class="canal">'+esc(p.canal)+'</p></div></div>';
     if(!fs.length) h+='<div class="pav"><span class="pdet">Sin dato</span></div><div class="pes"><span class="est pend">Sin dato</span></div>';
     else {
       const hechos=fs.filter(f=>f.real).length, ab=fs.filter(f=>f.estado==="abierto"), sig=fs.find(f=>!f.real);
@@ -1641,10 +1703,11 @@ function pintaPortal(){
          : '<span class="est ok">A tiempo</span><span class="pdet">Sigue: '+esc(sig.hito.toLowerCase())+', '+fCorta(sig.plan)+'</span>')+'</div>';
     }
     h+='<div class="mods">';
-    if(!p.modulos.length) h+='<span class="note">Próximamente</span>';
+    if(!p.modulos.length) h+='<span class="note">'+esc(p.nota||"Próximamente")+'</span>';
     for(const m of p.modulos){
       let est="";
-      if(meta && me){ const v=ventana(m.id);
+      if(me && (m.id==="so" ? !base : m.id==="si" ? !siBase : false)) est='<em class="estado pend">sin publicar</em>';
+      else if(meta && me){ const v=ventana(m.id);
         est = v.estado==="abierta"||v.estado==="forzada" ? '<em class="estado abierta">abierta</em>'
             : v.estado==="cerrada" ? '<em class="estado cerrada">cerrada</em>'
             : v.estado==="pronto" ? '<em class="estado pronto">abre pronto</em>' : ""; }
@@ -1656,6 +1719,7 @@ function pintaPortal(){
   $("pPaises").innerHTML=h;
   $("pWho").textContent = me ? "Sesión: "+me+(isAdmin?", administrador":soloLectura?", solo lectura":"") : "";
   $("pSalir").classList.toggle("hidden",!me);
+  $("pConfig").classList.toggle("hidden",!isAdmin);
   $("pEntrar").classList.toggle("hidden",!!me);
   document.querySelectorAll(".mod").forEach(b=>b.onclick=()=>irA(b.dataset.p,b.dataset.m));
   pintaCalendario();
@@ -1782,8 +1846,8 @@ function pintaCalendario(){
   $("calMatW").classList.toggle("hidden",!hay);
   if(!hay){
     $("calRes").className="cal-res vacio";
-    $("calRes").textContent = !me ? "Inicia sesión para ver el calendario de cuotas."
-      : isAdmin ? "Aún no hay un calendario publicado. Publícalo desde Configuración, dentro de cualquier módulo."
+    $("calRes").innerHTML = !me ? "Inicia sesión para ver el calendario de cuotas."
+      : isAdmin ? 'Aún no hay un calendario publicado.<button class="small" data-cfg="cfgCal">Publicar calendario</button>'
       : "Aún no hay un calendario publicado. Avisa a Sales Operations.";
     ["calMat","calLista","calPie"].forEach(x=>$(x).innerHTML=""); return;
   }
@@ -1794,7 +1858,7 @@ function pintaCalendario(){
     return '<span class="cf"><small>'+fDia(f.plan)+'</small>'+fCorta(f.plan)+'</span>'+
       '<div class="ce"><span class="est '+e[0]+'">'+e[1]+'</span>'+(e[2]?'<span>'+e[2]+'</span>':'')+'</div>'; };
   /* escritorio: pasos en filas, países en columnas */
-  let t='<table><thead><tr><th>Paso</th>'+M.paises.map(p=>'<th>'+esc(p.nombre)+'</th>').join("")+'</tr></thead><tbody>';
+  let t='<table><thead><tr><th>Paso</th>'+M.paises.map(p=>'<th><span class="thf">'+bandera(p.cod)+esc(p.nombre)+'</span></th>').join("")+'</tr></thead><tbody>';
   M.pasos.forEach((ps,hi)=>{
     t+='<tr><td><div class="cp"><i class="cp-n">'+(hi+1)+'</i><div><b>'+esc(ps)+'</b>'+
        (M.comun[hi]?'<span>Responsable: '+esc(M.comun[hi])+'</span>':'')+'</div></div></td>';
@@ -1807,7 +1871,7 @@ function pintaCalendario(){
   /* celular: un bloque por país */
   let q="";
   for(const p of M.paises){
-    q+='<h3>'+esc(p.nombre)+'</h3>';
+    q+='<h3>'+bandera(p.cod)+esc(p.nombre)+'</h3>';
     M.pasos.forEach((ps,hi)=>{ const f=M.celda[p.cod+"|"+hi]; if(!f||!f.plan) return;
       q+='<div class="cl"><div class="cp"><i class="cp-n">'+(hi+1)+'</i><div><b>'+esc(ps)+'</b>'+
          (f.resp?'<span>Responsable: '+esc(f.resp)+'</span>':'')+'</div></div><div>'+cel(f)+'</div></div>'; });
@@ -1856,7 +1920,7 @@ async function calImagen(){
   /* tabla */
   x.fillStyle=CALC.s2; x.fillRect(P,yT,W-2*P,40);
   x.fillStyle=CALC.t; fnt(600,14); x.fillText("Paso",P+16,yT+12);
-  M.paises.forEach((p,i)=>x.fillText(p.nombre,P+c0+i*cw+14,yT+12));
+  M.paises.forEach((p,i)=>{ const fx=P+c0+i*cw+14; banderaCanvas(x,p.cod,fx,yT+12,24,16); x.fillStyle=CALC.t; fnt(600,14); x.fillText(p.nombre,fx+32,yT+12); });
   let y=yT+40;
   const pastilla=(e,px,py)=>{ fnt(500,12); const w=x.measureText(e[1]).width+16, c=CALC[e[0]];
     x.fillStyle=c[1]; if(x.roundRect){ x.beginPath(); x.roundRect(px,py,w,20,4); x.fill(); } else x.fillRect(px,py,w,20);
