@@ -4,39 +4,38 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sales Operations Pacífico</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
 :root{
-  /* DESIGN.md: neutros fríos + un acento (morado Mondelēz). Verde, ámbar y rojo solo para estados. */
-  --bg:oklch(0.965 0.004 250); --surface:oklch(1 0 0); --surface-2:oklch(0.94 0.006 250);
-  --border:oklch(0.87 0.008 250); --border-2:oklch(0.925 0.006 250);
-  --text:oklch(0.22 0.015 250); --text-2:oklch(0.46 0.015 250);
-  --accent:#4F2170; --accent-bg:oklch(0.955 0.025 305);
-  --let-bg:oklch(0.96 0.015 240); --let-hd:oklch(0.925 0.022 240);
-  --may-bg:oklch(0.96 0.012 80);  --may-hd:oklch(0.925 0.02 80);
-  --ok:oklch(0.50 0.11 150);   --ok-bg:oklch(0.955 0.03 150);
-  --risk:oklch(0.45 0.10 75);  --risk-bg:oklch(0.96 0.045 85);
-  --late:oklch(0.50 0.16 28);  --late-bg:oklch(0.955 0.025 28);
-  --pending:oklch(0.60 0.01 250); --closed:var(--text);
-  --r-c:4px; --r-b:6px; --page:1440px; --hd:32px;
+  /* DESIGN.md v2: estilo Apple adaptado a pantallas de trabajo. Grupos blancos sobre gris, morado Mondelēz como único acento.
+     Verde, ámbar y rojo solo para estados. */
+  --bg:#F5F5F7; --surface:#FFFFFF; --surface-2:#F2F2F5; --head:#FAFAFC; --hover:#F9F9FB;
+  --fill:#E8E8ED; --fill-h:#DEDEE4;
+  --border:rgba(0,0,0,.10); --border-2:rgba(0,0,0,.06);
+  --text:#1D1D1F; --text-2:#6E6E73;
+  --accent:#4F2170; --accent-bg:rgba(79,33,112,.08); --ring:rgba(79,33,112,.18);
+  --let-bg:#F6F9FD; --let-hd:#EBF1FA;
+  --may-bg:#FDFAF4; --may-hd:#F7EEDD;
+  --ok:#1E7B34;   --ok-bg:#E4F4E8;
+  --risk:#935600; --risk-bg:#FCF0D9;
+  --late:#C4271D; --late-bg:#FCE7E5;
+  --pending:#8E8E93; --closed:var(--text);
+  --r-c:8px; --r-b:12px; --page:1440px; --hd:32px;
 }
 *{box-sizing:border-box}
-html{font-size:100%;scrollbar-color:var(--border) transparent}
-body{margin:0;font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
-  background:var(--bg);color:var(--text);font-size:.875rem;line-height:1.45;font-variant-numeric:tabular-nums}
+html{font-size:100%;scrollbar-color:var(--border) transparent;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  background:var(--bg);color:var(--text);font-size:.875rem;line-height:1.45;font-variant-numeric:tabular-nums;
+  letter-spacing:-.003em;-webkit-font-smoothing:antialiased}
 ::selection{background:var(--accent-bg);color:var(--text)}
-.wrap{max-width:var(--page);margin:0 auto;padding:16px 16px 24px}
+.wrap{max-width:var(--page);margin:0 auto;padding:24px 24px 32px}
 header{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-h1{font-size:1.125rem;font-weight:600;margin:0}
+h1{font-size:1.25rem;font-weight:600;letter-spacing:-.02em;margin:0}
 header .sub,.ptop .sub{font-size:.8125rem;color:var(--text-2)}
 .who{margin-left:auto;font-size:.8125rem;color:var(--text-2)}
 
-.gate{max-width:400px;margin:48px auto;background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--r-b);padding:24px}
-.gate h2{margin:12px 0 4px;font-size:1.125rem;font-weight:600}
-.gate .tag{font-size:.8125rem;color:var(--text-2);margin:0 0 16px}
+.gate{max-width:400px;margin:48px auto;background:var(--surface);border:0;border-radius:16px;padding:28px}
+.gate h2{margin:12px 0 4px;font-size:1.375rem;font-weight:600;letter-spacing:-.022em}
+.gate .tag{font-size:.8125rem;color:var(--text-2);margin:0 0 16px;background:none;padding:0;border-radius:0}
 .gate label{display:block;font-size:.8125rem;margin:12px 0 4px}
 .gate input{width:100%;font:inherit;padding:8px 12px;border:1px solid var(--border);border-radius:var(--r-c);
   background:var(--surface);color:var(--text)}
@@ -46,11 +45,11 @@ header .sub,.ptop .sub{font-size:.8125rem;color:var(--text-2)}
 .gate .conf strong{color:var(--text)}
 
 /* estado de la ventana de registro: borde fino completo + fondo tenue + texto del estado */
-.ventana{display:flex;align-items:center;gap:16px;padding:12px 16px;margin-bottom:12px;
-  border:1px solid var(--border);border-radius:var(--r-b);background:var(--surface)}
-.ventana.abierta{border-color:var(--ok);background:var(--ok-bg)}
-.ventana.pronto,.ventana.forzada{border-color:var(--risk);background:var(--risk-bg)}
-.ventana.cerrada{border-color:var(--late);background:var(--late-bg)}
+.ventana{display:flex;align-items:center;gap:16px;padding:14px 20px;margin-bottom:16px;
+  border:0;border-radius:var(--r-b);background:var(--surface)}
+.ventana.abierta{background:var(--ok-bg)}
+.ventana.pronto,.ventana.forzada{background:var(--risk-bg)}
+.ventana.cerrada{background:var(--late-bg)}
 .v-estado{font-size:1rem;font-weight:600;white-space:nowrap}
 .ventana.abierta .v-estado{color:var(--ok)}
 .ventana.pronto .v-estado,.ventana.forzada .v-estado{color:var(--risk)}
@@ -62,8 +61,8 @@ header .sub,.ptop .sub{font-size:.8125rem;color:var(--text-2)}
 
 .conf-strip{color:var(--text-2);font-size:.75rem;margin:0 0 12px;padding:0 4px}
 .conf-strip strong{color:var(--text);font-weight:600}
-.bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-b);display:flex;flex-wrap:wrap;
-  align-items:center;margin-bottom:12px;position:sticky;top:0;z-index:30}
+.bar{background:var(--surface);border:0;border-radius:var(--r-b);display:flex;flex-wrap:wrap;
+  align-items:center;margin-bottom:16px;position:sticky;top:0;z-index:30}
 .cell{padding:8px 16px;border-right:1px solid var(--border-2);flex:1;min-width:128px}
 .cell:last-child{border-right:0}
 .n{font-size:1.125rem;font-weight:600;display:block}
@@ -71,44 +70,46 @@ header .sub,.ptop .sub{font-size:.8125rem;color:var(--text-2)}
 .cell.off .n{color:var(--late)} .cell.good .n{color:var(--ok)}
 .acts{padding:8px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 
-button{font:inherit;font-weight:500;padding:8px 12px;border:1px solid var(--accent);border-radius:var(--r-c);
-  background:var(--accent);color:#fff;cursor:pointer;transition:background-color .15s,border-color .15s,color .15s}
-button:hover:not(:disabled){background:oklch(0.27 0.12 305);border-color:oklch(0.27 0.12 305)}
-button.ghost{background:transparent;color:var(--text);border-color:var(--border)}
-button.ghost:hover:not(:disabled){background:var(--surface-2);border-color:var(--text-2)}
-button.small{padding:4px 12px;font-size:.8125rem}
-button:disabled{background:var(--surface-2);border-color:var(--border);color:var(--text-2);cursor:default}
-button.ghost:disabled{background:transparent}
-:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button{font:inherit;font-weight:500;padding:7px 14px;border:0;border-radius:var(--r-c);
+  background:var(--accent);color:#fff;cursor:pointer;transition:background-color .15s,color .15s,transform .1s}
+button:hover:not(:disabled){background:#3E1A59}
+button:active:not(:disabled){transform:scale(.98)}
+button.ghost{background:var(--fill);color:var(--text)}
+button.ghost:hover:not(:disabled){background:var(--fill-h)}
+button.small{padding:5px 12px;font-size:.8125rem}
+button:disabled,button.ghost:disabled{background:var(--surface-2);color:var(--text-2);cursor:default}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-b);margin-bottom:16px}
-.sh{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap}
-.sh h2{font-size:.875rem;font-weight:600;margin:0}
-.bd{padding:12px 16px}
+section{background:var(--surface);border:0;border-radius:var(--r-b);margin-bottom:24px}
+.sh{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border-2);flex-wrap:wrap}
+.sh h2{font-size:1.0625rem;font-weight:600;letter-spacing:-.012em;margin:0}
+.bd{padding:16px 20px}
 .note{font-size:.8125rem;color:var(--text-2);margin:0}
-.tabs{display:flex;border-bottom:1px solid var(--border);overflow-x:auto;white-space:nowrap}
+.tabs{display:flex;border-bottom:1px solid var(--border-2);overflow-x:auto;white-space:nowrap}
 .tab,.tab:hover:not(:disabled){padding:8px 16px;border:0;border-radius:0;background:transparent;color:var(--text-2);
   font-weight:500;border-bottom:2px solid transparent;cursor:pointer}
 .tab:hover:not(:disabled){color:var(--text)}
 .tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
-.pill{font-size:.75rem;font-weight:500;padding:0 8px;border-radius:var(--r-c);margin-left:8px;
+.pill{font-size:.75rem;font-weight:500;padding:1px 8px;border-radius:6px;margin-left:8px;
   background:var(--surface-2);color:var(--text-2)}
 .tab[aria-selected="true"] .pill{background:var(--accent-bg);color:var(--accent)}
 
-.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:8px 16px;
+.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:10px 20px;
   border-bottom:1px solid var(--border-2)}
-.toolbar select{font:inherit;padding:4px 8px;border:1px solid var(--border);border-radius:var(--r-c);min-width:210px;
+.toolbar select{font:inherit;padding:5px 10px;border:1px solid var(--border);border-radius:var(--r-c);min-width:210px;
   background:var(--surface);color:var(--text)}
 
 .scroll{overflow:auto;max-height:70vh}
 table{border-collapse:separate;border-spacing:0;width:100%;font-size:.8125rem}
 th,td{padding:4px 8px;border-bottom:1px solid var(--border-2);text-align:right;white-space:nowrap}
 th.k,td.k{text-align:left}
-thead th{position:sticky;background:var(--surface-2);z-index:3;font-weight:600;font-size:.75rem}
+thead th{position:sticky;background:var(--head);z-index:3;font-weight:600;font-size:.75rem}
 thead tr.g th{top:0;height:var(--hd);border-bottom:1px solid var(--border);text-align:center;padding:0 8px}
 thead tr.c th{top:var(--hd);border-bottom:1px solid var(--border)}
 /* columna de identificación fija al desplazar en horizontal */
 td.kf,th.kf{position:sticky;left:0;border-right:1px solid var(--border)}
+td.kf{white-space:normal;min-width:12rem;max-width:17.5rem}
+td.kf .nm{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.3}
 td.kf{background:var(--surface);z-index:1}
 thead th.kf{z-index:4}
 td.let{background:var(--let-bg)} th.let{background:var(--let-hd)}
@@ -126,7 +127,7 @@ tfoot td{font-weight:600;border-top:1px solid var(--border);border-bottom:0;back
 tfoot td.let{background:var(--let-bg)} tfoot td.may{background:var(--may-bg)}
 tfoot .iv{font-weight:600}
 
-.val{display:inline-block;margin-top:8px;border:1px solid var(--border);border-radius:var(--r-c);max-width:100%;overflow-x:auto}
+.val{display:inline-block;margin-top:8px;border:1px solid var(--border-2);border-radius:10px;max-width:100%;overflow-x:auto}
 .val table{width:auto}
 .val th{position:static}
 .val td.d{min-width:92px}
@@ -134,7 +135,7 @@ tfoot .iv{font-weight:600}
 #resumen table,#siResumen table,#refTbl table{width:auto;min-width:520px}
 #resumen th,#siResumen th,#refTbl th{position:static}
 #resumen,#siResumen{max-width:100%;overflow-x:auto}
-#refTbl{border:1px solid var(--border);border-radius:var(--r-c);max-width:100%;overflow-x:auto;display:inline-block}
+#refTbl{border:1px solid var(--border-2);border-radius:10px;max-width:100%;overflow-x:auto;display:inline-block}
 #refTbl table{min-width:820px}
 #refTbl td.rc{padding:8px 12px;border-left:1px solid var(--border-2)}
 #refTbl td.rc b{display:block;font-size:.8125rem;font-weight:600;line-height:1.2}
@@ -151,7 +152,21 @@ tfoot .iv{font-weight:600}
 #refTbl .leyenda i{font-style:normal;display:inline-block;width:10px;height:10px;margin-right:4px;border-radius:2px}
 
 /* configuración: panel claro sobre la capa neutra secundaria */
-.admin{background:var(--surface-2)}
+.admin{background:transparent}
+.admin>.sh{border:0;padding:0 4px 12px}
+.admin>.sh h2{font-size:1.375rem;letter-spacing:-.022em}
+.admin>.bd{padding:0}
+.admin .cgrp-t{font-size:.8125rem;font-weight:500;color:var(--text-2);letter-spacing:0;margin:24px 4px 8px}
+.admin #cfgModulo>.cgrp-t:first-child,.admin #cfgModulo.hidden+#cfgGeneral>.cgrp-t{margin-top:0}
+.admin #cfgModulo.hidden+#cfgGeneral>.cgrp-t{display:none}
+.cgrp{background:var(--surface);border-radius:var(--r-b)}
+.crow{display:grid;grid-template-columns:minmax(14rem,20rem) minmax(0,1fr);gap:12px 40px;padding:16px 20px;border-top:1px solid var(--border-2)}
+.cgrp>.crow:first-child,.cgrp>.crow.hidden+.crow{border-top:0}
+.crow h4{font-size:.9375rem;font-weight:600;letter-spacing:-.01em;margin:0 0 4px}
+.crow .crow-c>.fila:first-child,.crow .crow-c>textarea:first-child{margin-top:0}
+.crow .crow-c>.note{margin-top:8px}
+.crow .crow-c>.note:empty,.crow .crow-c>.msg:empty{display:none}
+@media (max-width:760px){ .crow{grid-template-columns:minmax(0,1fr);padding:16px} }
 .admin textarea{width:100%;min-height:88px;font-family:ui-monospace,Menlo,Consolas,monospace;
   font-size:.75rem;background:var(--surface);color:var(--text);border:1px solid var(--border);
   border-radius:var(--r-c);padding:8px}
@@ -161,16 +176,14 @@ tfoot .iv{font-weight:600}
 .admin label.chk{display:flex;align-items:center;gap:8px;margin:0;font-size:.8125rem;color:var(--text)}
 .admin label.chk input{width:16px;height:16px;padding:0;accent-color:var(--accent)}
 .admin .fila{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-top:12px}
-.admin hr{border:0;border-top:1px solid var(--border);margin:24px 0 16px}
-.admin h3{font-size:.875rem;font-weight:600;margin:0 0 4px}
-.emg{border:1px solid var(--border);border-radius:var(--r-c);background:var(--surface);padding:12px 16px;margin-top:16px}
-.emg.on{border-color:var(--risk);background:var(--risk-bg)}
-.emg .tit{font-size:.875rem;font-weight:600;margin:0}
+.admin .fila+.note{margin-top:12px}
+.emg.on{background:var(--risk-bg)}
+.cgrp>.emg.on:last-child{border-radius:0 0 var(--r-b) var(--r-b)}
 .emg.on .tit{color:var(--risk)}
 .emg.on .note{color:var(--text)}
 .modal{position:fixed;inset:0;background:oklch(0.22 0.015 250 / .55);z-index:90;
   display:flex;align-items:center;justify-content:center;padding:16px}
-.modal .caja{background:var(--surface);border-radius:var(--r-b);padding:24px;
+.modal .caja{background:var(--surface);border-radius:16px;padding:24px;
   max-width:460px;width:100%;box-shadow:0 16px 48px oklch(0.22 0.015 250 / .25)}
 .modal h3{margin:0 0 8px;font-size:1rem;font-weight:600}
 .modal p{margin:0;font-size:.875rem;color:var(--text-2);line-height:1.5}
@@ -180,7 +193,7 @@ td.edit{background:var(--accent-bg)} th.edit{background:var(--accent-bg);color:v
 td.up{color:var(--ok);font-weight:600} td.down{color:var(--late);font-weight:600}
 input.c.wide{width:130px}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;
-  border-radius:var(--r-c);padding:8px 16px;font-size:.8125rem;z-index:95;box-shadow:0 8px 24px oklch(0.22 0.015 250 / .25)}
+  border-radius:10px;padding:10px 16px;font-size:.8125rem;z-index:95;box-shadow:0 8px 24px oklch(0.22 0.015 250 / .25)}
 
 /* portal: una fila por país, sin tarjetas anidadas */
 .portal{max-width:var(--page);margin:0 auto;padding:32px 16px 48px}
@@ -194,113 +207,71 @@ input.c.wide{width:130px}
 .pais .canal{font-size:.75rem;color:var(--text-2);margin:0}
 .pais.prox h3{color:var(--text-2);font-weight:500}
 .pais .mods{display:flex;gap:8px;flex-wrap:wrap;flex:1}
-.mod,.mod:hover:not(:disabled){display:block;width:280px;max-width:100%;text-align:left;padding:8px 12px;
-  background:var(--surface);color:var(--text);border:1px solid var(--border)}
-.mod:hover:not(:disabled){border-color:var(--accent)}
+.mod,.mod:hover:not(:disabled){display:block;width:280px;max-width:100%;text-align:left;padding:10px 14px;
+  background:var(--surface-2);color:var(--text);border:0;border-radius:10px}
+.mod:hover:not(:disabled){background:var(--fill)}
 .mod b{display:block;font-size:.875rem;font-weight:600}
 .mod span{display:block;font-size:.75rem;color:var(--text-2);font-weight:400}
-.mod .estado{float:right;font-style:normal;font-size:.75rem;font-weight:500;padding:0 8px;border-radius:var(--r-c)}
+.mod .estado{float:right;font-style:normal;font-size:.75rem;font-weight:500;padding:1px 8px;border-radius:6px}
 .mod .estado.abierta{color:var(--ok);background:var(--ok-bg)}
 .mod .estado.cerrada{color:var(--late);background:var(--late-bg)}
 .mod .estado.pronto{color:var(--risk);background:var(--risk-bg)}
 .volver,.volver:hover:not(:disabled){background:transparent;border:0;color:var(--text-2);padding:0;font-weight:500;
   cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .volver:hover:not(:disabled){color:var(--accent)}
-.hidden{display:none}
 .msg{font-size:.8125rem;margin:8px 0 0}
 .msg.err{color:var(--late)} .msg.ok{color:var(--ok)}
-.banner{background:var(--late-bg);color:var(--late);border:1px solid var(--late);border-radius:var(--r-c);
+.banner{background:var(--late-bg);color:var(--late);border:0;border-radius:10px;
   padding:8px 16px;margin-bottom:12px;font-size:.8125rem}
 .prog{font-size:.8125rem;color:var(--text-2);margin-top:8px}
 footer{max-width:var(--page);margin:0 auto;padding:8px 16px 48px;font-size:.75rem;color:var(--text-2)}
 footer strong{color:var(--text)}
-@media (max-width:640px){ .cell{min-width:50%} .wrap{padding:12px 8px 16px}
+@media (max-width:640px){ .cell{min-width:50%} .wrap{padding:12px 8px 16px} .bar{position:static}
   .ventana{flex-direction:column;align-items:flex-start;gap:8px} .v-dias{margin-left:0;text-align:left}
-  td.kf,th.kf{max-width:132px;overflow:hidden;text-overflow:ellipsis}
+  td.kf,th.kf{min-width:0;max-width:8.5rem}
   .pais .pi{width:100%} .mod{width:100%} .portal{padding:16px 8px 32px} }
 
 /* calendario de cuotas: línea de tiempo plan vs real */
 .pill.ej{background:var(--risk-bg);color:var(--risk);margin-left:0}
-.cal-res{font-size:1rem;font-weight:500;margin:4px 0 16px}
+.cal-res{font-size:.9375rem;font-weight:500;margin:4px 0 16px}
 .cal-res b{font-weight:600;color:var(--late)}
 .cal-res.sin b{color:var(--ok)}
-.cal-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:var(--r-c)}
-#calLinea table{width:auto;min-width:100%}
-#calLinea th,#calLinea td{position:relative;padding:0;height:28px;min-width:26px;text-align:center;font-size:.75rem}
-#calLinea thead th{position:static;font-weight:500;color:var(--text-2);vertical-align:bottom;padding-bottom:4px}
-#calLinea thead tr.mes th{height:24px;text-align:left;padding:0 8px;font-weight:600;color:var(--text);vertical-align:middle;
-  border-left:1px solid var(--border)}
-#calLinea thead tr.dia th{height:40px}
-#calLinea th.h,#calLinea td.h{position:sticky;left:0;z-index:2;text-align:left;padding:0 12px;min-width:176px;
-  background:var(--surface);border-right:1px solid var(--border);font-size:.8125rem;font-weight:400;color:var(--text)}
-#calLinea thead th.h{background:var(--surface-2);border-left:0}
-#calLinea tr.p td{background:var(--surface-2);height:24px}
-#calLinea tr.p td.h{background:var(--surface-2);font-weight:600}
-#calLinea .wk{background:oklch(0.965 0.004 250)}
-#calLinea tr.p td.wk{background:var(--surface-2)}
-#calLinea .hoy{border-left:2px solid var(--text)}
-#calLinea th.hoy{color:var(--text);font-weight:600}
-#calLinea th.hoy b{display:block;font-weight:600}
-#calLinea td.tr::before{content:"";position:absolute;left:0;right:0;top:50%;height:8px;transform:translateY(-50%);
-  background:repeating-linear-gradient(135deg,var(--late) 0 2px,var(--late-bg) 2px 6px)}
-#calLinea td.tr.ti::before{left:50%}
-#calLinea td.tr.tf::before{right:50%}
+.cal-scroll{overflow-x:auto;border:0;border-radius:var(--r-b);background:var(--surface)}
 .m{position:relative;z-index:1;display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;font-style:normal}
 .m.plan{border:2px solid var(--pending);background:var(--surface)}
 .m.ok{background:var(--ok)}
 .m.late{background:var(--late)}
 .m.raya{width:28px;height:8px;border-radius:0;background:repeating-linear-gradient(135deg,var(--late) 0 2px,var(--late-bg) 2px 6px)}
 .m.linea{width:0;height:14px;border-radius:0;border-left:2px solid var(--text)}
-#calLinea .lb{position:absolute;z-index:1;left:100%;top:50%;transform:translateY(-50%);margin-left:4px;padding:0 4px;
-  white-space:nowrap;font-size:.75rem;font-weight:600;color:var(--late);background:var(--surface)}
-#calLinea .lb.iz{left:auto;right:100%;margin:0 4px 0 0}
-#calLey{padding:8px 0 16px}
-#calLey span{display:inline-flex;align-items:center;gap:4px}
-#calTabla table{min-width:560px}
-#calTabla thead th{position:static;text-align:left}
-#calTabla td{text-align:left;padding:4px 12px}
-#calTabla th{padding:0}
-#calTabla th button,#calTabla th button:hover:not(:disabled){width:100%;text-align:inherit;background:transparent;border:0;border-radius:0;
-  color:var(--text);font-size:.75rem;font-weight:600;padding:8px 12px;cursor:pointer}
-#calTabla th button:hover:not(:disabled){color:var(--accent)}
-#calTabla th.num,#calTabla td.num{text-align:right}
-#calTabla td.late{color:var(--late);font-weight:600}
-.est{display:inline-block;font-size:.75rem;font-weight:500;padding:0 8px;border-radius:var(--r-c)}
+.est{display:inline-block;font-size:.75rem;font-weight:500;padding:1px 8px;border-radius:6px}
 .est.ok{color:var(--ok);background:var(--ok-bg)}
 .est.late{color:var(--late);background:var(--late-bg)}
 .est.pend{color:var(--text-2);background:var(--surface-2)}
-@media (max-width:640px){ #calLinea th.h,#calLinea td.h{min-width:132px;padding:0 8px} .cal-res{font-size:.875rem} }
+@media (max-width:640px){ .cal-res{font-size:.875rem} }
 .gLinks{display:flex;gap:16px;flex-wrap:wrap;margin:16px 0 0}
-.usr{margin-top:12px;border:1px solid var(--border);border-radius:var(--r-c);background:var(--surface);overflow-x:auto}
-.usr table{min-width:560px}
-.usr thead th{position:static;text-align:left}
-.usr td{text-align:left;padding:4px 8px}
-.usr td.acc{text-align:right}
-.usr td.acc button{margin-left:4px}
-.usrT{margin-top:16px}
 /* portal: barra con logo y sesión; una fila por país con avance, estado y módulos */
 .portal{max-width:none;margin:0;padding:0}
-.pbar{background:var(--surface);border-bottom:1px solid var(--border)}
-.pbar-in{max-width:var(--page);margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.pbar{background:var(--surface);border-bottom:1px solid var(--border-2)}
+.pbar-in{max-width:var(--page);margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .pbar .logo img{display:block;height:32px;width:auto}
 .gate .glogo{display:block;height:28px;width:auto;margin:16px 0 24px}
 .pbar .logo .sub{font-size:.875rem;font-weight:600;color:var(--accent)}
-.pbar h1{font-size:1rem;font-weight:500;padding-left:16px;border-left:1px solid var(--border)}
-.pmain{max-width:var(--page);margin:0 auto;padding:24px 16px 48px}
+.pbar h1{font-size:1.0625rem;font-weight:600;letter-spacing:-.01em;padding-left:16px;border-left:1px solid var(--border)}
+.pmain{max-width:var(--page);margin:0 auto;padding:32px 24px 48px}
 .pmain>.note{margin-top:8px}
-.prow{display:grid;grid-template-columns:minmax(140px,200px) 200px minmax(200px,1fr) minmax(240px,496px);gap:16px;
+.prow{display:grid;grid-template-columns:minmax(8.75rem,12.5rem) 13rem minmax(10rem,1fr) minmax(0,31rem);gap:16px;
   align-items:center;padding:12px 0;border-top:1px solid var(--border-2)}
 .prow.phead{border-top:0;padding:0 0 8px;font-size:.75rem;font-weight:600;color:var(--text-2)}
 .prow h3{margin:0;font-size:.875rem;font-weight:600}
 .prow .canal{font-size:.75rem;color:var(--text-2);margin:0}
-.pav{display:flex;align-items:center;gap:12px;font-size:.8125rem}
+.pav{display:flex;align-items:center;gap:12px;font-size:.8125rem;white-space:nowrap}
 .dots{display:inline-flex;gap:4px;align-items:center}
 .dots .m.abre{border-radius:2px;background:repeating-linear-gradient(135deg,var(--late) 0 2px,var(--late-bg) 2px 5px)}
 .pes{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.8125rem}
 .pdet{color:var(--text-2)}
 .est.cerr{color:#fff;background:var(--closed)}
 .prow .mods{display:flex;gap:8px;flex-wrap:wrap}
-.prow .mod,.prow .mod:hover:not(:disabled){width:244px}
+.prow .mod,.prow .mod:hover:not(:disabled){width:15.25rem}
 @media (max-width:1000px){ .prow{grid-template-columns:1fr 1fr} .prow.phead{display:none} .prow .mods{grid-column:1 / -1} }
 @media (max-width:640px){ .prow{grid-template-columns:1fr;gap:8px} .prow .mod,.prow .mod:hover:not(:disabled){width:100%}
   .pbar h1{padding-left:0;border-left:0;width:100%;order:3} .pmain{padding:16px 8px 32px} }
@@ -311,7 +282,7 @@ footer strong{color:var(--text)}
 .cal-res.vacio{font-size:.875rem;font-weight:400;color:var(--text-2);margin:4px 0}
 #calMat table{min-width:860px;table-layout:fixed}
 #calMat th,#calMat td{text-align:left;vertical-align:top;white-space:normal;padding:12px 16px;border-left:1px solid var(--border-2)}
-#calMat thead th{position:static;font-size:.875rem;padding:8px 16px}
+#calMat thead th{position:static;font-size:.75rem;padding:8px 16px;background:var(--head);color:var(--text-2)}
 #calMat th:first-child,#calMat td:first-child{border-left:0;width:27%}
 #calMat tbody tr:last-child td{border-bottom:0}
 #calMat td.vac{color:var(--text-2)}
@@ -336,7 +307,7 @@ footer strong{color:var(--text)}
 @media (max-width:640px){ #calMatW{display:none} #calLista{display:block} .calBtns{margin-left:0} }
 .sincal .prow{grid-template-columns:minmax(140px,200px) 1fr}
 .sincal .pav,.sincal .pes,.sincal .phead span:nth-child(2),.sincal .phead span:nth-child(3){display:none}
-.flag{display:inline-block;flex:none;width:24px;height:16px;border-radius:2px;vertical-align:middle}
+.flag{display:inline-block;flex:none;width:1.5rem;height:1rem;border-radius:2px;vertical-align:middle}
 .pi{display:flex;align-items:center;gap:12px}
 .thf{display:inline-flex;align-items:center;gap:8px}
 #calLista h3{display:flex;align-items:center;gap:8px}
@@ -346,13 +317,14 @@ footer strong{color:var(--text)}
 .vacio-cta p{margin:0 0 12px;font-size:.875rem}
 .admin .sh .cerrar{margin-left:auto}
 .cal-res.vacio button{margin-left:12px}
-#cfgModulo:not(.hidden)+#cfgGeneral{border-top:1px solid var(--border);margin-top:24px;padding-top:16px}
+#adminBox{margin-top:32px}
 .pmain #adminBox{margin-top:16px}
 /* calendario v15: vista plan y seguimiento; responsable y entregable visibles */
-.calVista{display:inline-flex;border:1px solid var(--border);border-radius:var(--r-c);overflow:hidden}
-.calVista button,.calVista button:hover:not(:disabled){border:0;border-radius:0;background:transparent;color:var(--text-2);padding:4px 12px;font-size:.8125rem}
-.calVista button:hover:not(:disabled){background:var(--surface-2);color:var(--text)}
-.calVista button[aria-pressed="true"],.calVista button[aria-pressed="true"]:hover:not(:disabled){background:var(--accent-bg);color:var(--accent);font-weight:600}
+.calVista{display:inline-flex;gap:2px;padding:2px;background:var(--fill);border-radius:9px}
+.calVista button,.calVista button:hover:not(:disabled){border-radius:7px;background:transparent;color:var(--text);padding:4px 12px;font-size:.8125rem}
+.calVista button:hover:not(:disabled){background:rgba(255,255,255,.55)}
+.calVista button[aria-pressed="true"],.calVista button[aria-pressed="true"]:hover:not(:disabled){background:var(--surface);color:var(--text);font-weight:600;
+  box-shadow:0 1px 2px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.04)}
 .cal-res.plan{font-size:.875rem;font-weight:400;color:var(--text-2)}
 #calMat table{min-width:1000px}
 #calMat th:first-child,#calMat td:first-child{width:24%}
@@ -373,15 +345,16 @@ footer strong{color:var(--text)}
 .cs-p .flag{width:18px;height:12px}
 .cs-grid .ce{justify-content:flex-start}
 /* calendario v16: resumen por fases y vista por país con pasos desplegables */
-.calTabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--border);margin:0 0 12px}
-.calTabs button,.calTabs button:hover:not(:disabled){display:inline-flex;align-items:center;gap:8px;background:transparent;border:0;
-  border-bottom:2px solid transparent;border-radius:0;color:var(--text-2);padding:8px 12px;font-weight:500}
-.calTabs button:hover:not(:disabled){color:var(--text)}
-.calTabs button[aria-selected="true"],.calTabs button[aria-selected="true"]:hover:not(:disabled){color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
-.c2r-wrap{border:1px solid var(--border);border-radius:var(--r-c);overflow-x:auto}
+.calTabs{display:flex;flex-wrap:wrap;gap:2px;padding:2px;width:max-content;max-width:100%;background:var(--fill);border-radius:10px;margin:0 0 16px}
+.calTabs button,.calTabs button:hover:not(:disabled){display:inline-flex;align-items:center;gap:8px;background:transparent;border-radius:8px;
+  color:var(--text);padding:6px 14px;font-weight:500}
+.calTabs button:hover:not(:disabled){background:rgba(255,255,255,.55)}
+.calTabs button[aria-selected="true"],.calTabs button[aria-selected="true"]:hover:not(:disabled){background:var(--surface);font-weight:600;
+  box-shadow:0 1px 2px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.04)}
+.c2r-wrap{border:0;border-radius:var(--r-b);background:var(--surface);overflow-x:auto}
 .c2r-wrap table{min-width:760px;table-layout:fixed}
 .c2r-wrap th,.c2r-wrap td{text-align:left;vertical-align:top;white-space:normal;padding:12px 16px;border-left:1px solid var(--border-2)}
-.c2r-wrap thead th{position:static;font-size:.875rem;padding:8px 16px}
+.c2r-wrap thead th{position:static;font-size:.75rem;padding:8px 16px;background:var(--head);color:var(--text-2)}
 .c2r-wrap th:first-child,.c2r-wrap td:first-child{border-left:0;width:24%}
 .c2r-wrap tbody tr:last-child td{border-bottom:0}
 .fzb,.fzb:hover:not(:disabled){display:block;width:100%;text-align:left;background:transparent;border:0;padding:0;color:var(--text);font-weight:400}
@@ -389,29 +362,29 @@ footer strong{color:var(--text)}
 .fz-r{display:block;font-size:1rem;font-weight:600}
 .fz-n{display:block;font-size:.75rem;color:var(--text-2);margin:2px 0 4px}
 .c2r-m{display:none}
-.c2rm,.c2rm:hover:not(:disabled){display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--r-c);padding:12px;color:var(--text);font-weight:400}
-.c2rm:hover:not(:disabled){border-color:var(--accent)}
+.c2rm,.c2rm:hover:not(:disabled){display:block;width:100%;text-align:left;background:var(--surface);border:0;
+  border-radius:var(--r-b);padding:12px 16px;color:var(--text);font-weight:400}
+.c2rm:hover:not(:disabled){background:var(--hover)}
 .c2rm .cs-p{font-size:.875rem;font-weight:600;color:var(--text);margin-bottom:4px}
 .c2rm-l{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:.8125rem;padding:6px 0;border-top:1px solid var(--border-2)}
 .c2rm-l>span:first-child{color:var(--text-2)}
 .c2-bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:0 0 4px}
 .c2-bar #c2Abrir{margin-left:auto}
-.c2-fase{font-size:.8125rem;font-weight:600;color:var(--text-2);margin:20px 0 8px;scroll-margin-top:72px}
-.c2-pasos{border:1px solid var(--border);border-radius:var(--r-b);overflow:hidden;background:var(--surface)}
+.c2-fase{font-size:.9375rem;font-weight:600;letter-spacing:-.01em;color:var(--text);margin:24px 4px 8px;scroll-margin-top:72px}
+.c2-pasos{border:0;border-radius:var(--r-b);overflow:hidden;background:var(--surface)}
 details.c2p{border-top:1px solid var(--border-2)}
 details.c2p:first-child{border-top:0}
 details.c2p>summary{list-style:none;display:grid;grid-template-columns:76px minmax(0,1fr) minmax(120px,auto) 16px;gap:12px;
   align-items:start;padding:12px 16px;cursor:pointer;transition:background-color .15s}
 details.c2p>summary::-webkit-details-marker{display:none}
-details.c2p>summary:hover,details.c2p[open]>summary{background:var(--bg)}
+details.c2p>summary:hover,details.c2p[open]>summary{background:var(--hover)}
 .c2-f small{display:block;font-size:.75rem;color:var(--text-2)}
 .c2-f b{font-size:1rem;font-weight:600}
 .c2-f b.sinf{font-size:.8125rem;font-weight:500;color:var(--text-2)}
-.c2-n{display:block;font-size:.875rem;font-weight:600}
+.c2-n{display:block;font-size:.9375rem;font-weight:600;letter-spacing:-.005em}
 .c2-q{display:block;font-size:.8125rem;color:var(--text-2);margin-top:2px}
 .c2-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
-.tag{font-size:.75rem;padding:0 6px;border-radius:var(--r-c);background:var(--surface-2);color:var(--text-2)}
+.tag{font-size:.75rem;padding:0 6px;border-radius:6px;background:var(--surface-2);color:var(--text-2)}
 .c2-st{text-align:right;font-size:.8125rem}
 .c2-st small{display:block;font-size:.75rem;color:var(--text-2);margin-top:2px}
 .c2-chev{width:8px;height:8px;border-right:2px solid var(--text-2);border-bottom:2px solid var(--text-2);transform:rotate(45deg);
@@ -428,10 +401,10 @@ details.c2p[open] .c2-chev{transform:rotate(-135deg);margin-top:10px}
 .c2-kv dd{margin:0}
 .c2-ins{margin:0;padding-left:18px}
 .c2-ins span{color:var(--text-2)}
-.c2-aj{margin-top:12px;padding:8px 12px 12px;border:1px solid var(--border);border-radius:var(--r-c);background:var(--bg)}
+.c2-aj{margin-top:12px;padding:8px 12px 12px;border:0;border-radius:10px;background:var(--surface-2)}
 .c2-aj h4{margin-top:4px}
 .c2-aj .c2-kv{margin-top:4px}
-details.c2-areas{margin-top:20px;border:1px solid var(--border);border-radius:var(--r-b);background:var(--surface)}
+details.c2-areas{margin-top:24px;border:0;border-radius:var(--r-b);background:var(--surface)}
 details.c2-areas>summary{cursor:pointer;padding:12px 16px;font-size:.8125rem;font-weight:600}
 .c2-ar{margin:0;padding:0 16px 12px;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px 24px;font-size:.8125rem}
 .c2-ar b{display:block;font-weight:600}
@@ -442,7 +415,84 @@ details.c2-areas>summary{cursor:pointer;padding:12px 16px;font-size:.8125rem;fon
   .c2-det{grid-template-columns:1fr;gap:0;padding:4px 16px 16px}
   .c2-kv{grid-template-columns:100px minmax(0,1fr)} }
 @media (max-width:640px){ .c2r-wrap{display:none} .c2r-m{display:grid;gap:8px} .c2-bar #c2Abrir{margin-left:0}
-  .calTabs{flex-wrap:nowrap;overflow-x:auto} .calTabs button{flex:none} }
+  .calTabs{width:100%} .calTabs button{flex:1 1 auto;justify-content:center} }
+/* lista agrupada: en el inicio, el título va fuera y el contenido en grupos blancos sobre el gris */
+#portal section:not(.admin){background:transparent}
+#portal section:not(.admin)>.sh{border:0;padding:0 4px 12px}
+#portal section:not(.admin)>.sh h2{font-size:1.375rem;letter-spacing:-.022em}
+#portal section:not(.admin)>.bd{padding:0}
+#pPaises{background:var(--surface);border-radius:var(--r-b);padding:4px 20px}
+.prow.phead{padding-top:12px}
+/* campos con anillo de foco suave */
+.gate input:focus,.toolbar select:focus,.admin input:focus,.admin select:focus,.admin textarea:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--ring)}
+/* celular: sin zoom al tocar un campo y toques sin retardo */
+@media (pointer:coarse){ input,select,textarea{font-size:16px} button,summary{touch-action:manipulation} }
+@media (prefers-reduced-motion:reduce){ *{transition:none !important} }
+/* inicio: país y estado juntos a la izquierda, avance como barra, módulos a la derecha */
+.prow2{display:grid;grid-template-columns:minmax(16rem,1.2fr) minmax(11rem,.8fr) minmax(0,32rem);gap:24px;align-items:center;
+  padding:16px 0;border-top:1px solid var(--border-2)}
+.prow2:first-child{border-top:0}
+.p2-id{display:flex;align-items:flex-start;gap:14px;min-width:0}
+.p2-id .flag{width:2rem;height:1.333rem;border-radius:3px;margin-top:2px}
+.p2-tx{min-width:0}
+.p2-id h3{margin:0;font-size:1.0625rem;font-weight:600;letter-spacing:-.01em}
+.p2-est{margin:4px 0 0;display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:.8125rem}
+.p2-av{display:flex;flex-direction:column;gap:6px;min-width:0}
+.p2-bar{display:flex;gap:3px;height:6px}
+.p2-bar i{flex:1;border-radius:3px;background:var(--fill)}
+.p2-bar i.ok{background:var(--ok)}
+.p2-bar i.late{background:var(--late)}
+.p2-bar i.abre{background:repeating-linear-gradient(135deg,var(--late) 0 2px,var(--late-bg) 2px 5px)}
+.p2-n{font-size:.75rem;color:var(--text-2)}
+.prow2 .mods{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.prow2 .mod,.prow2 .mod:hover:not(:disabled){width:15rem}
+.prow2 .mods>.note{width:100%;text-align:right}
+.prow2.otro h3{color:var(--text-2);font-weight:500}
+.prow2.otro .flag{opacity:.7}
+@media (max-width:1000px){ .prow2{grid-template-columns:1fr 1fr} .prow2 .mods{grid-column:1 / -1;justify-content:flex-start} .prow2 .mods>.note{text-align:left} }
+@media (max-width:640px){ .prow2{grid-template-columns:1fr;gap:10px} .prow2 .mod,.prow2 .mod:hover:not(:disabled){width:100%} }
+/* crítica visual: propuesta */
+.gate{display:flex;flex-direction:column}
+.gate #gVolver{order:9;align-self:center;margin-top:20px}
+.gate .glogo{margin:0 0 20px}
+.cal-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.cal-top .calTabs{margin-bottom:12px}
+.cal-pie{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px}
+.cal-pie #calPie{margin:0}
+.calBtns{margin-left:0}
+.c2-per{color:var(--text)}
+/* ventana de registro compacta: una línea; cerrada en neutro (no es un error) */
+.ventana{padding:10px 16px;gap:12px;flex-wrap:wrap}
+.v-estado{font-size:.9375rem}
+.v-detalle{font-size:.8125rem}
+.v-dias{display:flex;align-items:baseline;gap:6px}
+.v-dias b{display:inline;font-size:1rem}
+.ventana.cerrada{background:var(--surface-2)}
+.ventana.cerrada .v-estado{color:var(--text)}
+.mod .estado.cerrada{color:var(--text-2);background:var(--surface)}
+footer .conf-strip{margin:0 0 4px;padding:0}
+footer p{margin:0}
+details.ayuda>summary{cursor:pointer;font-size:.8125rem;color:var(--text-2);width:max-content}
+details.ayuda>summary:hover{color:var(--text)}
+details.ayuda[open]>summary{margin-bottom:6px}
+/* referencia regional: solo resaltan las excepciones */
+#refTbl td.rc.cuadra b{color:var(--text-2);font-weight:500}
+/* tablas de resumen: la tarjeta abraza la tabla */
+#resSec,#siResSec{max-width:60rem}
+/* configuración: la apertura de emergencia no invita a usarse */
+#emgOn{background:var(--fill);color:var(--text)}
+#emgOn:hover:not(:disabled){background:var(--fill-h)}
+/* celular: encabezado del inicio ordenado */
+@media (max-width:640px){
+  .pbar-in{gap:8px 12px}
+  .pbar .logo{order:1;flex:1}
+  #pEntrar,#pSalir{order:2}
+  .pbar h1{order:3;flex:1;width:auto;font-size:.875rem;font-weight:500;color:var(--text-2)}
+  #pWho{order:4;margin-left:0}
+  .ventana{flex-direction:row;align-items:baseline}
+  .cal-top{flex-direction:column-reverse;align-items:stretch}
+  .cal-top .calVista{align-self:flex-start}
+}
 </style>
 </head>
 <body>
@@ -458,24 +508,24 @@ details.c2-areas>summary{cursor:pointer;padding:12px 16px;font-size:.8125rem;fon
   </div></div>
   <div class="pmain">
   <section>
-    <div class="sh"><h2>Cuotas</h2><span class="note">Ajuste de cuotas por país. Pide iniciar sesión al entrar.</span>
+    <div class="sh"><h2>Cuotas</h2><span class="note">Traditional Trade. Entra a un módulo para ajustar o consultar la cuota.</span>
       <span class="pill ej hidden" id="pEj">Avance y estado con datos de ejemplo</span></div>
     <div class="bd"><div class="pgrid" id="pPaises"></div></div>
   </section>
   <section id="calSec">
     <div class="sh"><h2>Calendario de cuotas</h2><span class="note" id="calPer"></span>
       <span class="pill ej hidden" id="calEj">Datos de ejemplo</span>
-      <span class="calBtns hidden" id="calBtns">
-        <span class="calVista" role="group" aria-label="Vista del calendario"><button id="calVPlan" aria-pressed="true">Plan</button><button id="calVSeg" aria-pressed="false">Seguimiento</button></span>
-        <button class="ghost small" id="calImg">Descargar imagen</button>
-        <button class="ghost small" id="calCopiar">Copiar tabla para correo</button></span></div>
+</div>
     <div class="bd">
-      <div class="calTabs hidden" role="tablist" aria-label="Vista del calendario" id="calTabs"></div>
+      <div class="cal-top"><div class="calTabs hidden" role="tablist" aria-label="Vista del calendario" id="calTabs"></div>
+        <span class="calVista hidden" id="calVistaBox" role="group" aria-label="Plan o seguimiento"><button id="calVPlan" aria-pressed="true">Plan</button><button id="calVSeg" aria-pressed="false">Seguimiento</button></span></div>
       <p class="cal-res" id="calRes"></p>
       <div id="cal2" class="hidden"><div id="cal2Body"></div></div>
       <div class="cal-scroll hidden" id="calMatW"><div id="calMat"></div></div>
       <div id="calLista"></div>
-      <p class="note" id="calPie"></p>
+      <div class="cal-pie"><p class="note" id="calPie"></p>
+        <span class="calBtns hidden" id="calBtns"><button class="ghost small" id="calImg">Descargar imagen</button>
+        <button class="ghost small" id="calCopiar">Copiar tabla para correo</button></span></div>
     </div>
   </section>
   <p class="note">Información confidencial de uso interno.</p>
@@ -485,7 +535,7 @@ details.c2-areas>summary{cursor:pointer;padding:12px 16px;font-size:.8125rem;fon
 <div id="gate" class="gate hidden">
   <button class="volver" id="gVolver">Volver al inicio</button>
   <img class="glogo" id="gLogo" alt="Mondelēz International">
-  <h2>Cuotas</h2>
+  <h2>Inicia sesión</h2>
   <p class="tag" id="gTag">Sales Operations Pacífico</p>
   <div id="gateBody">
     <div id="gEd">
@@ -505,9 +555,7 @@ details.c2-areas>summary{cursor:pointer;padding:12px 16px;font-size:.8125rem;fon
   </div>
   <p class="msg" id="gMsg"></p>
   <div class="conf">
-    <strong>Información confidencial.</strong> Las cifras de cuota son de uso interno de
-    Mondelēz. No compartas este enlace ni la contraseña con personas que no estén autorizadas
-    a ajustar cuotas.
+    <strong>Información confidencial de Mondelēz.</strong> No compartas el enlace ni la contraseña.
   </div>
 </div>
 
@@ -527,11 +575,7 @@ details.c2-areas>summary{cursor:pointer;padding:12px 16px;font-size:.8125rem;fon
   <span class="v-dias hidden" id="vDias"><b id="vDiasN"></b><span id="vDiasT"></span></span>
 </div>
 
-<div class="conf-strip">
-  <strong>Confidencial, uso interno.</strong> No compartas el enlace ni la contraseña fuera del
-  grupo autorizado. Esta herramienta cubre las cuotas de Traditional Trade;
-  el proceso de los demás países de Pacífico está en estandarización.
-</div>
+
 
 <div class="banner hidden" id="banner"></div>
 
@@ -565,7 +609,7 @@ details.c2-areas>summary{cursor:pointer;padding:12px 16px;font-size:.8125rem;fon
     <button class="tab" id="tReg" role="tab" aria-selected="false">Split regional<span class="pill">referencial</span></button>
     <button class="tab hidden" id="tSI" role="tab" aria-selected="true">Sell in oficial<span class="pill">oficial</span></button>
   </div>
-  <div class="bd"><p class="note" id="levelNote"></p></div>
+  <div class="bd"><details class="ayuda"><summary>Cómo se usa esta tabla</summary><p class="note" id="levelNote"></p></details></div>
   <div class="toolbar">
     <label for="filtro" class="note">Región</label>
     <select id="filtro"><option value="">Todas las regiones</option></select>
@@ -611,113 +655,153 @@ details.c2-areas>summary{cursor:pointer;padding:12px 16px;font-size:.8125rem;fon
   <div class="sh"><h2 id="cfgTit">Configuración, solo administrador</h2></div>
   <div class="bd">
    <div id="cfgModulo">
-    <div id="admSO">
-    <h3>Base del mes</h3>
-    <p class="note">Abre un CSV o pega <strong>Tbl_Live_SO</strong> con encabezados. Se resume por celda y Format Flavor antes de guardarse.</p>
-    <textarea id="raw" placeholder="Pega aquí la tabla desde Excel"></textarea>
-    <div class="fila">
-      <input type="file" id="csv" accept=".csv,.txt,.tsv" style="max-width:240px">
-      <button id="pub">Publicar base</button>
-    </div>
-    <p class="prog hidden" id="prog"></p>
-    <p class="msg" id="adminMsg"></p>
+    <h3 class="cgrp-t">Datos del mes</h3>
+    <div class="cgrp">
+     <div class="crow" id="admSO">
+      <div class="crow-l"><h4>Base del mes</h4>
+       <p class="note">Abre un CSV o pega <strong>Tbl_Live_SO</strong> con encabezados. Se resume por celda y Format Flavor antes de guardarse.</p></div>
+      <div class="crow-c">
+       <textarea id="raw" placeholder="Pega aquí la tabla desde Excel"></textarea>
+       <div class="fila">
+        <input type="file" id="csv" accept=".csv,.txt,.tsv" style="max-width:240px">
+        <button id="pub">Publicar base</button>
+       </div>
+       <p class="prog hidden" id="prog"></p>
+       <p class="msg" id="adminMsg"></p>
+      </div>
+     </div>
+     <div class="crow" id="admSI">
+      <div class="crow-l"><h4>Propuesta de sell in del mes</h4>
+       <p class="note">Abre el CSV <strong>Propuesta_SI_para_web</strong> que deja el proceso de Perú en
+      <strong>salidas\PE</strong>. Reemplaza la propuesta anterior; los ajustes guardados no se borran.</p></div>
+      <div class="crow-c">
+       <div class="fila">
+        <input type="file" id="csvSI" accept=".csv,.txt,.tsv" style="max-width:240px">
+        <button id="pubSI">Publicar propuesta de sell in</button>
+       </div>
+       <p class="msg" id="siMsg"></p>
+      </div>
+     </div>
     </div>
 
-    <div id="admSI">
-    <h3>Propuesta de sell in del mes</h3>
-    <p class="note">Abre el CSV <strong>Propuesta_SI_para_web</strong> que deja el proceso de Perú en
-      <strong>salidas\PE</strong>. Reemplaza la propuesta anterior; los ajustes guardados no se borran.</p>
-    <div class="fila">
-      <input type="file" id="csvSI" accept=".csv,.txt,.tsv" style="max-width:240px">
-      <button id="pubSI">Publicar propuesta de sell in</button>
-    </div>
-    <p class="msg" id="siMsg"></p>
-    </div>
-
-    <hr>
-    <h3 id="vTitAdm">Ventana de registro</h3>
-    <p class="note">Fuera de estas fechas, los editores solo pueden consultar este módulo. El bloqueo es automático.
-      Sell in y sell out tienen ventanas separadas.</p>
-    <div class="fila">
-      <div><label for="dOpen">Apertura</label><input type="date" id="dOpen"></div>
-      <div><label for="dClose">Cierre</label><input type="date" id="dClose"></div>
-      <button id="saveFechas">Guardar fechas</button>
-      <label class="chk">
-        <input type="checkbox" id="override">
-        Permitirme editar fuera de la ventana
-      </label>
-    </div>
-    <p class="msg" id="fechasMsg"></p>
-
-    <div class="emg" id="emgBox">
-      <p class="tit">Apertura de emergencia</p>
-      <p class="note" style="margin-top:4px">Habilita la edición para todos los editores aunque la ventana esté cerrada. Úsalo solo cuando haga falta y apágalo al terminar: queda registrado quién lo activó y cuándo.</p>
-      <div class="fila">
+    <h3 class="cgrp-t">Ventana</h3>
+    <div class="cgrp">
+     <div class="crow">
+      <div class="crow-l"><h4 id="vTitAdm">Ventana de registro</h4>
+       <p class="note">Fuera de estas fechas, los editores solo pueden consultar este módulo. El bloqueo es automático.
+      Sell in y sell out tienen ventanas separadas.</p></div>
+      <div class="crow-c">
+       <div class="fila">
+        <div><label for="dOpen">Apertura</label><input type="date" id="dOpen"></div>
+        <div><label for="dClose">Cierre</label><input type="date" id="dClose"></div>
+        <button id="saveFechas">Guardar fechas</button>
+       </div>
+       <div class="fila">
+        <label class="chk">
+         <input type="checkbox" id="override">
+         Permitirme editar fuera de la ventana
+        </label>
+       </div>
+       <p class="msg" id="fechasMsg"></p>
+      </div>
+     </div>
+     <div class="crow emg" id="emgBox">
+      <div class="crow-l"><h4 class="tit">Apertura de emergencia</h4>
+       <p class="note" style="margin-top:4px">Habilita la edición para todos los editores aunque la ventana esté cerrada. Úsalo solo cuando haga falta y apágalo al terminar: queda registrado quién lo activó y cuándo.</p></div>
+      <div class="crow-c">
+       <div class="fila">
         <button id="emgOn">Abrir edición de emergencia</button>
         <button class="ghost hidden" id="emgOff">Cerrar edición de emergencia</button>
-        <span class="note" id="emgInfo"></span>
+       </div>
+       <p class="note" id="emgInfo"></p>
       </div>
+     </div>
     </div>
 
-    <hr>
-    <h3>Ajustes</h3>
-    <p class="note">Un archivo por tipo de ajuste, para el proceso de Python: el de sell in va en
+    <h3 class="cgrp-t">Ajustes para Python</h3>
+    <div class="cgrp">
+     <div class="crow">
+      <div class="crow-l"><h4>Ajustes</h4>
+       <p class="note">Un archivo por tipo de ajuste, para el proceso de Python: el de sell in va en
       <strong>ajustes\PE\sell_in</strong> y el de sell out en <strong>ajustes\PE\sell_out</strong>.
-      El nombre lleva la fecha y la hora; el proceso usa el más reciente de cada carpeta.</p>
-    <div class="fila">
-      <button class="ghost" id="expSO">Exportar sell out</button>
-      <button class="ghost" id="expSIaj">Exportar sell in</button>
-      <button class="ghost" id="wipe">Borrar ajustes de este módulo</button>
-    </div>
-    <p class="note">Mientras el proceso no lea los archivos separados, usa este botón: descarga los dos
-      ajustes juntos en <strong>ajustes_cuota.csv</strong>, como hasta ahora.</p>
-    <div class="fila">
-      <button class="ghost small" id="exp">Exportar ambos (formato anterior)</button>
+      El nombre lleva la fecha y la hora; el proceso usa el más reciente de cada carpeta.</p></div>
+      <div class="crow-c">
+       <div class="fila">
+        <button class="ghost" id="expSO">Exportar sell out</button>
+        <button class="ghost" id="expSIaj">Exportar sell in</button>
+        <button class="ghost" id="wipe">Borrar ajustes de este módulo</button>
+       </div>
+      </div>
+     </div>
+     <div class="crow">
+      <div class="crow-l"><p class="note">Mientras el proceso no lea los archivos separados, usa este botón: descarga los dos
+      ajustes juntos en <strong>ajustes_cuota.csv</strong>, como hasta ahora.</p></div>
+      <div class="crow-c">
+       <div class="fila">
+        <button class="ghost small" id="exp">Exportar ambos (formato anterior)</button>
+       </div>
+      </div>
+     </div>
     </div>
    </div>
    <div id="cfgGeneral">
-    <h3 id="cfgProc">Proceso de cuotas</h3>
-    <p class="note">Sube el archivo <strong>calendario_proceso.json</strong> que genera Claude Code. Define los pasos de cada país, quién
+    <h3 class="cgrp-t">General</h3>
+    <div class="cgrp">
+     <div class="crow">
+      <div class="crow-l"><h4 id="cfgProc">Proceso de cuotas</h4>
+       <p class="note">Sube el archivo <strong>calendario_proceso.json</strong> que genera Claude Code. Define los pasos de cada país, quién
       participa y cómo se construye la cuota. Queda guardado en Firebase y solo lo ven quienes inician sesión. Vuelve a subirlo cuando el
-      proceso cambie.</p>
-    <div class="fila"><input type="file" id="procFile" accept=".json,application/json" style="max-width:260px"><button id="procPub">Publicar proceso</button></div>
-    <p class="note" id="procInfo" style="margin-top:8px"></p>
-    <p class="msg" id="procMsg"></p>
-    <hr>
-    <h3 id="cfgCal">Calendario de cuotas</h3>
-    <p class="note">Fechas del mes. Descarga la plantilla: ya trae los pasos de cada país del proceso publicado. Llena
+      proceso cambie.</p></div>
+      <div class="crow-c">
+       <div class="fila"><input type="file" id="procFile" accept=".json,application/json" style="max-width:260px"><button id="procPub">Publicar proceso</button></div>
+       <p class="note" id="procInfo"></p>
+       <p class="msg" id="procMsg"></p>
+      </div>
+     </div>
+     <div class="crow">
+      <div class="crow-l"><h4 id="cfgCal">Calendario de cuotas</h4>
+       <p class="note">Fechas del mes. Descarga la plantilla: ya trae los pasos de cada país del proceso publicado. Llena
       <strong>PERSONA, FECHA LIMITE y FECHA REAL</strong> y pega la tabla aquí. Deja FECHA REAL vacía mientras el paso no se cumpla; no se
-      aceptan fechas reales posteriores a hoy. Reemplaza las fechas publicadas.</p>
-    <div class="fila">
-      <div><label for="calPerIn">Periodo</label><input type="text" id="calPerIn" placeholder="Cuota de diciembre 2026"></div>
-      <div><label for="calDias">Desfase en</label>
-        <select id="calDias"><option value="habiles">Días hábiles</option><option value="calendario">Días calendario</option></select></div>
-      <button class="ghost" id="calPlant">Descargar plantilla</button>
+      aceptan fechas reales posteriores a hoy. Reemplaza las fechas publicadas.</p></div>
+      <div class="crow-c">
+       <div class="fila">
+        <div><label for="calPerIn">Periodo</label><input type="text" id="calPerIn" placeholder="Cuota de diciembre 2026"></div>
+        <div><label for="calDias">Desfase en</label>
+         <select id="calDias"><option value="habiles">Días hábiles</option><option value="calendario">Días calendario</option></select></div>
+        <button class="ghost" id="calPlant">Descargar plantilla</button>
+       </div>
+       <textarea id="calRaw" placeholder="Pega aquí la tabla del calendario desde Excel"></textarea>
+       <div class="fila"><button id="calPub">Publicar calendario</button></div>
+       <p class="msg" id="calMsg"></p>
+      </div>
+     </div>
+     <div class="crow">
+      <div class="crow-l"><h4 id="cfgClaves">Contraseñas de acceso</h4>
+       <p class="note">Hay una contraseña para ver y otra para editar; todo el equipo comparte la de su nivel.
+      Cámbialas cuando alguien deje el equipo y avisa: la anterior deja de funcionar. Las dos deben ser distintas.</p></div>
+      <div class="crow-c">
+       <div class="fila">
+        <div><label for="edNivel">Nivel</label>
+         <select id="edNivel"><option value="editor">Editores (ver y editar)</option><option value="lector">Lectores (solo ver)</option></select></div>
+        <div><label for="edAct">Contraseña actual de ese nivel</label><input type="password" id="edAct" autocomplete="off"></div>
+        <div><label for="edNue">Nueva contraseña (mínimo 8 caracteres)</label><input type="text" id="edNue" autocomplete="off"></div>
+        <button id="saveClaveEd">Cambiar contraseña</button>
+       </div>
+       <p class="msg" id="edMsg"></p>
+      </div>
+     </div>
     </div>
-    <textarea id="calRaw" placeholder="Pega aquí la tabla del calendario desde Excel"></textarea>
-    <div class="fila"><button id="calPub">Publicar calendario</button></div>
-    <p class="msg" id="calMsg"></p>
-
-    <hr>
-    <h3 id="cfgClaves">Contraseñas de acceso</h3>
-    <p class="note">Hay una contraseña para ver y otra para editar; todo el equipo comparte la de su nivel.
-      Cámbialas cuando alguien deje el equipo y avisa: la anterior deja de funcionar. Las dos deben ser distintas.</p>
-    <div class="fila">
-      <div><label for="edNivel">Nivel</label>
-        <select id="edNivel"><option value="editor">Editores (ver y editar)</option><option value="lector">Lectores (solo ver)</option></select></div>
-      <div><label for="edAct">Contraseña actual de ese nivel</label><input type="password" id="edAct" autocomplete="off"></div>
-      <div><label for="edNue">Nueva contraseña (mínimo 8 caracteres)</label><input type="text" id="edNue" autocomplete="off"></div>
-      <button id="saveClaveEd">Cambiar contraseña</button>
-    </div>
-    <p class="msg" id="edMsg"></p>
-
    </div>
   </div>
 </section>
 </div>
 
-<footer id="foot" class="hidden"><span id="footTxt"></span>. Cualquier consulta, escribe al área de
-  <strong>Sales Operations</strong>.</footer>
+<footer id="foot" class="hidden"><div class="conf-strip">
+  <strong>Confidencial, uso interno.</strong> No compartas el enlace ni la contraseña fuera del
+  grupo autorizado. Esta herramienta cubre las cuotas de Traditional Trade;
+  el proceso de los demás países de Pacífico está en estandarización.
+</div>
+  <p><span id="footTxt"></span>. Cualquier consulta, escribe al área de <strong>Sales Operations</strong>.</p></footer>
 
 <script type="module">
 /* Proyecto de Firebase de Sales Operations. Para cambiar de proyecto, reemplaza este bloque completo
@@ -1085,7 +1169,8 @@ function draw(){
   let gt=0, gv=0;
   const gS={LET:0,MAY:0}, gSv={LET:0,MAY:0};
   for(const [ri,r] of rws.entries()){
-    h+='<tr>'; r.head.forEach((x,i)=>h+='<td class="k'+(i===r.head.length-1?' kf':'')+'">'+esc(x)+'</td>');
+    h+='<tr>'; r.head.forEach((x,i)=>h+= i===r.head.length-1
+      ? '<td class="k kf" title="'+esc(x)+'"><span class="nm">'+esc(x)+'</span></td>' : '<td class="k">'+esc(x)+'</td>');
     let rt=0, rv=0; const rS={LET:0,MAY:0}, rSv={LET:0,MAY:0};
     cols.forEach((c,i)=>{
       const k=r.cells[c.c+"|"+c.s], cls=c.s==="LET"?"let":"may";
@@ -1354,7 +1439,7 @@ function drawSI(){
   const ta={}; cats.forEach(c=>ta[c]=0); let ga=0, sinMix=0;
   rws.forEach((r,ri)=>{
     h+='<tr><td class="k">'+esc(r.sc)+'</td><td class="k">'+esc(r.rg)+'</td><td class="k">'+esc(r.cod)+
-       '</td><td class="k kf">'+esc(r.ds)+'</td><td class="edit"><input class="c wide'+(r.cod in local.si?" dirty":"")+
+       '</td><td class="k kf" title="'+esc(r.ds)+'"><span class="nm">'+esc(r.ds)+'</span></td><td class="edit"><input class="c wide'+(r.cod in local.si?" dirty":"")+
        '" data-k="'+esc(r.cod)+'" data-r="'+ri+'" data-c="0" value="'+f0(r.aj)+'" inputmode="decimal"'+dis+'></td>';
     cats.forEach((c,i)=>{ h+='<td'+(i===0?' class="sub"':'')+'>'+
       (r.sinMix?'<span title="El cliente no tiene mix en la propuesta">–</span>':fS(Math.round(r.ajc[c])))+'</td>';
@@ -1812,22 +1897,23 @@ function pintaPortal(){
   const cal={}; calFilas().forEach(f=>{ if(f.plan) (cal[f.cod]=cal[f.cod]||[]).push(f); });
   $("pEj").classList.toggle("hidden",!(CAL&&CAL.ejemplo));
   $("pPaises").classList.toggle("sincal",!Object.keys(cal).length);
-  let h='<div class="prow phead"><span>País</span><span>Avance del calendario</span><span>Estado</span><span>Ajuste de cuotas</span></div>';
+  let h="";
   for(const p of PAISES){
     const fs=cal[p.cod]||[];
-    h+='<div class="prow'+(p.nota?' otro':'')+'"><div class="pi">'+bandera(p.cod)+'<div><h3>'+esc(p.nombre)+'</h3><p class="canal">'+esc(p.canal)+'</p></div></div>';
-    if(!fs.length) h+='<div class="pav"><span class="pdet">Sin dato</span></div><div class="pes"><span class="est pend">Sin dato</span></div>';
-    else {
+    let est="", av='<div class="p2-av"></div>';
+    if(me && !fs.length) est='<span class="pdet">Sin fechas publicadas</span>';
+    else if(fs.length){
       const hechos=fs.filter(f=>f.real).length, ab=fs.filter(f=>f.estado==="abierto"), sig=fs.find(f=>!f.real);
-      h+='<div class="pav"><span class="dots">'+fs.map(f=>'<i class="m '+
-        (f.estado==="a tiempo"?"ok":f.estado==="retrasado"?"late":f.estado==="abierto"?"abre":"plan")+
-        '" title="'+esc(f.hito+": plan "+fCorta(f.plan)+(f.real?", real "+fCorta(f.real):"")+(f.dif?", "+difTxt(f):""))+'"></i>').join("")+
-        '</span><span>'+hechos+' de '+fs.length+' pasos</span></div><div class="pes">'+
-        (ab.length ? '<span class="est late">Retrasado</span><span class="pdet">'+esc(ab[0].hito)+', +'+ab[0].dif+' d (abierto)'+
-            (ab.length>1?' y '+(ab.length-1)+' más':'')+'</span>'
-         : !sig ? '<span class="est cerr">Cerrado</span>'
-         : '<span class="est ok">A tiempo</span><span class="pdet">Sigue: '+esc(sig.hito.toLowerCase())+', '+fCorta(sig.plan)+'</span>')+'</div>';
+      est = ab.length ? '<span class="est late">Retrasado</span><span class="pdet">'+esc(ab[0].hito)+', +'+ab[0].dif+' d'+(ab.length>1?' y '+(ab.length-1)+' más':'')+'</span>'
+        : !sig ? '<span class="est cerr">Cerrado</span>'
+        : '<span class="est ok">A tiempo</span><span class="pdet">Sigue '+esc(minus1(sig.hito))+', '+fDia(sig.plan)+' '+fCorta(sig.plan)+'</span>';
+      av='<div class="p2-av"><span class="p2-bar" aria-hidden="true">'+fs.map(f=>'<i class="'+
+        (f.estado==="a tiempo"?"ok":f.estado==="retrasado"?"late":f.estado==="abierto"?"abre":"")+'" title="'+
+        esc(f.hito+": plan "+fCorta(f.plan)+(f.real?", real "+fCorta(f.real):"")+(f.dif?", "+difTxt(f):""))+'"></i>').join("")+
+        '</span><span class="p2-n">'+hechos+' de '+fs.length+' pasos del calendario</span></div>';
     }
+    h+='<div class="prow2'+(p.nota?' otro':'')+'"><div class="p2-id">'+bandera(p.cod)+'<div class="p2-tx"><h3>'+esc(p.nombre)+'</h3>'+
+      (est?'<p class="p2-est">'+est+'</p>':'')+'</div></div>'+av;
     h+='<div class="mods">';
     if(!p.modulos.length) h+='<span class="note">'+esc(p.nota||"Próximamente")+'</span>';
     for(const m of p.modulos){
@@ -1847,6 +1933,7 @@ function pintaPortal(){
   $("pSalir").classList.toggle("hidden",!me);
   $("pConfig").classList.toggle("hidden",!isAdmin);
   $("pEntrar").classList.toggle("hidden",!!me);
+  $("calSec").classList.toggle("hidden",!me);
   document.querySelectorAll(".mod").forEach(b=>b.onclick=()=>irA(b.dataset.p,b.dataset.m));
   pintaCalendario();
 }
@@ -1964,7 +2051,7 @@ function calModelo(){
   const tarde=filas.filter(f=>f.estado==="retrasado"||f.estado==="abierto"), hoy=isoDe(new Date());
   const resumen = "Al "+fCorta(hoy)+": "+(tarde.length
     ? tarde.length+(tarde.length===1?" paso con retraso":" pasos con retraso")+": "+
-      tarde.map(f=>f.cod+" "+f.hito.toLowerCase()+" ("+(f.estado==="abierto"?"+"+f.dif+" d, abierto":"+"+f.dif+" d")+")").join(", ")+"."
+      tarde.map(f=>f.cod+" "+minus1(f.hito)+" ("+(f.estado==="abierto"?"+"+f.dif+" d, abierto":"+"+f.dif+" d")+")").join(", ")+"."
     : "ningún paso con retraso.");
   const fs=filas.map(f=>f.plan).filter(Boolean).sort();
   const plan="Fechas límite por país"+(fs.length?", del "+fCorta(fs[0])+" al "+fCorta(fs[fs.length-1]):"")+
@@ -2048,7 +2135,7 @@ const CALC={t:"#1D232B",t2:"#5B6470",b:"#D0D5DB",b2:"#E6E9ED",s2:"#ECEEF1",ac:"#
 async function calImagenSimple(){
   const M=calModelo(); if(!M.pasos.length) return;
   try{ await document.fonts.ready; }catch(e){}
-  const F="'IBM Plex Sans','Segoe UI',Arial,sans-serif", S=2, P=32, c0=290, cR=M.colResp?175:0, cE=M.colRec?165:0, cw=200;
+  const F="system-ui,'Segoe UI',Arial,sans-serif", S=2, P=32, c0=290, cR=M.colResp?175:0, cE=M.colRec?165:0, cw=200;
   const W=Math.max(1100, 2*P+c0+cR+cE+M.paises.length*cw), cwr=(W-2*P-c0-cR-cE)/M.paises.length;
   const cv=document.createElement("canvas"), x=cv.getContext("2d");
   const fnt=(w,s)=>{ x.font=w+" "+s+"px "+F; };
@@ -2232,6 +2319,7 @@ $("calPlant").onclick=()=>{
 /* ---------- proceso de cuotas (JSON de Claude Code) y calendario dinámico ---------- */
 let PROC=null, calTab="res", calFP="todos", calFC="todos";
 const FASES=[["prop","Propuesta"],["aj","Ajustes de los equipos"],["car","Cargas a sistemas"],["com","Comunicación"]];
+const minus1=s=>{ s=String(s??""); return /^[A-ZÁÉÍÓÚÑ]{2}/.test(s) ? s : s.charAt(0).toLowerCase()+s.slice(1); };
 const nrm=s=>String(s??"").trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
 const hayProc=()=>!!(PROC && Array.isArray(PROC.paises) && PROC.paises.length);
 /* fase de cada paso: la del JSON si la trae; si no, por su nombre */
@@ -2270,7 +2358,7 @@ function c2Sub(){
     const t=ps.filter(p=>p.m&&(p.m.estado==="retrasado"||p.m.estado==="abierto"));
     if(!t.length) return {pre:"Al "+fCorta(hoy)+": ", b:"ningún paso con retraso", post:".", ok:true};
     return {pre:"Al "+fCorta(hoy)+": ", b:t.length+(t.length===1?" paso con retraso":" pasos con retraso"),
-      post:": "+t.map(p=>(calTab==="res"?p.cod+" ":"")+p.nombre.toLowerCase()+" ("+(p.m.estado==="abierto"?"+"+p.m.dif+" d, abierto":"+"+p.m.dif+" d")+")").join(", ")+"."};
+      post:": "+t.map(p=>(calTab==="res"?p.cod+" ":"")+minus1(p.nombre)+" ("+(p.m.estado==="abierto"?"+"+p.m.dif+" d, abierto":"+"+p.m.dif+" d")+")").join(", ")+"."};
   }
   return {pre: calTab==="res"
     ? "Del "+fCorta(fs[0])+" al "+fCorta(fs[fs.length-1])+". Elige un país para ver cada paso, quién lo hace y cómo se construye la cuota."
@@ -2308,10 +2396,11 @@ function pasoHTML(p,seg){
   const fecha=plan ? '<small>'+fDia(plan)+'</small><b>'+fCorta(plan)+'</b>' : '<small>&nbsp;</small><b class="sinf">Sin fecha</b>';
   let der="";
   if(seg && plan){ const e=estadoInfo(m); der='<span class="est '+e[0]+'">'+e[1]+'</span>'+(e[2]?'<small>'+e[2]+'</small>':''); }
-  else if(m && m.persona) der=esc(m.persona);
+
   const tags=[...(p.aplica_a||[]).map(x=>x==="SI"?"Sell in":x==="SO"?"Sell out":x),...(p.canal||[])].map(t=>'<span class="tag">'+esc(t)+'</span>').join("");
   let s='<details class="c2p"><summary><span class="c2-f">'+fecha+'</span><span><span class="c2-n">'+esc(p.orden)+'. '+esc(p.nombre)+'</span>'+
-    '<span class="c2-q">'+esc(p.responsable||"")+(p.entrega_a?', entrega a '+esc(p.entrega_a):'')+'</span><span class="c2-tags">'+tags+'</span></span>'+
+    '<span class="c2-q">'+esc(p.responsable||"")+(p.entrega_a?', entrega a '+esc(p.entrega_a):'')+'</span>'+
+    (m&&m.persona?'<span class="c2-q c2-per">Este mes: '+esc(m.persona)+'</span>':'')+'<span class="c2-tags">'+tags+'</span></span>'+
     '<span class="c2-st">'+der+'</span><span class="c2-chev" aria-hidden="true"></span></summary><div class="c2-det"><div>';
   if(p.resumen) s+='<h4>Qué pasa</h4><p>'+esc(p.resumen)+'</p>';
   if(p.detalle && p.detalle.length) s+='<h4>Cómo se construye</h4><ol>'+p.detalle.map(d=>'<li><b>'+esc(d.nombre)+'.</b> '+esc(d.explicacion)+'</li>').join("")+'</ol>';
@@ -2379,9 +2468,9 @@ function pintaCal2(){
     ds.forEach(d=>d.addEventListener("toggle",upd)); }
 }
 function pintaCalendario(){
-  if(hayProc()) return pintaCal2();
-  $("calTabs").classList.add("hidden"); $("cal2").classList.add("hidden");
-  return pintaCalendarioSimple();
+  if(hayProc()) pintaCal2();
+  else { $("calTabs").classList.add("hidden"); $("cal2").classList.add("hidden"); pintaCalendarioSimple(); }
+  $("calVistaBox").classList.toggle("hidden",$("calBtns").classList.contains("hidden"));
 }
 
 /* ----- imagen y tabla para correo de la vista que se está mirando ----- */
@@ -2409,7 +2498,7 @@ function c2Tabla(){
 }
 async function tablaPNG(T){
   try{ await document.fonts.ready; }catch(e){}
-  const F="'IBM Plex Sans','Segoe UI',Arial,sans-serif", S=2, P=32;
+  const F="system-ui,'Segoe UI',Arial,sans-serif", S=2, P=32;
   const W0=T.cols.reduce((a,c)=>a+c.w,0), W=Math.max(1000,2*P+W0), cw=T.cols.map(c=>c.w*(W-2*P)/W0);
   const cv=document.createElement("canvas"), x=cv.getContext("2d");
   const fnt=(w,s)=>{ x.font=(w||400)+" "+(s||14)+"px "+F; }, lh=s=>Math.round((s||14)*1.45);
