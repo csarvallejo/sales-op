@@ -12,7 +12,7 @@
   --fill:#E8E8ED; --fill-h:#DEDEE4;
   --border:rgba(0,0,0,.10); --border-2:rgba(0,0,0,.06);
   --text:#1D1D1F; --text-2:#6E6E73;
-  --accent:#4F2170; --accent-bg:rgba(79,33,112,.08); --ring:rgba(79,33,112,.18);
+  --accent:#4F2170; --accent-bg:rgba(79,33,112,.08); --accent-bg-s:#F1EDF4; --ring:rgba(79,33,112,.18);
   --let-bg:#F6F9FD; --let-hd:#EBF1FA;
   --may-bg:#FDFAF4; --may-hd:#F7EEDD;
   --ok:#1E7B34;   --ok-bg:#E4F4E8;
@@ -132,9 +132,9 @@ tfoot .iv{font-weight:600}
 .val th{position:static}
 .val td.d{min-width:92px}
 .val tr.bad td.d{background:var(--late-bg);color:var(--late);font-weight:600}
-#resumen table,#siResumen table,#refTbl table{width:auto;min-width:520px}
-#resumen th,#siResumen th,#refTbl th{position:static}
-#resumen,#siResumen{max-width:100%;overflow-x:auto}
+#resumen table,#siResumen table,#siRegion table,#refTbl table{width:auto;min-width:520px}
+#resumen th,#siResumen th,#siRegion th,#refTbl th{position:static}
+#resumen,#siResumen,#siRegion{max-width:100%;overflow-x:auto}
 #refTbl{border:1px solid var(--border-2);border-radius:10px;max-width:100%;overflow-x:auto;display:inline-block}
 #refTbl table{min-width:820px}
 #refTbl td.rc{padding:8px 12px;border-left:1px solid var(--border-2)}
@@ -189,7 +189,7 @@ tfoot .iv{font-weight:600}
 .modal p{margin:0;font-size:.875rem;color:var(--text-2);line-height:1.5}
 .modal .mBtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}
 td.sub,th.sub{border-left:1px solid var(--border)}
-td.edit{background:var(--accent-bg)} th.edit{background:var(--accent-bg);color:var(--accent)}
+td.edit{background:var(--accent-bg-s)} th.edit{background:var(--accent-bg-s);color:var(--accent)}
 td.up{color:var(--ok);font-weight:600} td.down{color:var(--late);font-weight:600}
 input.c.wide{width:130px}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;
@@ -478,7 +478,7 @@ details.ayuda[open]>summary{margin-bottom:6px}
 /* referencia regional: solo resaltan las excepciones */
 #refTbl td.rc.cuadra b{color:var(--text-2);font-weight:500}
 /* tablas de resumen: la tarjeta abraza la tabla */
-#resSec,#siResSec{max-width:60rem}
+#resSec,#siResSec,#siRegSec{max-width:60rem}
 /* configuración: la apertura de emergencia no invita a usarse */
 #emgOn{background:var(--fill);color:var(--text)}
 #emgOn:hover:not(:disabled){background:var(--fill-h)}
@@ -646,6 +646,15 @@ details.ayuda[open]>summary{margin-bottom:6px}
     <button class="ghost small" id="expSIRes" style="margin-left:auto">Exportar a Excel</button>
   </div>
   <div class="bd"><div id="siResumen"></div></div>
+</section>
+
+<section id="siRegSec" class="hidden">
+  <div class="sh">
+    <h2>Sell in por región</h2>
+    <span class="note">Total en soles, abierto por categoría.</span>
+    <button class="ghost small" id="expSIReg" style="margin-left:auto">Exportar a Excel</button>
+  </div>
+  <div class="bd"><div id="siRegion"></div></div>
 </section>
 
 <div class="toast hidden" id="toast"></div>
@@ -1138,7 +1147,7 @@ function fillRegiones(){
 function draw(){
   if(level==="si"){ drawSI(); return; }
   if(!base){
-    ["refSec","resSec","siResSec"].forEach(x=>$(x).classList.add("hidden"));
+    ["refSec","resSec","siResSec","siRegSec"].forEach(x=>$(x).classList.add("hidden"));
     $("validador").parentElement.classList.add("hidden");
     ["kTons","kIV","kDif"].forEach(x=>$(x).textContent="–");
     $("grid").innerHTML = isAdmin
@@ -1147,7 +1156,7 @@ function draw(){
       : '<div class="vacio-cta"><p>Todavía no hay una base de sell out publicada. Avisa a Sales Operations.</p></div>';
     $("filtroInfo").textContent=""; pintaVentana(); return;
   }
-  $("siResSec").classList.add("hidden");
+  $("siResSec").classList.add("hidden"); $("siRegSec").classList.add("hidden");
   $("validador").parentElement.classList.remove("hidden");
   $("kTonsL").textContent="TONS ingresadas"; $("kIVL").textContent="Valorizado S/";
   $("kDifL").textContent="Diferencia vs IBP";
@@ -1424,7 +1433,7 @@ function drawSI(){
     $("grid").innerHTML = isAdmin
       ? '<div class="vacio-cta"><p>Todavía no hay una propuesta de sell in publicada.</p><button data-cfg="admSI">Publicar propuesta de sell in</button></div>'
       : '<div class="vacio-cta"><p>Todavía no hay una propuesta de sell in publicada. Avisa a Sales Operations.</p></div>';
-    $("siResSec").classList.add("hidden");
+    $("siResSec").classList.add("hidden"); $("siRegSec").classList.add("hidden");
     ["kTons","kIV","kDif"].forEach(x=>$(x).textContent="–"); pintaVentana(); return;
   }
   const editable=puedeEditar(), dis=editable?"":" disabled", cats=siBase.cats;
@@ -1467,6 +1476,19 @@ function drawSI(){
   q+='</tbody><tfoot><tr><td class="k" colspan="2">Total</td>';
   cats.forEach(c=>q+='<td>'+f0(tq[c])+'</td>'); q+='<td>'+f0(tt)+'</td></tr></tfoot></table>';
   $("siResumen").innerHTML=q; $("siResSec").classList.remove("hidden");
+
+  /* resumen por región, de todo el país */
+  const rr=porRegionSI(todas, cats);
+  let g='<table><thead><tr><th class="k">Región</th>';
+  cats.forEach(c=>g+='<th>'+esc(c)+'</th>'); g+='<th>Total S/</th></tr></thead><tbody>';
+  const tg={}; cats.forEach(c=>tg[c]=0); let tr=0;
+  for(const o of rr){ tr+=o.t;
+    g+='<tr><td class="k">'+esc(o.rg)+'</td>';
+    cats.forEach(c=>{ g+='<td>'+f0(o[c])+'</td>'; tg[c]+=o[c]; });
+    g+='<td>'+f0(o.t)+'</td></tr>'; }
+  g+='</tbody><tfoot><tr><td class="k">Total</td>';
+  cats.forEach(c=>g+='<td>'+f0(tg[c])+'</td>'); g+='<td>'+f0(tr)+'</td></tr></tfoot></table>';
+  $("siRegion").innerHTML=g; $("siRegSec").classList.remove("hidden");
 
   $("kTons").textContent=fK(ga); $("kIV").textContent=String(todas.length);
   const sm=todas.filter(r=>r.sinMix).length;
@@ -1618,6 +1640,19 @@ $("expSIRes").onclick=()=>{
     const o=res.get(k); o.t+=r.aj; cats.forEach(c=>o[c]+=r.ajc[c]); }
   csvDump("sell_in_subcanal_region.csv",["SUBCANAL","REGION",...cats,"TOTAL S/"],
     [...res.values()].map(o=>[o.sc,o.rg,...cats.map(c=>o[c].toFixed(2)),o.t.toFixed(2)]));
+};
+function porRegionSI(rows, cats){
+  const m=new Map();
+  for(const r of rows){
+    if(!m.has(r.rg)){ const o={rg:r.rg,t:0}; cats.forEach(c=>o[c]=0); m.set(r.rg,o); }
+    const o=m.get(r.rg); o.t+=r.aj; cats.forEach(c=>o[c]+=r.ajc[c]); }
+  return [...m.values()];
+}
+$("expSIReg").onclick=()=>{
+  if(!siBase) return;
+  const cats=siBase.cats;
+  csvDump("sell_in_region.csv",["REGION",...cats,"TOTAL S/"],
+    porRegionSI(filasSI(),cats).map(o=>[o.rg,...cats.map(c=>o[c].toFixed(2)),o.t.toFixed(2)]));
 };
 $("expRef").onclick=exportRef;
 $("expRes").onclick=exportResumen;
